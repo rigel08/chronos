@@ -65,7 +65,23 @@ CREATE TABLE source (                                                     -- [P1
   doi         text,
   license_id  text NOT NULL REFERENCES license (id),
   citation    text NOT NULL,                    -- attribution string as rendered in the UI
+  -- D-010: 'research_only' sources never reach the public app, public exports or
+  -- commercial features. Only an explicit permission row (below) or a suitable
+  -- licence can move a source to 'public'. The pipeline enforces this (QA-012).
+  access_tier text NOT NULL DEFAULT 'research_only' CHECK (access_tier IN ('public', 'research_only')),
   notes       text
+);
+
+-- Explicit permission obtained from a rights holder (for example, written consent to
+-- use an NC dataset in the public app). Without a row here, NC sources stay research-only.
+CREATE TABLE source_permission (                                          -- [P1]
+  id            bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  source_id     text NOT NULL REFERENCES source (id),
+  granted_by    text NOT NULL,
+  scope         text NOT NULL,                  -- what exactly is permitted
+  document_ref  text NOT NULL,                  -- where the written permission is archived
+  granted_on    date NOT NULL,
+  expires_on    date
 );
 
 CREATE TABLE source_release (                                             -- [P1]
@@ -110,7 +126,8 @@ CREATE TABLE polity (                                                     -- [P1
   name             text NOT NULL,               -- default English display name
   kind_id          text REFERENCES polity_kind (id),
   lineage_id       text REFERENCES lineage (id),
-  wikidata_qid     text,                        -- not unique: phases can share a QID
+  wikidata_qid     text,                        -- VERIFIED identity only (D-011); source-asserted
+                                                -- links live in external_id. Not unique: phases can share one.
   seshat_id        text,
   summary          text,
   -- lifespan (fuzzy span)
@@ -135,6 +152,22 @@ CREATE TABLE polity (                                                     -- [P1
 );
 CREATE INDEX polity_span_gix ON polity USING gist (span);
 CREATE INDEX polity_name_trgm ON polity USING gin (name gin_trgm_ops);
+
+-- Identifiers in other systems, as asserted by a source and as verified by CHRONOS.
+-- Validation 0001 found Cliopatria's Wikidata column is a topical link, not an identity
+-- key (e.g. "Han Dynasty" -> Q1068371 "Chauhan"), so assertions and verifications are kept apart.
+CREATE TABLE external_id (                                                -- [P1]
+  id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  polity_id    text NOT NULL REFERENCES polity (id) ON DELETE CASCADE,
+  scheme       text NOT NULL CHECK (scheme IN ('wikidata', 'seshat', 'pleiades', 'geonames', 'periodo')),
+  value        text NOT NULL,
+  status       text NOT NULL CHECK (status IN ('asserted', 'verified', 'rejected', 'corrected')),
+  asserted_by  text REFERENCES source (id),     -- who supplied the link
+  verified_on  date,
+  evidence     text,                            -- how it was checked
+  replaces_id  bigint REFERENCES external_id (id)
+);
+CREATE INDEX external_id_lookup ON external_id (scheme, value);
 
 CREATE TABLE polity_name (                                                -- [P1]
   id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -443,6 +476,26 @@ CREATE TABLE journey_step (                                               -- [P3
   narrative_id  bigint REFERENCES narrative (id),
   PRIMARY KEY (journey_id, ord)
 );
+
+-- =============================================================================
+-- Data quality: QA findings are data, kept and shown, never silently fixed
+-- =============================================================================
+
+CREATE TABLE qa_flag (                                                    -- [P1]
+  id            bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  rule_id       text NOT NULL,                  -- 'QA-006', see docs/validation/0001
+  severity      text NOT NULL CHECK (severity IN ('info', 'warning', 'error')),
+  subject_type  text NOT NULL CHECK (subject_type IN
+                  ('polity', 'territory', 'external_id', 'source_release', 'place', 'event')),
+  subject_id    text NOT NULL,
+  release_id    bigint REFERENCES source_release (id),
+  detail        jsonb NOT NULL,                 -- machine-readable evidence (distances, years, QIDs)
+  message       text NOT NULL,                  -- the sentence the UI shows
+  status        text NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'confirmed', 'resolved', 'wont_fix')),
+  resolution    text,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX qa_flag_subject_ix ON qa_flag (subject_type, subject_id);
 
 -- =============================================================================
 -- Query helpers

@@ -60,11 +60,77 @@ Short ADR-style records. Status values: **proposed** (awaiting approval), **acce
 **Consequence:** honest motion. It is less "smooth" than a morph, and more informative.
 
 ### D-007: License gate at build time
-**Status:** proposed.
+**Status:** accepted 2026-11-11, revised by D-010.
 
-**Decision:** no source enters a build without a `license` row. There are two profiles: `open` and `commercial` (which excludes NC and unknown licenses). Attributions and the credits page are generated from the registry.
+**Decision:** no source enters any build without a `license` row and an `access_tier`. There are two build profiles:
+
+- **`public`:** the app, public exports and anything distributed. Only `access_tier = 'public'` sources.
+- **`research`:** local analysis only, never published.
+
+Attributions and the credits page are generated from the registry. QA-012 fails the build if a research-only source reaches a public artifact.
 
 ### D-008: Monorepo with pnpm (web) and uv (Python) workspaces
 **Status:** proposed.
 
 **Decision:** the monorepo holds `apps/web`, `services/api`, `pipeline`, `db` and `docs`. Data artifacts are gitignored and reproducible from `data/manifest.lock.json`.
+
+### D-009: PostGIS runs in a dedicated, digest-pinned Docker container
+**Status:** accepted 2026-11-11.
+
+**Decision:**
+- Image: `postgis/postgis:17-3.6`, pinned by digest.
+- Bound to `127.0.0.1:5433`, with data in a named volume.
+- The existing Homebrew PostgreSQL 15 is never touched.
+- Configuration is prepared in `infra/postgis/`. Docker installation and the first start wait for milestone 1.2.
+
+**Consequence:** the official image is amd64-only, so it runs under Rosetta on Apple silicon. A native arm64 fallback (official `postgres:17` + the PGDG PostGIS package, both pinned) is documented if performance requires it.
+
+### D-010: Non-commercial datasets are research-only
+**Status:** accepted 2026-11-11.
+
+**Decision:**
+- NC-licensed datasets (Seshat Equinox, CShapes 2.0, Smithsonian GVP, NC-licensed WHG datasets) and datasets of unknown license default to `access_tier = 'research_only'`.
+- They never appear in the public application, production database exports or commercially distributed features.
+- The only exceptions are a recorded `source_permission` or a suitable alternative license.
+
+**Consequence:** the public app needs commercial-safe substitutes. For example, NOAA NCEI replaces GVP for eruptions, once its license is verified.
+
+### D-011: Polity identity is CHRONOS's own; source cross-references are hints
+**Status:** accepted 2026-11-11 (from validation 0001).
+
+**Decision:** polities get CHRONOS ids. A Cliopatria name, or the QID it supplies, is never treated as identity.
+
+- Rows with the same name are split into separate polities at unexplained gaps (QA-006).
+- Source-supplied QIDs are stored as `external_id` rows with `status = 'asserted'`.
+- Only verified QIDs populate `polity.wikidata_qid`.
+- Corrections are editorial rows. Cliopatria's data is never edited.
+
+**Consequence:** one more table, plus a review queue. This prevents errors like Han Dynasty → "Chauhan", or medieval rows inheriting the modern Kingdom of Italy.
+
+### D-012: Three area measures, and no claim of "control"
+**Status:** accepted 2026-11-11.
+
+**Decision:** every area figure names its measure:
+
+- **combined polygon area:** sum per polity; overlaps counted per claimant;
+- **unique mapped area:** area of the union;
+- **unique mapped land area:** union ∩ land, ice-free.
+
+Wording is always "mapped" / "in Cliopatria". It is never "controlled" or "ruled", because the source records an atlas interpretation, not verified control. Every aggregate carries a coverage statement (e.g. "polities mapped over 15.7% of ice-free land").
+
+### D-013: Every visualization is traceable
+**Status:** accepted 2026-11-11.
+
+**Decision:** each built artifact (tiles, JSON indices, charts) ships a `trace.json` with:
+- source release ids and sha256;
+- licences and access tiers;
+- the method id and script version;
+- parameters;
+- QA rule results.
+
+Each number in the UI links to its trace entry ("How is this calculated?"). A visualization without a trace entry fails review.
+
+### D-014: Local Git with branches and reviewed merges
+**Status:** accepted 2026-11-11.
+
+**Decision:** the repository stays local for now. `main` holds reviewed work only. Each milestone is developed on its own branch in small, descriptive commits and merged after review. A private GitHub repository will be created after the foundation is reviewed.

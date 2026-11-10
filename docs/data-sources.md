@@ -1,5 +1,7 @@
 # CHRONOS: Historical Data Sources
 
+> **Access policy (D-010):** every source carries an `access_tier`. Non-commercial and unknown-licence sources are **research only**. They never appear in the public application, production exports or commercially distributed features unless explicit permission (`source_permission`) or a suitable licence is obtained.
+>
 > Researched 2026-11-11. **✓ verified** means the license was read at the primary source (the repo LICENSE file or the official dataset page) during this research. **⚠ to verify** means it was not confirmed and must be checked before ingest. Nothing enters a build without a `license` row (see [data-model.md](data-model.md)).
 
 ## Tier 1: Phase 1 spine (all commercially reusable)
@@ -21,11 +23,11 @@
 | **Itiner-e** (*Scientific Data* 2025, doi:10.1038/s41597-025-06140-z; Zenodo 17122148) | Roman road network, 299,171 km | Roman Empire | CC BY 4.0 ✓ | Yes | Only **2.7%** of roads have precisely known locations, an ideal showcase for drawing uncertainty |
 | **Maddison Project Database 2023** (Bolt & van Zanden) | GDP per capita and population | 169 countries; sparse from 1 CE, dense after 1820 | CC BY 4.0 ✓ | Yes | Economic layer. Ranges only; no GDP totals invented |
 | **OpenHistoricalMap** | Time-tagged features, detailed in places | Uneven | CC0 default since 3 Aug 2022 ✓; *per-feature `license=*` tags override it* | Mostly | High-detail regional borders, cities, roads. The per-feature license must be honoured |
-| **World Historical Gazetteer** | An aggregator of historical place datasets | Global | Per dataset. Public datasets are CC BY 4.0; the platform default reads as NC ⚠ | Per dataset | Ingest dataset by dataset, never in bulk |
+| **World Historical Gazetteer** | An aggregator of historical place datasets | Global | Per dataset. Public datasets are CC BY 4.0; the platform default reads as NC ⚠ | Per dataset | Ingest dataset by dataset, never in bulk; NC datasets are research only |
 | **Glottolog** | Languages and families | Global | CC BY 4.0 ✓ (per its maintainers' publications) | Yes | **Point locations only**, not areas. We must not draw language "territories" from it |
 | **HYDE 3.3 / 3.4** (Utrecht / PBL) | Gridded population and land use | 10,000 BCE–2023 CE | ⚠ to verify (3.4 supersedes 3.3) | ⚠ | `modeled` evidence; a demographic heatmap, always labelled as a model |
 | **Historical Urban Population 3700 BC–AD 2000** (Reba, Reitsma & Seto 2016; SEDAC doi:10.7927/H4ZG6QBX) | City population series, 1,599 geolocated cities, digitized from Chandler and Modelski | Global, gappy | ⚠ to verify | ⚠ | City growth layer; carries a reliability rank per record |
-| **Smithsonian GVP: Volcanoes of the World v5.3.x** | Holocene volcanoes and eruptions | Global | Smithsonian Terms of Use: non-commercial without permission ⚠ | **No** (without permission) | Environmental layer for the open build only; seek permission for commercial use |
+| **Smithsonian GVP: Volcanoes of the World v5.3.x** | Holocene volcanoes and eruptions | Global | Smithsonian Terms of Use: non-commercial without permission ⚠ | **No** (without permission) | **Research only** (D-010). The public app uses NOAA NCEI instead, once its licence is verified, unless the Smithsonian grants permission |
 | **NOAA NCEI hazard databases** | Significant earthquakes, tsunamis, eruptions | Global | US government, likely public domain ⚠ to verify | Expected yes | Commercial-safe alternative to GVP for major eruptions |
 
 ## Tier 3: Use with care (license or quality constraints)
@@ -33,8 +35,8 @@
 | Source | Why it's attractive | Constraint | Plan |
 |---|---|---|---|
 | **aourednik/historical-basemaps** | About 50 world snapshots, including deep prehistory; widely used | **GPL-3.0 ✓**: copyleft applied to data is legally murky. The author also warns about accuracy | QA cross-check only; not shipped |
-| **CShapes 2.0** (ETH Zürich) | High-precision state borders, 1886–2019 | **Non-commercial.** Records disagree on the version and on share-alike (CC BY-NC 4.0 vs BY-NC-SA 4.0) ⚠ | Open build only, or license it from ETH for commercial use |
-| **Seshat Equinox-2020** | Coded variables: social complexity, military technology, religion | **CC BY-NC-SA ✓** (official download page). Its GitHub mirror's LICENSE conflicts | Open build only. It is the best candidate for honest "military capability" comparisons |
+| **CShapes 2.0** (ETH Zürich) | High-precision state borders, 1886–2019 | **Non-commercial.** Records disagree on the version and on share-alike (CC BY-NC 4.0 vs BY-NC-SA 4.0) ⚠ | **Research only** (D-010) unless ETH grants a licence |
+| **Seshat Equinox-2020** | Coded variables: social complexity, military technology, religion | **CC BY-NC-SA ✓** (official download page). Its GitHub mirror's LICENSE conflicts | **Research only** (D-010). It is the best candidate for honest "military capability" comparisons if permission is obtained |
 | **DARMC**, **ORBIS** (Roman network model) | Roman/medieval infrastructure; travel-cost model | ⚠ to verify | Phase 3 research |
 | **GeaCron**, **Euratlas** | Annual / centennial commercial border atlases | Commercial license | Candidates if we need higher-fidelity borders for commercial use |
 | **Chronas** (open-source project) | Prior art: a Wikipedia-driven historical globe | ⚠ to verify | Study the UX and data approach; don't copy the data |

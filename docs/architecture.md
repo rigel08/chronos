@@ -131,7 +131,16 @@ The `build` stage produces:
 - `attributions.json`, generated from the license registry, plus an automatic credits page.
 - A QA report: coverage by region × century and records per millennium.
 
-**License gate:** two build profiles. `open` includes every source we may legally use for a non-commercial public site. `commercial` excludes NC, unknown and share-alike-incompatible sources. A source can't enter a build without a `license` row.
+**Licence gate (D-007, D-010):** two build profiles.
+
+- **`public`** feeds the app, exports and anything distributed. It accepts only sources with `access_tier = 'public'`.
+- **`research`** is local analysis only.
+
+Non-commercial and unknown-licence sources are `research_only` unless a `source_permission` row exists. QA-012 fails the build if a research-only source reaches a public artifact.
+
+**Traceability (D-013):** every build artifact ships a `trace.json` listing source releases with sha256, licences and access tiers, method ids with script versions, parameters, and QA results. Every number in the UI resolves to a trace entry; the "How is this calculated?" affordance opens it.
+
+**Independent datasets:** each new source is an adapter plus registry rows (`license`, `source`, `source_release`). Its territories, events and estimates sit beside Cliopatria's as separate claim rows with their own provenance. Nothing is merged into another source's rows, so every dataset keeps its own licence and can be switched off, or dropped from the public profile, independently.
 
 **Reproducibility:** `data/manifest.lock.json` pins every source version and checksum. Each build is stamped with a release id that the UI shows in its credits.
 

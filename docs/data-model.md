@@ -96,4 +96,28 @@ The facts below were observed in **v0.2.1** (sha256 `e10a4e42…cd4eed4`, retrie
 2. **Coarse polygons cause point near-misses.** At Rome's coordinates, the Roman Kingdom polygon misses by under 5 km. The core-sample query uses a small tolerance and flags such hits as "near" instead of "exact".
 3. **Gaps are real.** At Rome, no row covers 476–499 (Odoacer's kingdom isn't mapped there) or 1944. The UI shows gaps as *unmapped*, never as continuity.
 4. **Overlaps are real.** At Rome, the Byzantine Empire (633–767) and the Papal States (755–1798) overlap from 755 to 767. Overlap is shown side by side.
-5. **QIDs aren't unique identifiers.** The 1799 "Revolutionary Roman Republic" carries `Q175881`, the same QID as the ancient Roman Republic. QA rule: a QID shared by non-contiguous polities raises a warning.
+5. **The Wikidata column is a topical link, not identity** (validation 0001 §3). *Correction:* `Q175881` is Wikidata's 1798–1799 Roman Republic. The **ancient** Roman Republic rows are mislinked; the revolutionary row is right. Other examples: Roman Empire → Q12544 (Byzantine Empire), Han Dynasty → Q1068371 ("Chauhan"). 299 of 1,545 name–QID pairs fail automatic checks, and that count is a lower bound. Handling: D-011, the `external_id` table and [`crosswalk_overrides.csv`](../research/phase0/crosswalk_overrides.csv).
+6. **Shared names are not shared identity.** "Later Zhou" spans 750–257 BCE *and* 960 CE. "Kingdom of Italy" covers 587–774, 887–969 and 1862–1946. Both carry a single QID throughout. Rows are split into separate polities at unexplained gaps (QA-006).
+7. **Subordination and disputes are not encoded for 117 CE.** No grouping or allegiance rows are active and there are no `MemberOf` links. Overlaps total 207 km² (edge slivers). Client states appear as separate, unlinked polygons.
+8. **Stray geometry exists.** The Kingdom of Soissons row for 476–479 has a part reaching the Adriatic (QA-009).
+9. **Coverage is partial.** In 117 CE, polities are mapped over 15.7% of ice-free land.
+
+## Derived measures (D-012)
+
+Every area shown names one of these. None of them is called "controlled".
+
+| Measure | Definition | Notes |
+|---|---|---|
+| **Combined polygon area** | Σ area of each polity's own polygon in the year | Overlaps are counted once per claimant. This is what a stacked chart shows. |
+| **Unique mapped area** | Area of the union of all polygons alive in the year | Each km² counted once |
+| **Unique mapped land area** | Union ∩ Natural Earth 10m land, north of 60° S | Removes coastline mismatch and water |
+| **Coverage share** | Unique mapped land ÷ ice-free land | Printed next to every aggregate |
+| **Overlap area** (per pair) | Area(A ∩ B) | Classed as *linked* (a sourced relation exists), *sliver* (< 1,000 km² or < 1% of the smaller polity) or *unlinked* |
+
+All areas use EPSG:6933. Each value is stored with `evidence = 'derived'` and a trace entry (D-013).
+
+## Licence tiers and identity (Phase 1 additions to the schema)
+
+- **`source.access_tier`** (`public` | `research_only`, default `research_only`) plus **`source_permission`** implement D-010.
+- **`external_id`** separates identifiers a source *asserts* from those CHRONOS has *verified*, *rejected* or *corrected* (D-011).
+- **`qa_flag`** stores every QA finding as data, with a UI message, so missing data and uncertainty are shown and never silently fixed.
