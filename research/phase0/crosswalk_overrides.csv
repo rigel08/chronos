@@ -1,0 +1,10 @@
+cliopatria_name,cliopatria_qid,cliopatria_qid_is,proposed_qid,proposed_label,scope,status,verified_on,evidence
+Roman Empire,Q12544,Byzantine Empire (395-1453),Q2277,Roman Empire,all rows with this name,verified,2026-11-11,Wikidata label and description via WDQS; Q12544 is dated 395-1453 and the Cliopatria polity ends 394
+Roman Republic,Q175881,Roman Republic of 1798-1799,Q17167,Roman Republic (509-27 BC),rows before 1 CE,verified,2026-11-11,Wikidata label and description via WDQS; Q175881 is described as the 1798-1799 republic
+Byzantine Empire,Q112039853,Foreign relations of the Byzantine Empire,Q12544,Byzantine Empire,all rows with this name,verified,2026-11-11,Wikidata label and description via WDQS; Q112039853 is not a polity item
+Han Dynasty,Q1068371,Chauhan (Rajput clan),Q7209,Han dynasty,all rows with this name,verified,2026-11-11,Wikidata label and description via WDQS
+Sasanian Empire,Q1661685,Indo-Sassanids,Q83891,Sasanian Empire,all rows with this name,verified,2026-11-11,Wikidata label and description via WDQS
+Later Zhou,Q1154556,Later Zhou dynasty (951-960),,,rows -750..-257,needs research,,Name collision: these rows predate the dynasty by about 1200 years; identity of the polity not yet established
+Kingdom of Italy,Q172579,Kingdom of Italy (1861-1946),,,rows 587..969,needs research,,Name collision: early medieval rows share the modern kingdom's QID
+Kingdom of Serbia,Q241748,Kingdom of Serbia (1882-1918),,,rows 1188..1351,needs research,,Name collision: medieval rows share the modern kingdom's QID
+Georgia,Q4962,Wikimedia disambiguation page,,,all rows with this name,needs research,,QID is a disambiguation page; rows span several distinct polities
