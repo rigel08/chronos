@@ -43,7 +43,7 @@
 
 These are digitisation edges, not claims.
 
-**The Roman 117–126 row deserves a flag.** It is the Roman Empire's largest mapped extent in the dataset (5,263,199 km²). Point tests show the polygon includes Ctesiphon, Babylon and Artaxata, meaning Mesopotamia and Armenia. The neighbouring rows do not: 114–116 includes Artaxata only, and 127–153 includes none of them. Standard accounts date Hadrian's withdrawal from these eastern provinces to 117–118. The row therefore likely holds that extent for about nine years longer than history supports. **Status:** flagged for review against a cited source before CHRONOS presents 117 CE as a "peak".
+**The Roman 117–126 row deserves a flag.** It is the Roman Empire's largest polygon area in the dataset (5,263,199 km²). Point tests show the polygon includes Ctesiphon, Babylon and Artaxata, meaning Mesopotamia and Armenia. The neighbouring rows do not: 114–116 includes Artaxata only, and 127–153 includes none of them. Standard accounts date Hadrian's withdrawal from these eastern provinces to 117–118. The row therefore likely holds that extent for about nine years longer than history supports. **Status:** flagged for review against a cited source before CHRONOS presents 117 CE as a "peak".
 
 ## 2. Time stream, 500 BCE–700 CE
 

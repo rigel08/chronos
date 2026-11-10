@@ -62,19 +62,19 @@
 
 ## Phase 2: "Who, Where, What"
 
-- **Polity profiles:** the full lineage trajectory, rulers (Wikidata, verified), capitals (Pleiades/Wikidata), predecessors/successors, mapped extent over time.
+- **Polity profiles:** the full lineage trajectory, rulers (Wikidata, verified), capitals (Pleiades/Wikidata), predecessors/successors, polygon area over time (a named measure, D-012).
 - **Event system:** battles, sieges, treaties and foundings with fuzzy dates and locations. Each event carries the "seven questions" narrative format at three reading levels.
 - **Cities & places layer** (Pleiades, Reba et al. urban populations once the license is verified).
 - **Layer panel:** political, military and urban first, all built on the LayerRegistry.
 - ✦ **Contemporaries lens:** pin a polity; everything that didn't coexist with it dims; overlap bars show who shared its centuries.
-- ✦ **Time Stream:** a regional stream of mapped extent beneath the timeline that recomposes as you rotate the globe.
+- ✦ **Time Stream:** a regional stream of combined polygon area, with the unique-area envelope, beneath the timeline that recomposes as you rotate the globe.
 - ✦ **Evidence density layer:** where the historical record is thick, and where it's thin.
 - Regional views (saved camera + region presets) and multilingual search.
 
 ## Phase 3: "Compare & Connect"
 
 - Compare two dates (a swipe divider across the globe) and compare two polities (trajectories aligned by founding year).
-- **Dominance analytics on honest variables only:** mapped extent (derived) and sourced population ranges. Overlapping ranges show as ties.
+- **Dominance analytics on honest variables only:** unique mapped land area and polygon area (derived, D-012) and sourced population ranges. Overlapping ranges show as ties.
 - Movement layers: Itiner-e Roman roads, trade routes, voyages and campaigns as `LineStringM` paths that animate at their attested pace, and migration flows.
 - **Journeys:** the storytelling engine (camera + time + layers + narrative), starting with the eight journeys named in the brief.
 - ✦ **Paleo-coastlines:** sea level over deep time (Doggerland, Beringia, Sundaland) from bathymetry and a published sea-level curve. Prehistory needs its own visual grammar, since there are no polities to draw.

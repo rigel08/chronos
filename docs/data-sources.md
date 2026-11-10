@@ -63,7 +63,7 @@ class SourceAdapter(Protocol):
 
 - `data/manifest.lock.json` pins `{source, version, url, sha256, license}` for every input. Builds are reproducible from it.
 - Raw downloads are treated as untrusted data. They are unpacked into their own directories and parsed with `pyogrio`/GeoPandas, never executed.
-- The **license gate** produces `open` and `commercial` build profiles, and generates `attributions.json` plus the in-app credits page from the `license`/`source` tables.
+- The **licence gate** (D-007, D-010) produces `public` and `research` build profiles. QA-012 fails a public build that contains a research-only source. The gate also generates `attributions.json` plus the in-app credits page from the `license`/`source` tables.
 
 ## Sources consulted
 

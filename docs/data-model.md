@@ -1,6 +1,6 @@
 # CHRONOS: Data Model
 
-> Status: **draft v0.1**. The DDL lives in [`db/schema.sql`](../db/schema.sql). It was checked on 2026-11-11 by loading it into a scratch PostgreSQL 15 database with PostGIS types stubbed: 27 tables, constraints and helper functions behave as intended. A full PostGIS run happens once PostGIS is installed (see roadmap, open decisions).
+> Status: **draft v0.1**. The DDL lives in [`db/schema.sql`](../db/schema.sql). It was checked on 2026-11-11 by loading it into a scratch PostgreSQL 15 database with PostGIS types stubbed: 30 tables after the Phase 1 additions, constraints and helper functions behave as intended. A full PostGIS run happens once PostGIS is installed (see roadmap, open decisions).
 
 ## The idea in one sentence
 
@@ -24,7 +24,7 @@ Every fact table carries the same block:
 `evidence` is what lets the UI keep its promise to *"clearly distinguish measured data, historical estimates and qualitative interpretations"*. Examples:
 
 - An atlas-drawn border is `interpreted`.
-- A polygon's area computed by us is `derived`, and the UI labels it "mapped extent".
+- A polygon's area computed by us is `derived`, and the UI labels it with its measure name, for example "polygon area" (see "Derived measures").
 - A HYDE population grid is `modeled`.
 - A census figure is `measured`.
 

@@ -18,7 +18,7 @@
 The interface itself answers the brief's hardest questions:
 
 - **"Who ruled here?"** Click any point to drill a **core sample**: chronological strata of every polity whose territory covers that ground. Gaps are hatched (*unmapped*, never implied continuity), near-misses are dashed (*within ~5 km of a coarse polygon*), and overlaps split the column (*shared or contested*).
-- **"Who coexisted, and who was largest?"** The **time stream** under the timeline stacks *mapped extent* (derived from real polygons) for the polities in view. It recomposes as the globe rotates. It is labelled as mapped land, never as "power".
+- **"Who coexisted, and who was largest?"** The **time stream** under the timeline stacks *combined polygon area* (derived from real polygons) for the polities in view, with the *unique mapped area* drawn as a dashed envelope. It recomposes as the globe rotates. It is labelled as mapped land, never as "power".
 - **"Where is the record thin?"** The overview strip is a **record-density histogram** (polities mapped per 50 years), so the archive's gaps are visible before anyone draws conclusions.
 
 ## Strata design system (v0, to be built as Tailwind v4 `@theme` tokens)
@@ -65,7 +65,7 @@ Family assignment is an *editorial* layer stored on `lineage.color_family`, not 
 
 ## Integrity rules for every screen (from validation 0001)
 
-1. **Say "mapped", never "ruled" or "controlled".** Use "Mapped extent in Cliopatria" and "polities mapped". The data is one atlas's interpretation.
+1. **Say "mapped", never "ruled" or "controlled".** Use "polygon area in Cliopatria" and "polities mapped". The data is one atlas's interpretation.
 2. **Name the area measure.** Use *combined polygon area*, *unique mapped area* or *unique mapped land*. A stacked chart shows combined area, so it also draws the unique envelope.
 3. **State coverage beside every aggregate**, for example "Polities are mapped over 15.7% of ice-free land in 117 CE." Never write a sentence that implies the map is complete.
 4. **Keep the holes.** Gaps are hatched and labelled *unmapped*. Near-misses are dashed. Overlaps split. Missing relationships read "not recorded in this dataset".
@@ -74,4 +74,4 @@ Family assignment is an *editorial* layer stored on `lineage.color_family`, not 
 
 ### Component inventory (Phase 1)
 
-Globe stage · time scrubber (zoomable, with an overview density strip) · era bands · polity card (names, fuzzy dates, mapped extent, evidence chip, source + license chip) · core sample panel (with time lenses) · layer chips · search · tooltip · credits page.
+Globe stage · time scrubber (zoomable, with an overview density strip) · era bands · polity card (names, fuzzy dates, named area measure, evidence chip, source + license chip) · core sample panel (with time lenses) · layer chips · search · tooltip · credits page.
