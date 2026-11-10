@@ -1,0 +1,23 @@
+# CHRONOS
+
+An interactive atlas of human history: a globe you travel through in time. Real, sourced polity territories rise and fall from 3400 BCE to today. Click anywhere on Earth to see every power that held that ground.
+
+> **Status: Phase 0, planning.** No application code yet. The documents below are the proposal for review.
+
+| Document | What it covers |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | System design, rendering engine choice, time model, pipeline, testing |
+| [docs/data-model.md](docs/data-model.md) | Claim-based data model, fuzzy dates, Cliopatria mapping and findings |
+| [db/schema.sql](db/schema.sql) | Draft PostgreSQL/PostGIS schema (27 tables) |
+| [docs/data-sources.md](docs/data-sources.md) | Evaluated historical datasets, licenses, coverage gaps, ingestion design |
+| [docs/design-direction.md](docs/design-direction.md) | Three visual directions, the recommendation (Strata), design tokens |
+| [docs/roadmap.md](docs/roadmap.md) | Phases 1–5, the vertical slice, risks, open decisions |
+| [docs/decisions.md](docs/decisions.md) | Architecture decision log |
+
+## Planned stack
+
+React 19 · TypeScript · Vite · Tailwind CSS v4 · MapLibre GL JS + deck.gl (globe and time layers) · FastAPI · PostgreSQL + PostGIS · Python (GeoPandas, Shapely) · PMTiles.
+
+## Data
+
+The political spine is **Cliopatria** (Seshat Global History Databank, CC BY 4.0). Every source CHRONOS uses is listed with its license in [docs/data-sources.md](docs/data-sources.md), and attribution will be generated automatically into the app's credits page.

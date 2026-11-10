@@ -1,0 +1,7 @@
+data/raw/
+data/staged/
+data/build/
+node_modules/
+.venv/
+__pycache__/
+.DS_Store
