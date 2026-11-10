@@ -1,0 +1,1000 @@
+<title>CHRONOS Direction Studies</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* Layout: a long editorial scroll. Three full-width "frames", each a self-contained visual world rendering the same real moment (117 CE),
+   separated by quiet notes, ending in a comparison and a recommendation. Page chrome follows the viewer's theme; frames keep their own worlds. */
+:root {
+  --bg: #e8eaed;        /* cool bone-grey, biased toward the slate of the Strata ink */
+  --surface: #f4f5f7;
+  --ink: #15181d;
+  --muted: #59616c;
+  --rule: #cbd0d6;
+  --accent: #a8402a;    /* cinnabar, the Roman pigment in Strata */
+  --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0b0d10; --surface: #12151a; --ink: #e7e3da; --muted: #99a0a9; --rule: #262b32; --accent: #e0694d; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0b0d10; --surface: #12151a; --ink: #e7e3da; --muted: #99a0a9; --rule: #262b32; --accent: #e0694d; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 56px 96px; display: grid; gap: 88px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0; }
+
+/* intro */
+.intro { display: grid; gap: 22px; }
+.intro h1 { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 5.6vw, 68px); line-height: 1.02; letter-spacing: -0.018em; margin: 0; text-wrap: balance; max-width: 16ch; }
+.intro h1 em { font-style: italic; font-weight: 300; }
+.lede { font-size: 18px; line-height: 1.6; max-width: 64ch; margin: 0; }
+.real { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--rule); margin-top: 8px; }
+.real div { padding: 14px 18px 0 0; min-width: 0; }
+.real b { display: block; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.real .ill b { color: var(--muted); }
+.real span { font-size: 14px; color: var(--muted); }
+
+/* direction sections */
+.dir { display: grid; gap: 22px; }
+.dir-head { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 20px; row-gap: 6px; align-items: baseline; }
+.dir-letter { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .1em; }
+.dir h2 { font-family: var(--display); font-weight: 400; font-size: clamp(30px, 3.8vw, 44px); line-height: 1.05; margin: 0; letter-spacing: -0.01em; }
+.dir .thesis { grid-column: 2; margin: 0; max-width: 62ch; font-size: 17px; color: var(--muted); text-wrap: pretty; }
+.notes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 4px 0 0; }
+.notes > div { min-width: 0; border-top: 1px solid var(--rule); padding-top: 12px; }
+.notes dt { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.notes dd { margin: 6px 0 0; font-size: 14.5px; }
+.caption { font-size: 13px; color: var(--muted); margin: -8px 0 0; }
+
+.frame { position: relative; border-radius: 6px; overflow: hidden; isolation: isolate; }
+.frame canvas { display: block; touch-action: pan-y; cursor: grab; }
+.frame canvas:active { cursor: grabbing; }
+
+/* ---------- A. NOCTURNE ---------- */
+.f-noc {
+  background: #03050b; color: #e6ecf7; font-family: "Geist", "Helvetica Neue", system-ui, sans-serif;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 310px; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 640px;
+}
+.f-noc > canvas { position: absolute; inset: 0; z-index: 0; grid-area: 1 / 1 / -1 / -1; width: 100%; height: 100%; }
+.n-top { grid-area: 1 / 1 / 2 / -1; z-index: 1; display: flex; align-items: center; gap: 30px; padding: 20px 24px; pointer-events: none; }
+.n-mark { font-weight: 500; font-size: 13px; letter-spacing: .44em; }
+.n-nav { display: flex; gap: 20px; font-size: 13px; color: rgba(230,236,247,.48); }
+.n-nav .on { color: #fff; }
+.n-layers { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.n-layers span { font-size: 12px; padding: 5px 11px; border: 1px solid rgba(160,190,255,.18); border-radius: 999px; color: rgba(230,236,247,.6); }
+.n-layers .on { background: rgba(120,160,255,.14); color: #fff; border-color: rgba(160,190,255,.42); }
+.n-year { grid-area: 2 / 1 / 3 / 2; z-index: 1; align-self: end; padding: 0 24px 26px; pointer-events: none; }
+.n-y { font-weight: 200; font-size: clamp(72px, 9.5vw, 132px); line-height: .86; letter-spacing: -.045em; }
+.n-era { font-weight: 300; font-size: 17px; letter-spacing: .32em; margin-left: 12px; color: rgba(230,236,247,.7); }
+.n-sub { display: block; font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: rgba(230,236,247,.55); margin-top: 14px; letter-spacing: .04em; }
+.n-card { grid-area: 2 / 3 / 3 / 4; z-index: 1; align-self: center; margin-right: 22px; padding: 20px 20px 18px; border-radius: 14px;
+  background: rgba(12,18,34,.56); -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%); border: 1px solid rgba(160,190,255,.16); }
+.n-eyebrow { margin: 0; font-family: "Geist Mono", ui-monospace, monospace; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(230,236,247,.5); }
+.n-name { margin: 8px 0 2px; font-weight: 300; font-size: 26px; letter-spacing: -.01em; line-height: 1.1; }
+.n-life { margin: 0; font-size: 13px; color: rgba(230,236,247,.8); }
+.n-life span { color: rgba(230,236,247,.45); }
+.n-stat { display: flex; align-items: baseline; gap: 8px; margin-top: 18px; }
+.n-num { font-weight: 200; font-size: 46px; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.n-unit { font-size: 14px; color: rgba(230,236,247,.7); }
+.n-lbl { margin: 4px 0 0; font-size: 12px; color: rgba(230,236,247,.5); }
+.n-meta { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 6px; border-top: 1px solid rgba(160,190,255,.14); padding-top: 12px; font-size: 12px; color: rgba(230,236,247,.8); }
+.n-meta span { display: inline-block; width: 68px; color: rgba(230,236,247,.45); }
+.n-link { display: inline-block; margin-top: 12px; font-size: 12px; color: #9cc4ff; text-decoration: none; }
+.n-link:hover, .n-link:focus-visible { text-decoration: underline; }
+.n-qa { list-style: none; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px solid rgba(160,190,255,.14); display: grid; gap: 6px; font-size: 11.5px; line-height: 1.45; color: rgba(230,236,247,.72); }
+.n-qa .w { color: #ffd39a; }
+.n-qa a { color: #9cc4ff; }
+.n-time { grid-area: 3 / 1 / 4 / -1; z-index: 1; padding: 0 20px 14px; }
+.n-time svg, .v-time svg { display: block; width: 100%; overflow: visible; }
+
+/* ---------- B. VELLUM ---------- */
+.f-vel {
+  --paper-noise: none;
+  background-color: #ede2c8;
+  background-image: var(--paper-noise), radial-gradient(130% 95% at 42% 42%, rgba(255,251,238,.62), rgba(255,251,238,0) 60%), radial-gradient(140% 120% at 50% 50%, rgba(0,0,0,0) 55%, rgba(110,80,40,.22));
+  color: #2f2418; font-family: "EB Garamond", Garamond, "Times New Roman", serif;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 320px; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 640px;
+}
+.f-vel > canvas { position: absolute; inset: 0; z-index: 0; grid-area: 1 / 1 / -1 / -1; width: 100%; height: 100%; }
+.v-top { grid-area: 1 / 1 / 2 / -1; z-index: 1; display: flex; align-items: baseline; gap: 22px; padding: 22px 26px 0; pointer-events: none; flex-wrap: wrap; }
+.v-mark { font-family: "Cormorant SC", "EB Garamond", serif; font-weight: 600; font-size: 20px; letter-spacing: .34em; }
+.v-sub { font-style: italic; font-size: 16px; color: rgba(47,36,24,.7); }
+.v-plate { margin-left: auto; font-family: "Cormorant SC", serif; font-size: 14px; letter-spacing: .2em; color: rgba(47,36,24,.75); }
+.v-year { grid-area: 2 / 3 / 3 / 4; z-index: 1; align-self: start; justify-self: end; text-align: right; padding: 18px 26px 0 0; pointer-events: none; }
+.v-roman { display: block; font-family: "Cormorant SC", serif; font-weight: 500; font-size: clamp(44px, 5.5vw, 70px); letter-spacing: .12em; line-height: 1; }
+.v-ad { display: block; font-style: italic; font-size: 16px; margin-top: 6px; color: rgba(47,36,24,.75); }
+.v-cov { display: block; font-style: italic; font-size: 13.5px; margin-top: 4px; color: rgba(47,36,24,.62); max-width: 24ch; margin-left: auto; }
+.v-card { grid-area: 2 / 3 / 3 / 4; z-index: 1; align-self: end; margin: 0 26px 18px 0; padding: 18px 20px; border: 1px solid #3a2c1d; outline: 1px solid rgba(58,44,29,.6); outline-offset: 4px; background: rgba(244,236,214,.72); }
+.v-kicker { margin: 0; font-family: "Cormorant SC", serif; font-size: 13px; letter-spacing: .26em; color: rgba(47,36,24,.7); text-align: center; }
+.v-name { margin: 6px 0 2px; font-family: "Cormorant SC", serif; font-weight: 600; font-size: 25px; letter-spacing: .1em; line-height: 1.15; text-align: center; text-wrap: balance; }
+.v-dates { margin: 0; text-align: center; font-style: italic; font-size: 16px; }
+.v-rule { height: 1px; background: rgba(58,44,29,.45); margin: 12px 30px; }
+.v-body { margin: 0; font-size: 16px; line-height: 1.45; }
+.v-src { margin: 10px 0 0; font-size: 13.5px; font-style: italic; color: rgba(47,36,24,.72); }
+.v-src a { color: #7a2f22; }
+.v-qa { margin: 8px 0 0; font-size: 13.5px; font-style: italic; line-height: 1.35; color: rgba(47,36,24,.78); }
+.v-qa.w { color: #7a2f22; }
+.v-qa a { color: inherit; }
+.v-time { grid-area: 3 / 1 / 4 / -1; z-index: 1; padding: 0 26px 12px; }
+
+/* ---------- C. STRATA ---------- */
+.f-str {
+  background: #0d1014; color: #e9e2d2; font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; font-size: 13px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 330px; grid-template-rows: auto minmax(470px, 1fr) auto;
+}
+.s-top { grid-column: 1 / -1; display: flex; align-items: center; gap: 22px; padding: 12px 20px; border-bottom: 1px solid #20262e; flex-wrap: wrap; }
+.s-mark { font-family: "IBM Plex Mono", monospace; font-weight: 500; font-size: 12px; letter-spacing: .36em; }
+.s-crumb { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; color: #8d949d; }
+.s-crumb b { color: #e9e2d2; font-weight: 500; }
+.s-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.s-chips span { font-size: 11.5px; padding: 3px 9px; border-radius: 3px; color: #8d949d; border: 1px solid #262c35; }
+.s-chips .on { color: #0d1014; background: #e9e2d2; border-color: #e9e2d2; font-weight: 500; }
+.s-search { margin-left: auto; min-width: 0; flex: 0 1 260px; font-size: 12px; color: #6f7680; border: 1px solid #262c35; border-radius: 3px; padding: 5px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-globe { position: relative; min-height: 470px; min-width: 0; }
+.s-globe > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.s-year { position: absolute; top: 16px; left: 20px; pointer-events: none; }
+.s-y { font-family: "Newsreader", Georgia, serif; font-style: italic; font-weight: 300; font-size: 64px; line-height: .9; letter-spacing: -.02em; }
+.s-era { font-family: "IBM Plex Mono", monospace; font-size: 13px; letter-spacing: .2em; margin-left: 8px; color: #b9b2a3; }
+.s-ysub { display: block; margin-top: 8px; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: #8d949d; }
+.s-card { position: absolute; left: 16px; bottom: 16px; width: min(300px, calc(100% - 32px)); padding: 14px 16px; background: rgba(13,16,20,.86); border: 1px solid #2a313a; border-radius: 4px; }
+.s-k { margin: 0; font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #8d949d; }
+.s-name { margin: 6px 0 2px; font-family: "Newsreader", Georgia, serif; font-weight: 400; font-size: 24px; line-height: 1.1; }
+.s-d { margin: 0; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: #cfc8b8; }
+.s-dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 12px 0 0; font-size: 12px; }
+.s-dl dt { color: #8d949d; }
+.s-dl dd { margin: 0; font-variant-numeric: tabular-nums; }
+.s-dl em { font-style: normal; font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: #8d949d; margin-left: 4px; }
+.s-src { margin: 10px 0 0; font-size: 11.5px; color: #8d949d; }
+.s-src a { color: #e9e2d2; }
+.s-note { margin: 8px 0 0; font-size: 12px; color: #d8b54a; }
+.s-qa { margin: 6px 0 0; font-size: 11.5px; line-height: 1.45; color: #b9b2a3; }
+.s-qa.w { color: #d8b54a; }
+.s-qa a { color: inherit; }
+.s-leg i.dash { background: none; height: 0; width: 14px; border-top: 1.5px dashed #e9e2d2; vertical-align: 3px; border-radius: 0; }
+.s-trace { grid-column: 1 / -1; border-top: 1px solid #20262e; padding: 10px 20px 16px; }
+.s-trace summary { cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: .06em; color: #e9e2d2; }
+.s-trace summary span { color: #8d949d; margin-left: 10px; letter-spacing: 0; }
+.s-trace summary:focus-visible { outline: 2px solid #d8b54a; outline-offset: 3px; }
+.s-trace .tw { overflow-x: auto; margin-top: 10px; }
+.s-trace table { min-width: 640px; font-size: 12px; color: #cfc8b8; }
+.s-trace th, .s-trace td { border-bottom: 1px solid #20262e; padding: 7px 14px 7px 0; vertical-align: top; }
+.s-trace thead th { color: #8d949d; font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 500; }
+.s-trace code { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: #e9e2d2; }
+.s-hint { position: absolute; right: 16px; bottom: 16px; font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: #6f7680; pointer-events: none; text-align: right; }
+.s-core { border-left: 1px solid #20262e; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.s-core h3 { margin: 4px 0 0; font-family: "Newsreader", Georgia, serif; font-weight: 400; font-size: 22px; line-height: 1.1; }
+.s-core .s-coord { margin: 2px 0 0; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: #8d949d; }
+.s-plot { flex: 1; min-height: 380px; position: relative; }
+.s-plot svg { position: absolute; inset: 0; display: block; }
+.s-lens { display: flex; gap: 4px; flex-wrap: wrap; }
+.s-lens button { font: 500 11px "IBM Plex Mono", monospace; color: #b9b2a3; background: transparent; border: 1px solid #2a313a; border-radius: 3px; padding: 4px 8px; cursor: pointer; }
+.s-lens button[aria-pressed="true"] { color: #0d1014; background: #e9e2d2; border-color: #e9e2d2; }
+.s-lens button:focus-visible { outline: 2px solid #d8b54a; outline-offset: 2px; }
+.s-foot { margin: 0; font-size: 11px; line-height: 1.5; color: #8d949d; }
+.s-stream { grid-column: 1 / -1; border-top: 1px solid #20262e; padding: 14px 20px 16px; display: grid; gap: 8px; min-width: 0; }
+.s-stream-h { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.s-t { margin: 2px 0 0; font-family: "Newsreader", Georgia, serif; font-size: 17px; }
+.s-leg { list-style: none; margin: 0; padding: 0; display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: #b9b2a3; }
+.s-leg i { display: inline-block; width: 9px; height: 9px; border-radius: 1px; margin-right: 5px; vertical-align: -1px; }
+.s-over-l { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: #8d949d; margin: 4px 0 0; }
+.s-stream svg { display: block; width: 100%; overflow: visible; }
+
+/* tooltip */
+.tip { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; max-width: 300px; padding: 8px 10px; border-radius: 5px; font-size: 12px; line-height: 1.45; opacity: 0; transition: opacity .12s; }
+.tip.show { opacity: 1; }
+.tip.noc { background: rgba(10,16,30,.92); color: #e6ecf7; border: 1px solid rgba(160,190,255,.25); font-family: "Geist", system-ui, sans-serif; }
+.tip.vel { background: #f4ecd6; color: #2f2418; border: 1px solid #3a2c1d; font-family: "EB Garamond", serif; font-size: 14px; border-radius: 0; }
+.tip.str { background: #e9e2d2; color: #0d1014; font-family: "IBM Plex Sans", sans-serif; border-radius: 3px; }
+.tip em { font-style: normal; opacity: .65; }
+
+/* comparison */
+.compare { display: grid; gap: 18px; }
+.compare h2, .verdict h2 { font-family: var(--display); font-weight: 400; font-size: clamp(28px, 3.4vw, 40px); margin: 0; line-height: 1.08; }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; padding: 11px 12px 11px 0; border-bottom: 1px solid var(--rule); }
+thead th { font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+td.d { font-family: var(--mono); letter-spacing: .18em; color: var(--muted); white-space: nowrap; }
+td.d b { color: var(--ink); font-weight: 400; }
+td.d.best b { color: var(--accent); }
+
+/* verdict */
+.verdict { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px 56px; border-top: 2px solid var(--ink); padding-top: 28px; }
+.verdict .big { font-family: var(--display); font-size: clamp(22px, 2.4vw, 28px); line-height: 1.3; margin: 14px 0 0; text-wrap: pretty; }
+.verdict .cols { display: grid; gap: 22px; }
+.verdict h3 { margin: 0 0 6px; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.verdict p { margin: 0; max-width: 62ch; }
+footer { border-top: 1px solid var(--rule); padding-top: 16px; font-size: 12.5px; color: var(--muted); display: grid; gap: 6px; }
+footer p { margin: 0; max-width: 100ch; }
+
+/* responsive */
+@media (max-width: 980px) {
+  .real { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 8px; }
+  .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .verdict { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 780px) {
+  .wrap { gap: 64px; padding-block: 36px 72px; }
+  .dir .thesis { grid-column: 1 / -1; }
+  .f-noc, .f-vel { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 360px auto auto auto; min-height: 0; }
+  .f-noc > canvas, .f-vel > canvas { grid-area: 2 / 1 / 3 / 2; }
+  .n-top, .v-top { grid-area: 1 / 1 / 2 / 2; }
+  .n-nav, .v-plate { display: none; }
+  .n-year { grid-area: 3 / 1 / 4 / 2; padding: 4px 18px 16px; }
+  .n-card { grid-area: 4 / 1 / 5 / 2; margin: 0 16px 16px; }
+  .n-time { grid-area: 5 / 1 / 6 / 2; }
+  .v-year { grid-area: 3 / 1 / 4 / 2; justify-self: start; text-align: left; padding: 4px 22px 12px; }
+  .v-card { grid-area: 4 / 1 / 5 / 2; margin: 0 22px 20px; }
+  .v-time { grid-area: 5 / 1 / 6 / 2; }
+  .f-str { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 380px auto auto; }
+  .s-globe { min-height: 380px; }
+  .s-core { border-left: 0; border-top: 1px solid #20262e; }
+  .s-plot { min-height: 440px; }
+  .s-search { display: none; }
+  .s-card { position: absolute; left: 12px; right: 12px; bottom: 12px; width: auto; padding: 10px 12px; }
+  .s-card .s-dl, .s-card .s-src { display: none; }
+  .s-hint { display: none; }
+  .s-y { font-size: 48px; }
+}
+@media (max-width: 520px) {
+  .real, .notes { grid-template-columns: minmax(0, 1fr); }
+  .n-layers span:nth-child(n+3) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+</style>
+
+<main class="wrap">
+  <header class="intro">
+    <p class="eyebrow">CHRONOS · Phase 0 · Visual direction</p>
+    <h1>Three ways to hold <em>five thousand years</em></h1>
+    <p class="lede">Each frame below renders the same real moment, the world of 117 CE, in a different visual language. The borders, the strata beneath Rome and the streams of land are computed from Cliopatria, the open polity atlas CHRONOS will be built on. It is one atlas's interpretation, and it is far from complete: in 117 CE it maps polities over 15.7% of the world's ice-free land. Drag any globe. Hover or tap a territory.</p>
+    <div class="real">
+      <div><b>Real · borders</b><span>36 polities valid in 117 CE, Cliopatria v0.2.1, simplified for the web.</span></div>
+      <div><b>Real · Rome's strata</b><span>Every polygon over Rome's coordinates, 750 BCE to 2024 CE.</span></div>
+      <div><b>Real · areas</b><span>Mapped polygon area counted two ways, combined and unique, plus mapped polities per 50 years.</span></div>
+      <div class="ill"><b>Illustrative</b><span>Layouts, controls, colour families and the ten event markers.</span></div>
+    </div>
+  </header>
+
+  <!-- A -->
+  <section class="dir" aria-labelledby="h-noc">
+    <div class="dir-head"><span class="dir-letter">A</span><h2 id="h-noc">Nocturne</h2>
+      <p class="thesis">History as light. Polities glow on a night-side Earth the way cities do from orbit, and the interface recedes into glass.</p></div>
+    <div class="frame f-noc" id="f-noc">
+      <canvas aria-label="Globe in the Nocturne style showing polities in 117 CE"></canvas>
+      <div class="n-top"><span class="n-mark">CHRONOS</span>
+        <nav class="n-nav" aria-hidden="true"><span class="on">Atlas</span><span>Journeys</span><span>Compare</span></nav>
+        <div class="n-layers" aria-hidden="true"><span class="on">Political</span><span>Military</span><span>Trade</span><span>Cities</span></div></div>
+      <div class="n-year"><span class="n-y">117</span><span class="n-era">CE</span><span class="n-sub">36 polities mapped · 20.81 M km² combined polygon area<br>Mapped over 15.7% of ice-free land</span></div>
+      <aside class="n-card" id="n-card" aria-live="polite"></aside>
+      <div class="n-time"><svg id="n-time" role="img" aria-label="Timeline from 3400 BCE to 2024 CE with record density and a playhead at 117 CE"></svg></div>
+    </div>
+    <dl class="notes">
+      <div><dt>Type</dt><dd>Geist throughout, from hairline numerals to small interface labels. One family, many weights.</dd></div>
+      <div><dt>Signature move</dt><dd>Additive glow. Where claims overlap they brighten, so contested ground burns hotter.</dd></div>
+      <div><dt>Strong at</dt><dd>The first ten seconds. Keynotes, trailers, the opening of a journey.</dd></div>
+      <div><dt>Breaks down</dt><dd>Dense mosaics turn to neon, and glow reads as certainty. It looks like every space-tech dashboard and tires the eyes during long reading.</dd></div>
+    </dl>
+  </section>
+
+  <!-- B -->
+  <section class="dir" aria-labelledby="h-vel">
+    <div class="dir-head"><span class="dir-letter">B</span><h2 id="h-vel">Vellum</h2>
+      <p class="thesis">The cartographer's table. Ink coastlines, watercolour washes and letter-spaced lettering, as if CHRONOS printed an atlas plate for this exact year.</p></div>
+    <div class="frame f-vel" id="f-vel">
+      <canvas aria-label="Globe in the Vellum style showing polities in 117 CE"></canvas>
+      <div class="v-top"><span class="v-mark">CHRONOS</span><span class="v-sub">An atlas of every age</span><span class="v-plate">The World · Plate CXVII</span></div>
+      <div class="v-year"><span class="v-roman">CXVII</span><span class="v-ad">Anno Domini 117</span><span class="v-cov">Polities are mapped over 15.7% of the world's ice-free land</span></div>
+      <aside class="v-card" id="v-card" aria-live="polite"></aside>
+      <div class="v-time"><svg id="v-time" role="img" aria-label="Engraved ruler from 3400 BC to AD 2024 with a pointer at AD 117"></svg></div>
+    </div>
+    <dl class="notes">
+      <div><dt>Type</dt><dd>Cormorant SC for lettering on the map, EB Garamond for reading.</dd></div>
+      <div><dt>Signature move</dt><dd>Pigment pools at the edge of each wash, the way watercolour dries. Frontiers are dotted ink, never hard lines.</dd></div>
+      <div><dt>Strong at</dt><dd>Warmth, trust and long reading. Classrooms and print.</dd></div>
+      <div><dt>Breaks down</dt><dd>Tips into fantasy-map kitsch, and 1914 on parchment looks wrong. It also borrows the look of colonial-era atlases, whose worldview CHRONOS should be questioning.</dd></div>
+    </dl>
+  </section>
+
+  <!-- C -->
+  <section class="dir" aria-labelledby="h-str">
+    <div class="dir-head"><span class="dir-letter">C</span><h2 id="h-str">Strata</h2>
+      <p class="thesis">Time as depth. The globe is the surface, and every place has layers beneath it. Drill a core sample anywhere, then read the stream of who held the land.</p></div>
+    <div class="frame f-str" id="f-str">
+      <div class="s-top"><span class="s-mark">CHRONOS</span><span class="s-crumb">World / <b>117 CE</b></span>
+        <div class="s-chips" aria-hidden="true"><span class="on">Political</span><span>Events</span><span>Cities</span><span>Trade</span><span>Climate</span></div>
+        <span class="s-search" aria-hidden="true">Search polities, places, events</span></div>
+      <div class="s-globe">
+        <canvas aria-label="Globe in the Strata style showing polities in 117 CE, with Rome marked"></canvas>
+        <div class="s-year"><span class="s-y">117</span><span class="s-era">CE</span><span class="s-ysub">36 polities mapped · combined 20,806,040 km² · unique 20,805,833 km²<br>Mapped over 15.7% of ice-free land · subordination and disputes not recorded</span></div>
+        <aside class="s-card" id="s-card" aria-live="polite"></aside>
+        <p class="s-hint">Drag to rotate · hover a territory<br>click a stratum to select it →</p>
+      </div>
+      <aside class="s-core">
+        <div><p class="s-k">Core sample · the ground beneath</p><h3>Rome</h3><p class="s-coord">41.90° N, 12.50° E · <span id="s-counts"></span></p></div>
+        <div class="s-lens" role="group" aria-label="Zoom the core sample in time">
+          <button type="button" id="lens-all" aria-pressed="true">All 2,774 years</button>
+          <button type="button" id="lens-late" aria-pressed="false">380–620</button>
+          <button type="button" id="lens-mod" aria-pressed="false">1780–1960</button>
+        </div>
+        <div class="s-plot" id="s-plot"><svg id="s-core-svg" role="img" aria-label="Core sample of polities that held Rome, oldest at the bottom"></svg></div>
+        <p class="s-foot">Every Cliopatria polygon covering this point; aggregate rows excluded. Dashed: within about 5 km (a coarse polygon). Hatched: no polygon covers the point.</p>
+      </aside>
+      <div class="s-stream">
+        <div class="s-stream-h">
+          <div><p class="s-k">Time stream</p><p class="s-t">Combined polygon area of the 14 largest polities, 500 BCE to 700 CE</p></div>
+          <ul class="s-leg" id="s-leg"></ul>
+        </div>
+        <svg id="s-over" role="img" aria-label="Record density: polities mapped per 50 years, 3400 BCE to 2024 CE"></svg>
+        <p class="s-over-l">Record density · polities mapped per 50 years, 3400 BCE–2024 CE · bracket marks the window below</p>
+        <svg id="s-stream-svg" role="img" aria-label="Streamgraph of combined polygon area by polity, 500 BCE to 700 CE, with the unique mapped area as a dashed envelope"></svg>
+      </div>
+      <details class="s-trace">
+        <summary>How is this calculated?<span>Data trace for every figure in this frame</span></summary>
+        <div class="tw"><table>
+          <thead><tr><th>Figure</th><th>Source</th><th>Method</th></tr></thead>
+          <tbody>
+            <tr><td>Borders, 117 CE</td><td>Cliopatria v0.2.1 · CC BY 4.0 · public tier · zip sha256 <code>e10a4e42…cd4eed4</code></td><td>Rows with FromYear ≤ 117 ≤ ToYear. Aggregate "(…)" rows excluded. Simplified to 0.04° for display only.</td></tr>
+            <tr><td>Combined and unique area</td><td>Cliopatria v0.2.1; Natural Earth 1:10m land</td><td>EPSG:6933. Combined sums each polygon; unique is the union. Five edge slivers overlap, 207 km² in total. <code>research/phase0/validate_cliopatria.py</code></td></tr>
+            <tr><td>Coverage, 15.7%</td><td>Cliopatria v0.2.1; Natural Earth 1:10m land</td><td>Unique mapped land (20.59 M km²) ÷ ice-free land north of 60° S (131.5 M km²)</td></tr>
+            <tr><td>Core sample, Rome</td><td>Cliopatria v0.2.1</td><td>Point 41.9028° N, 12.4964° E. Hits within about 5 km are marked "near". Contiguous rows with the same name are merged.</td></tr>
+            <tr><td>Time stream</td><td>Cliopatria v0.2.1</td><td>5-year steps. The 14 polities with the largest summed area; the rest pooled. Unique envelope: union of polygons simplified to 0.01°.</td></tr>
+            <tr><td>Record density</td><td>Cliopatria v0.2.1</td><td>Distinct polity names with any row in each 50-year bin</td></tr>
+            <tr><td>Wikidata links and flags</td><td>Wikidata (CC0), Query Service, 2026-11-11</td><td>Links shown as given by Cliopatria. Checks and corrections: <code>research/phase0/wikidata_crosswalk.py</code>, <code>crosswalk_overrides.csv</code></td></tr>
+            <tr><td>Colour families</td><td>Editorial</td><td>A grouping for this study only. Not data.</td></tr>
+          </tbody>
+        </table></div>
+      </details>
+    </div>
+    <dl class="notes">
+      <div><dt>Type</dt><dd>Newsreader for names and narrative, IBM Plex Sans for interface, IBM Plex Mono for dates and measures.</dd></div>
+      <div><dt>Signature move</dt><dd>Two views that make time spatial: the core sample shows who ruled this ground, and the time stream shows who held how much land, and when. Both point back at the globe.</dd></div>
+      <div><dt>Strong at</dt><dd>The brief's hardest questions, answered at a glance and honestly. Gaps, near-misses and overlaps get their own visual grammar.</dd></div>
+      <div><dt>Breaks down</dt><dd>More on screen at once. Phones need strict progressive disclosure, and the stream must never be read as "power".</dd></div>
+    </dl>
+  </section>
+
+  <section class="compare" aria-labelledby="h-cmp">
+    <p class="eyebrow">Side by side</p>
+    <h2 id="h-cmp">How the three hold up</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Criterion</th><th>Nocturne</th><th>Vellum</th><th>Strata</th></tr></thead>
+        <tbody id="cmp"></tbody>
+      </table>
+    </div>
+    <p class="caption">My assessment as designer, not a measurement. Five dots is strongest.</p>
+  </section>
+
+  <section class="verdict" aria-labelledby="h-ver">
+    <div>
+      <p class="eyebrow">Recommendation</p>
+      <h2 id="h-ver">Build Strata</h2>
+      <p class="big">It is the only direction where the interface itself answers the brief's hardest questions: who ruled here, who coexisted, and who held the most land, using a measure we can defend.</p>
+    </div>
+    <div class="cols">
+      <div><h3>Why</h3><p>The core sample answers "who ruled this ground?" in one click. The time stream answers "who was contemporary, and who was largest?" with mapped extent from real polygons, never an invented power score. Gaps, near-misses and overlaps are drawn from day one. The validation findings have a place in the layout, too: flagged cross-references, the coverage statement and the data trace. Honesty becomes part of the look instead of a footnote.</p></div>
+      <div><h3>Borrow from Nocturne</h3><p>The stage. A night-side globe with an atmospheric rim for the opening shot and for zooming out into deep time.</p></div>
+      <div><h3>Borrow from Vellum</h3><p>The lettering. Letter-spaced names set along each territory's spine, and a paper print skin for classroom handouts later.</p></div>
+      <div><h3>Watch</h3><p>Strata puts more on screen. On phones the globe comes first, the core sample becomes a bottom sheet and the stream opens on demand.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Polity borders and areas: Cliopatria v0.2.1, Seshat Global History Databank, CC BY 4.0. For this page they were simplified to 0.04°, with rings re-oriented for spherical rendering. Land: Natural Earth 1:110m (public domain) via world-atlas 2.0.2.</p>
+    <p>Wikidata links are shown as Cliopatria gives them. Several are wrong, and verified corrections are shown beside them (see docs/validation/0001). The event markers on the Nocturne timeline are illustrative and uncited; the real event layer arrives with sources in Phase 2. Timeline controls are presentational in these studies.</p>
+  </footer>
+</main>
+<div class="tip" id="tip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script>/*__DATA__*/</script>
+<script>
+(() => {
+"use strict";
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const LAND = topojson.feature(DATA.land, DATA.land.objects.land);
+const FEATS = DATA.world.features;
+const BYNAME = new Map(FEATS.map(f => [f.properties.name, f]));
+const GRAT = d3.geoGraticule().step([15, 15])();
+const SPHERE = { type: "Sphere" };
+const ROME = [12.4964, 41.9028];
+const tip = document.getElementById("tip");
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const yr = y => y < 0 ? `${-y} BCE` : y === 0 ? "1 BCE" : `${y} CE`;
+const yrOld = y => y < 0 ? `${-y} B.C.` : y === 0 ? "1 B.C." : `A.D. ${y}`;
+const span = (a, b) => (a < 0 && b <= 0) ? `${-a}–${b === 0 ? 1 : -b} BCE` : a < 0 ? `${-a} BCE – ${b} CE` : a === b ? `${a} CE` : `${a}–${b} CE`;
+const mkm = a => (a / 1e6).toFixed(2);
+const kmFmt = a => Math.round(a).toLocaleString("en-US");
+function rgba(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function hash(s) { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function showTip(cls, html, x, y) {
+  tip.className = "tip show " + cls; tip.innerHTML = html;
+  const r = tip.getBoundingClientRect();
+  let tx = x + 14, ty = y + 14;
+  if (tx + r.width > innerWidth - 8) tx = x - r.width - 14;
+  if (ty + r.height > innerHeight - 8) ty = y - r.height - 14;
+  tip.style.transform = `translate(${Math.max(8, tx)}px, ${Math.max(8, ty)}px)`;
+}
+function hideTip() { tip.className = "tip"; }
+function spaced(ctx, s, x, y, sp, halo, fill) {
+  const chars = [...s], ws = chars.map(c => ctx.measureText(c).width);
+  const tot = ws.reduce((a, b) => a + b, 0) + sp * (chars.length - 1);
+  let cx = x - tot / 2; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  chars.forEach((c, i) => {
+    if (halo) { ctx.strokeStyle = halo; ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.strokeText(c, cx, y); }
+    ctx.fillStyle = fill; ctx.fillText(c, cx, y); cx += ws[i] + sp;
+  });
+}
+
+/* ---------- palettes ---------- */
+const PIG = {
+  "Roman Empire": "#cf5637", "Eastern Roman Empire": "#e08a6c", "Western Roman Empire": "#b8462c", "Roman Republic": "#c2603f", "Roman Kingdom": "#a9523a", "Byzantine Empire": "#e3a18a",
+  "Han Dynasty": "#4b70c6", "Western Jin": "#7392da", "Tang Dynasty": "#9db3ec", "Protectorate of the Western Regions": "#3d5ca8",
+  "Achaemenid Empire": "#c58f2e", "Parthian Empire": "#d9a845", "Sasanian Empire": "#e9c46e",
+  "Xiongnu": "#2f8b7d", "Xianbei": "#4fae9f", "Rouran Khaganate": "#7ac8bb", "Wusun": "#3c9a8c", "Huns": "#5fb8a9",
+  "Maurya Empire": "#3f8a52", "Gupta Empire": "#6aac78", "Kushan Empire": "#57a067", "Satavahana Dynasty": "#82bd8f", "Western Satraps": "#4c9460", "Indo-Scythians": "#6f9f73",
+  "Seleucid Empire": "#b25c87",
+  "Etruscans": "#8b6a4c", "Visigoths": "#7a6fb0", "Vandal Kingdom": "#8d82c2", "Ostrogothic Kingdom": "#6c61a3",
+  "Papal States": "#d8b54a", "Revolutionary Roman Republic": "#b65a86", "First French Empire": "#5876c9", "Kingdom of Italy": "#4f9a63", "Republic of Italy": "#72b585",
+  "Other mapped polities": "#262c34"
+};
+const EARTH = ["#8f7457", "#7b6d8e", "#6c8791", "#96705f", "#7f8a5c", "#8a6f86"];
+const pig = n => PIG[n] || EARTH[hash(n) % EARTH.length];
+const NOC = { "Roman Empire": "#ffb35c", "Han Dynasty": "#5fd4ff", "Protectorate of the Western Regions": "#5fd4ff", "Parthian Empire": "#ff6fae", "Kushan Empire": "#b8f26b", "Xianbei": "#a98bff", "Xiongnu": "#a98bff", "Satavahana Dynasty": "#ff8a6b", "Western Satraps": "#ffd36b" };
+const noc = n => NOC[n] || "#8fb3ff";
+const VEL = { "Roman Empire": "#b4473a", "Han Dynasty": "#3e5f8a", "Protectorate of the Western Regions": "#3e5f8a", "Parthian Empire": "#c4913a", "Kushan Empire": "#6b8f4e", "Xianbei": "#7c6d93", "Xiongnu": "#7c6d93", "Satavahana Dynasty": "#b0657a", "Western Satraps": "#a0804a", "Kingdom of Kush": "#9a6a45" };
+const vel = n => VEL[n] || "#8a7a5a";
+
+/* ---------- QA findings (docs/validation/0001) ---------- */
+const QA = DATA.qa || {};
+const FLAG_TXT = { name_mismatch: "name doesn't match", not_a_polity_item: "not a polity item", no_temporal_overlap: "dates don't overlap", lifespan_differs_150y: "dates differ by 150+ years", qid_missing_or_unlabelled: "item missing" };
+const STRONG = ["name_mismatch", "not_a_polity_item", "no_temporal_overlap", "qid_missing_or_unlabelled"];
+const NOTES = { "Roman Empire": "Row 117–126 includes Mesopotamia and Armenia. Standard accounts date Hadrian's withdrawal to 117–118. Flagged for review against a cited source." };
+const wdA = (q, txt) => `<a href="https://www.wikidata.org/wiki/${esc(q)}" target="_blank" rel="noopener">${txt || esc(q)}</a>`;
+function qaLines(name, plain) {
+  const q = QA[name], out = [];
+  if (q) {
+    const shown = q.flags.filter(f => q.fix ? FLAG_TXT[f] : STRONG.includes(f));
+    const lab = q.label ? `“${esc(q.label)}”` : "(no label)";
+    const given = plain ? `${esc(q.qid)} ${lab}` : `${wdA(q.qid)} ${lab}`;
+    const flags = shown.length ? ` · ${shown.map(f => FLAG_TXT[f]).join(", ")}` : "";
+    const fix = q.fix ? ` Verified correction: ${plain ? esc(q.fix.qid) : wdA(q.fix.qid)} “${esc(q.fix.label)}”.` : "";
+    out.push({ warn: !!(q.fix || shown.length), html: `Wikidata as given by Cliopatria: ${given}${flags}.${fix}` });
+  }
+  if (NOTES[name]) out.push({ warn: true, html: esc(NOTES[name]) });
+  return out;
+}
+const qaHtml = (name, cls) => qaLines(name).map(l => `<p class="${cls}${l.warn ? " w" : ""}">${l.html}</p>`).join("");
+const qaTip = name => qaLines(name, true).map(l => `<br>${l.warn ? "⚠ " : ""}<em>${l.html}</em>`).join("");
+const GAP_NOTES = {
+  476: "No polity named for Odoacer exists in the dataset. Nearest mapped polities: Ostrogoths 203 km, Vandal Kingdom 242 km.",
+  1944: "No Kingdom of Italy row for 1944 and no Italian Social Republic in the dataset. The 1944 Nazi Germany polygon ends 13.3 km from these coordinates."
+};
+
+/* ---------- globe ---------- */
+class Globe {
+  constructor(canvas, o) {
+    this.c = canvas; this.ctx = canvas.getContext("2d"); this.o = o;
+    this.proj = d3.geoOrthographic().clipAngle(90).precision(0.5);
+    this.path = d3.geoPath(this.proj, this.ctx);
+    this.base = o.center.slice(); this.rot = o.center.slice(); this.t = 0;
+    this.hover = null; this.sel = o.selected || null; this.drag = null; this.fly = null;
+    this.visible = false; this.running = false; this.dirty = true;
+    new ResizeObserver(() => this.resize()).observe(canvas);
+    new IntersectionObserver(es => { this.visible = es[0].isIntersecting; if (this.visible) this.loop(); }, { rootMargin: "120px" }).observe(canvas);
+    const local = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    canvas.addEventListener("pointerdown", e => { this.drag = { x: e.clientX, y: e.clientY, rot: this.rot.slice(), moved: false }; this.fly = null; });
+    canvas.addEventListener("pointermove", e => {
+      if (this.drag) {
+        const dx = e.clientX - this.drag.x, dy = e.clientY - this.drag.y;
+        if (!this.drag.moved && Math.hypot(dx, dy) > 4) { this.drag.moved = true; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} }
+        if (this.drag.moved) {
+          const k = 75 / this.R;
+          this.rot[0] = this.drag.rot[0] + dx * k;
+          this.rot[1] = Math.max(-70, Math.min(70, this.drag.rot[1] - dy * k));
+          this.redraw(); hideTip(); return;
+        }
+      }
+      const [x, y] = local(e); const f = this.pick(x, y);
+      if (f !== this.hover) { this.hover = f; this.redraw(); }
+      if (f) this.o.onHover(f, e.clientX, e.clientY); else hideTip();
+    });
+    canvas.addEventListener("pointerup", e => {
+      const d = this.drag; this.drag = null; if (!d) return;
+      if (!d.moved) { const [x, y] = local(e); this.o.onClick(this.pick(x, y), e.clientX, e.clientY); }
+      else { this.base[0] = this.rot[0] - this.o.sway * Math.sin(this.t * 0.18); this.base[1] = this.rot[1]; }
+    });
+    canvas.addEventListener("pointercancel", () => { this.drag = null; });
+    canvas.addEventListener("pointerleave", () => { if (this.hover) { this.hover = null; this.redraw(); } hideTip(); });
+  }
+  resize() {
+    const r = this.c.getBoundingClientRect(); if (!r.width || !r.height) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.w = r.width; this.h = r.height; this.dpr = dpr;
+    this.c.width = Math.round(r.width * dpr); this.c.height = Math.round(r.height * dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const L = this.o.layout(this.w, this.h); this.cx = L.x; this.cy = L.y; this.R = L.r;
+    this.proj.translate([L.x, L.y]).scale(L.r);
+    if (this.o.onResize) this.o.onResize(this);
+    this.redraw();
+  }
+  redraw() { this.dirty = true; if (!this.running) this.draw(); }
+  draw() { if (!this.w) return; this.proj.rotate(this.rot); this.ctx.lineJoin = "round"; this.o.draw(this); this.dirty = false; }
+  center() { return [-this.rot[0], -this.rot[1]]; }
+  pick(x, y) {
+    if (!this.R || Math.hypot(x - this.cx, y - this.cy) > this.R) return null;
+    const p = this.proj.invert([x, y]); if (!p || isNaN(p[0])) return null;
+    for (const f of FEATS) if (d3.geoContains(f, p)) return f;
+    return null;
+  }
+  flyTo(lonlat) {
+    const b = [-lonlat[0], Math.max(-60, Math.min(60, -lonlat[1]))];
+    while (b[0] - this.rot[0] > 180) b[0] -= 360;
+    while (b[0] - this.rot[0] < -180) b[0] += 360;
+    if (REDUCED) { this.rot = b.slice(); this.base = b.slice(); this.t = 0; this.redraw(); return; }
+    this.fly = { a: this.rot.slice(), b, t0: performance.now(), dur: 1100 }; this.loop();
+  }
+  loop() {
+    if (this.running || !this.visible) return; this.running = true;
+    let last = performance.now();
+    const tick = now => {
+      if (!this.visible) { this.running = false; return; }
+      const dt = Math.min(50, now - last); last = now;
+      if (this.fly) {
+        const p = Math.min(1, (now - this.fly.t0) / this.fly.dur), e = d3.easeCubicInOut(p);
+        this.rot[0] = this.fly.a[0] + (this.fly.b[0] - this.fly.a[0]) * e;
+        this.rot[1] = this.fly.a[1] + (this.fly.b[1] - this.fly.a[1]) * e;
+        this.dirty = true;
+        if (p === 1) { this.base = this.fly.b.slice(); this.t = 0; this.fly = null; }
+      } else if (!REDUCED && !this.drag) {
+        this.t += dt / 1000; this.rot[0] = this.base[0] + this.o.sway * Math.sin(this.t * 0.18); this.dirty = true;
+      }
+      if (this.o.animated && !REDUCED) this.dirty = true;
+      if (this.dirty) this.draw();
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+}
+
+function drawLabels(g, style) {
+  const ctx = g.ctx, center = g.center(), k = g.R / 260;
+  for (const f of FEATS) {
+    const p = f.properties;
+    const min = style === "vel" ? 600000 : style === "str" ? 1500000 : Infinity;
+    if (p.area < min && !(style === "noc" && f === g.sel)) continue;
+    const pt = [p.lx, p.ly]; if (d3.geoDistance(pt, center) > 1.2) continue;
+    const [x, y] = g.proj(pt);
+    if (style === "vel") {
+      const fs = Math.max(8.5, Math.min(17, Math.sqrt(p.area) / 175 * k));
+      ctx.font = `600 ${fs}px "Cormorant SC", "EB Garamond", serif`;
+      spaced(ctx, p.name.toUpperCase(), x, y, fs * 0.42, "rgba(238,227,199,0.7)", "rgba(52,38,24,0.9)");
+    } else if (style === "str") {
+      const fs = Math.max(8.5, Math.min(12, Math.sqrt(p.area) / 200 * k));
+      ctx.font = `600 ${fs}px "IBM Plex Sans", sans-serif`;
+      spaced(ctx, p.name.toUpperCase(), x, y, fs * 0.2, null, "rgba(13,16,20,0.82)");
+    } else {
+      ctx.font = `300 13px "Geist", system-ui, sans-serif`;
+      spaced(ctx, p.name.toUpperCase(), x, y, 3.5, null, "rgba(255,255,255,0.92)");
+    }
+  }
+}
+
+/* ---------- A. Nocturne ---------- */
+function starfield(w, h, dpr) {
+  const c = document.createElement("canvas"); c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  const x = c.getContext("2d"); x.scale(dpr, dpr); const rnd = mulberry(11);
+  const neb = x.createRadialGradient(w * 0.82, h * 0.18, 0, w * 0.82, h * 0.18, w * 0.55);
+  neb.addColorStop(0, "rgba(70,80,170,0.16)"); neb.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = neb; x.fillRect(0, 0, w, h);
+  const n = Math.round(w * h / 1600);
+  for (let i = 0; i < n; i++) {
+    const big = rnd() > 0.93, r = big ? 0.7 + rnd() * 0.9 : 0.25 + rnd() * 0.6;
+    x.fillStyle = `rgba(${215 + (rnd() * 40 | 0)},${220 + (rnd() * 35 | 0)},255,${0.2 + rnd() * (big ? 0.75 : 0.5)})`;
+    x.beginPath(); x.arc(rnd() * w, rnd() * h, r, 0, 7); x.fill();
+  }
+  return c;
+}
+function drawNoc(g) {
+  const { ctx, path, w, h, cx, cy, R } = g; ctx.clearRect(0, 0, w, h);
+  if (g.stars) ctx.drawImage(g.stars, 0, 0, w, h);
+  let gr = ctx.createRadialGradient(cx, cy, R * 0.94, cx, cy, R * 1.3);
+  gr.addColorStop(0, "rgba(80,140,255,0.34)"); gr.addColorStop(0.3, "rgba(60,110,230,0.12)"); gr.addColorStop(1, "rgba(40,80,200,0)");
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(cx, cy, R * 1.3, 0, 7); ctx.fill();
+  ctx.beginPath(); path(SPHERE); ctx.fillStyle = "#060c19"; ctx.fill();
+  ctx.beginPath(); path(GRAT); ctx.strokeStyle = "rgba(120,150,230,0.07)"; ctx.lineWidth = 0.6; ctx.stroke();
+  ctx.beginPath(); path(LAND); ctx.fillStyle = "#0e1627"; ctx.fill(); ctx.strokeStyle = "rgba(140,170,240,0.2)"; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  for (const f of FEATS) { const hot = f === g.hover || f === g.sel; ctx.beginPath(); path(f); ctx.fillStyle = rgba(noc(f.properties.name), hot ? 0.36 : 0.16); ctx.fill(); }
+  for (const f of FEATS) {
+    const col = noc(f.properties.name), hot = f === g.hover || f === g.sel, major = f.properties.area > 250000;
+    ctx.shadowBlur = major || hot ? 9 : 0; ctx.shadowColor = col;
+    ctx.beginPath(); path(f); ctx.strokeStyle = rgba(col, hot ? 1 : 0.75); ctx.lineWidth = hot ? 1.5 : 0.8; ctx.stroke();
+  }
+  ctx.restore();
+  gr = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R);
+  gr.addColorStop(0, "rgba(255,255,255,0.05)"); gr.addColorStop(0.7, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,12,0.6)");
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fillStyle = gr; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.strokeStyle = "rgba(150,190,255,0.38)"; ctx.lineWidth = 1; ctx.stroke();
+  drawLabels(g, "noc");
+}
+
+/* ---------- B. Vellum ---------- */
+function paperNoise() {
+  const s = 240, c = document.createElement("canvas"); c.width = c.height = s;
+  const x = c.getContext("2d"), img = x.createImageData(s, s), rnd = mulberry(5);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = rnd(); img.data[i] = 96 + (v * 40 | 0); img.data[i + 1] = 72 + (v * 34 | 0); img.data[i + 2] = 40 + (v * 26 | 0);
+    img.data[i + 3] = v < 0.45 ? (rnd() * 20 | 0) : 0;
+  }
+  x.putImageData(img, 0, 0); x.strokeStyle = "rgba(110,84,48,0.06)"; x.lineWidth = 0.6;
+  for (let i = 0; i < 70; i++) { const a = rnd() * s, b = rnd() * s; x.beginPath(); x.moveTo(a, b); x.quadraticCurveTo(a + rnd() * 30 - 15, b + rnd() * 30 - 15, a + rnd() * 44 - 22, b + rnd() * 44 - 22); x.stroke(); }
+  return c.toDataURL();
+}
+function drawVel(g) {
+  const { ctx, path, w, h, cx, cy, R } = g; ctx.clearRect(0, 0, w, h);
+  ctx.save(); ctx.translate(cx + R * 0.05, cy + R * 1.07); ctx.scale(1, 0.11);
+  let gr = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 0.9); gr.addColorStop(0, "rgba(70,48,22,0.34)"); gr.addColorStop(1, "rgba(70,48,22,0)");
+  ctx.fillStyle = gr; ctx.fillRect(-R, -R, R * 2, R * 2); ctx.restore();
+  ctx.beginPath(); path(SPHERE); ctx.fillStyle = "#cdd3c1"; ctx.fill();
+  ctx.beginPath(); path(GRAT); ctx.strokeStyle = "rgba(92,74,50,0.3)"; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); path(LAND); ctx.fillStyle = "#eee3c6"; ctx.fill();
+  for (const f of FEATS) {
+    const col = vel(f.properties.name), hot = f === g.hover || f === g.sel;
+    ctx.save(); ctx.beginPath(); path(f); ctx.clip();
+    ctx.fillStyle = rgba(col, hot ? 0.34 : 0.2); ctx.fill();
+    ctx.lineWidth = 9; ctx.strokeStyle = rgba(col, 0.15); ctx.stroke();
+    ctx.lineWidth = 3; ctx.strokeStyle = rgba(col, 0.3); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.beginPath(); path(LAND); ctx.strokeStyle = "rgba(52,38,24,0.85)"; ctx.lineWidth = 0.8; ctx.stroke();
+  ctx.setLineDash([2.2, 2.2]); ctx.lineWidth = 0.7; ctx.strokeStyle = "rgba(52,38,24,0.62)";
+  for (const f of FEATS) { ctx.beginPath(); path(f); ctx.stroke(); }
+  ctx.setLineDash([]);
+  if (g.sel) { ctx.beginPath(); path(g.sel); ctx.strokeStyle = rgba(vel(g.sel.properties.name), 0.95); ctx.lineWidth = 1.5; ctx.stroke(); }
+  gr = ctx.createRadialGradient(cx - R * 0.4, cy - R * 0.45, R * 0.05, cx, cy, R * 1.02);
+  gr.addColorStop(0, "rgba(255,252,240,0.36)"); gr.addColorStop(0.55, "rgba(255,252,240,0)"); gr.addColorStop(1, "rgba(80,58,30,0.3)");
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fillStyle = gr; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.strokeStyle = "#3a2c1d"; ctx.lineWidth = 1.3; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, R + 6, 0, 7); ctx.strokeStyle = "rgba(58,44,29,0.55)"; ctx.lineWidth = 0.6; ctx.stroke();
+  ctx.strokeStyle = "rgba(58,44,29,0.5)"; ctx.lineWidth = 0.6;
+  for (let a = 0; a < 360; a += 5) {
+    const t = a * Math.PI / 180, l = a % 30 === 0 ? 6 : 3;
+    ctx.beginPath(); ctx.moveTo(cx + Math.cos(t) * (R + 6), cy + Math.sin(t) * (R + 6)); ctx.lineTo(cx + Math.cos(t) * (R + 6 + l), cy + Math.sin(t) * (R + 6 + l)); ctx.stroke();
+  }
+  drawLabels(g, "vel");
+}
+
+/* ---------- C. Strata ---------- */
+function drawStr(g) {
+  const { ctx, path, w, h, cx, cy, R } = g; ctx.clearRect(0, 0, w, h);
+  let gr = ctx.createRadialGradient(cx, cy, R * 0.97, cx, cy, R * 1.16);
+  gr.addColorStop(0, "rgba(233,226,210,0.10)"); gr.addColorStop(1, "rgba(233,226,210,0)");
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(cx, cy, R * 1.16, 0, 7); ctx.fill();
+  ctx.beginPath(); path(SPHERE); ctx.fillStyle = "#10161e"; ctx.fill();
+  ctx.beginPath(); path(GRAT); ctx.strokeStyle = "rgba(233,226,210,0.05)"; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); path(LAND); ctx.fillStyle = "#1a222c"; ctx.fill();
+  for (const f of FEATS) {
+    const hot = f === g.hover || f === g.sel;
+    ctx.save(); ctx.beginPath(); path(f); ctx.clip();
+    ctx.fillStyle = rgba(pig(f.properties.name), hot ? 0.95 : 0.72); ctx.fill();
+    ctx.strokeStyle = "rgba(26,34,44,0.5)"; ctx.lineWidth = 8; ctx.stroke();
+    ctx.strokeStyle = "rgba(26,34,44,0.45)"; ctx.lineWidth = 3; ctx.stroke();
+    ctx.restore();
+  }
+  ctx.beginPath(); path(LAND); ctx.strokeStyle = "rgba(233,226,210,0.16)"; ctx.lineWidth = 0.5; ctx.stroke();
+  if (g.hover && g.hover !== g.sel) { ctx.beginPath(); path(g.hover); ctx.strokeStyle = "rgba(233,226,210,0.6)"; ctx.lineWidth = 1; ctx.stroke(); }
+  if (g.sel) { ctx.beginPath(); path(g.sel); ctx.strokeStyle = "rgba(233,226,210,0.95)"; ctx.lineWidth = 1.4; ctx.stroke(); }
+  gr = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.1, cx, cy, R);
+  gr.addColorStop(0, "rgba(255,255,255,0.03)"); gr.addColorStop(0.75, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(5,7,10,0.5)");
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fillStyle = gr; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.strokeStyle = "rgba(233,226,210,0.22)"; ctx.lineWidth = 0.8; ctx.stroke();
+  drawLabels(g, "str");
+  if (d3.geoDistance(ROME, g.center()) < Math.PI / 2 - 0.05) {
+    const [x, y] = g.proj(ROME), p = REDUCED ? 0.35 : (performance.now() / 1700) % 1;
+    ctx.beginPath(); ctx.arc(x, y, 4 + p * 14, 0, 7); ctx.strokeStyle = `rgba(233,226,210,${0.75 * (1 - p)})`; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fillStyle = "#e9e2d2"; ctx.fill();
+    ctx.font = '500 10px "IBM Plex Mono", monospace'; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.lineWidth = 3; ctx.strokeStyle = "rgba(13,16,20,0.8)"; ctx.strokeText("ROME · CORE SAMPLE", x + 9, y - 8);
+    ctx.fillStyle = "#e9e2d2"; ctx.fillText("ROME · CORE SAMPLE", x + 9, y - 8);
+  }
+}
+
+/* ---------- cards ---------- */
+const wdLink = (wd, cls, label) => wd ? `<a class="${cls}" href="https://www.wikidata.org/wiki/${esc(wd)}" target="_blank" rel="noopener">${label || "Wikidata " + esc(wd) + " ↗"}</a>` : "";
+function nocCard(f) {
+  const p = f.properties;
+  return `<p class="n-eyebrow">Polity · selected</p><h3 class="n-name">${esc(p.name)}</h3>
+  <p class="n-life">${yr(p.life[0])} → ${yr(p.life[1])} <span>in Cliopatria</span></p>
+  <div class="n-stat"><span class="n-num">${mkm(p.area)}</span><span class="n-unit">M km²</span></div>
+  <p class="n-lbl">Polygon area · row ${span(p.from, p.to)}</p>
+  <ul class="n-meta"><li><span>Evidence</span>Interpreted · atlas-drawn border</li><li><span>Source</span>Cliopatria v0.2.1 · CC BY 4.0</li><li><span>Relations</span>Not recorded for 117 CE</li></ul><ul class="n-qa">${qaLines(p.name).map(l => `<li class="${l.warn ? "w" : ""}">${l.html}</li>`).join("")}</ul>`;
+}
+function velCard(f) {
+  const p = f.properties;
+  return `<p class="v-kicker">Polity</p><h3 class="v-name">${esc(p.name)}</h3><p class="v-dates">${yrOld(p.life[0])} – ${yrOld(p.life[1])}</p><div class="v-rule"></div>
+  <p class="v-body">Polygon area in this year: ${kmFmt(p.area)} km², as drawn in the Cliopatria atlas. Its relations to neighbours are not recorded.</p>
+  <p class="v-src">Cliopatria v0.2.1, Seshat Global History Databank · CC BY 4.0</p>${qaHtml(p.name, "v-qa")}`;
+}
+function strCard(f) {
+  const p = f.properties;
+  return `<p class="s-k">Polity</p><h3 class="s-name">${esc(p.name)}</h3><p class="s-d">${yr(p.life[0])} – ${yr(p.life[1])}</p>
+  <dl class="s-dl"><dt>Polygon area</dt><dd>${mkm(p.area)} M km²<em>derived</em></dd><dt>This row</dt><dd>${span(p.from, p.to)}</dd><dt>Border</dt><dd>Interpreted · frontier drawn soft</dd></dl>
+  <p class="s-src">Cliopatria v0.2.1 · CC BY 4.0 · relations not recorded</p>${qaHtml(p.name, "s-qa")}`;
+}
+function strStratumCard(s) {
+  const first = s.from;
+  return `<p class="s-k">Stratum at Rome</p><h3 class="s-name">${esc(s.name)}</h3><p class="s-d">${span(s.from, s.to)} · ${s.to - s.from + 1} years</p>
+  <p class="s-note">Not on the map in 117 CE. In the slice, selecting it moves the globe to ${yr(first)}.</p>
+  <p class="s-src">Cliopatria v0.2.1 · CC BY 4.0</p>${qaHtml(s.name, "s-qa")}`;
+}
+const polTip = f => { const p = f.properties; return `<b>${esc(p.name)}</b><br>${yr(p.life[0])} – ${yr(p.life[1])}<br><em>Polygon area</em> ${mkm(p.area)} M km²${qaLines(p.name).some(l => l.warn) ? "<br>⚠ <em>Data notes in the card</em>" : ""}`; };
+
+/* ---------- build globes ---------- */
+const ROMAN = BYNAME.get("Roman Empire");
+const nocEl = document.getElementById("f-noc"), velEl = document.getElementById("f-vel"), strEl = document.getElementById("f-str");
+velEl.style.setProperty("--paper-noise", `url(${paperNoise()})`);
+const narrow = (w, h) => w < 600 || h < 480;
+const nCard = document.getElementById("n-card"), vCard = document.getElementById("v-card"), sCard = document.getElementById("s-card");
+nCard.innerHTML = nocCard(ROMAN); vCard.innerHTML = velCard(ROMAN); sCard.innerHTML = strCard(ROMAN);
+
+const gN = new Globe(nocEl.querySelector("canvas"), {
+  center: [-58, -26], sway: 26, selected: ROMAN, draw: drawNoc,
+  layout: (w, h) => narrow(w, h) ? { x: w / 2, y: h / 2, r: Math.min(w, h) * 0.43 } : { x: w * 0.42, y: h * 0.47, r: Math.min(w * 0.29, h * 0.39) },
+  onResize: g => { g.stars = starfield(g.w, g.h, g.dpr); },
+  onHover: (f, x, y) => showTip("noc", polTip(f), x, y),
+  onClick: f => { if (f) { gN.sel = f; nCard.innerHTML = nocCard(f); gN.redraw(); } }
+});
+const gV = new Globe(velEl.querySelector("canvas"), {
+  center: [-48, -28], sway: 22, selected: ROMAN, draw: drawVel,
+  layout: (w, h) => narrow(w, h) ? { x: w / 2, y: h / 2, r: Math.min(w, h) * 0.42 } : { x: w * 0.38, y: h * 0.5, r: Math.min(w * 0.28, h * 0.37) },
+  onHover: (f, x, y) => showTip("vel", polTip(f), x, y),
+  onClick: f => { if (f) { gV.sel = f; vCard.innerHTML = velCard(f); gV.redraw(); } }
+});
+const gS = new Globe(strEl.querySelector("canvas"), {
+  center: [-34, -30], sway: 16, selected: ROMAN, draw: drawStr, animated: true,
+  layout: (w, h) => ({ x: w * 0.54, y: h * 0.53, r: Math.min(w, h) * (narrow(w, h) ? 0.4 : 0.42) }),
+  onHover: (f, x, y) => showTip("str", polTip(f), x, y),
+  onClick: (f, x, y) => {
+    if (f) { gS.sel = f; sCard.innerHTML = strCard(f); gS.redraw(); }
+    else { showTip("str", "In the slice, clicking anywhere drills a new core sample at that point.", x, y); setTimeout(hideTip, 2200); }
+  }
+});
+document.fonts && document.fonts.ready.then(() => [gN, gV, gS].forEach(g => g.redraw()));
+
+/* ---------- timelines (A, B) ---------- */
+const EVENTS = [
+  { y: -3100, t: "c. 3100 BCE · Unification of Egypt (approximate)" },
+  { y: -776, t: "776 BCE · First recorded Olympic Games (traditional date)" },
+  { y: -221, t: "221 BCE · Qin unifies China" },
+  { y: 117, t: "117 CE · Death of Trajan" },
+  { y: 476, t: "476 CE · Last western Roman emperor deposed" },
+  { y: 622, t: "622 CE · The Hijra" },
+  { y: 1206, t: "1206 CE · Temüjin proclaimed Genghis Khan" },
+  { y: 1453, t: "1453 CE · Fall of Constantinople" },
+  { y: 1492, t: "1492 CE · Columbus reaches the Caribbean" },
+  { y: 1914, t: "1914 CE · First World War begins" }
+];
+const DEN = DATA.density;
+function responsiveSvg(el, draw) { const run = () => { const W = Math.floor(el.getBoundingClientRect().width); if (W) draw(W); }; run(); new ResizeObserver(run).observe(el.parentNode); }
+
+responsiveSvg(document.getElementById("n-time"), W => {
+  const H = 78, s = d3.select("#n-time").attr("viewBox", `0 0 ${W} ${H}`).attr("height", H); s.selectAll("*").remove();
+  const L = W < 520 ? 60 : 118, Rt = W - 8, yb = 46, x = d3.scaleLinear([-3400, 2024], [L, Rt]);
+  const defs = s.append("defs");
+  const lg = defs.append("linearGradient").attr("id", "noc-aur").attr("x1", 0).attr("y1", 1).attr("x2", 0).attr("y2", 0);
+  lg.append("stop").attr("offset", 0).attr("stop-color", "#5fd4ff").attr("stop-opacity", 0.55);
+  lg.append("stop").attr("offset", 1).attr("stop-color", "#a98bff").attr("stop-opacity", 0);
+  const fl = defs.append("filter").attr("id", "noc-glow").attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
+  fl.append("feGaussianBlur").attr("stdDeviation", 2.4).attr("result", "b");
+  const fm = fl.append("feMerge"); fm.append("feMergeNode").attr("in", "b"); fm.append("feMergeNode").attr("in", "SourceGraphic");
+  const hy = d3.scaleLinear([0, d3.max(DEN.count)], [0, 30]);
+  s.append("path").datum(DEN.count).attr("fill", "url(#noc-aur)")
+    .attr("d", d3.area().x((d, i) => x(DEN.bins[i] + 25)).y0(yb).y1(d => yb - hy(d)).curve(d3.curveMonotoneX));
+  s.append("line").attr("x1", L).attr("x2", Rt).attr("y1", yb).attr("y2", yb).attr("stroke", "rgba(160,190,255,0.4)");
+  [-3000, -2000, -1000, 1, 1000, 2000].forEach(t => {
+    s.append("line").attr("x1", x(t)).attr("x2", x(t)).attr("y1", yb).attr("y2", yb + 4).attr("stroke", "rgba(160,190,255,0.5)");
+    s.append("text").attr("x", x(t)).attr("y", yb + 18).attr("text-anchor", "middle").attr("fill", "rgba(230,236,247,0.5)")
+      .attr("font-family", "Geist Mono, monospace").attr("font-size", 10).text(W < 520 && Math.abs(t) === 1000 ? "" : yr(t));
+  });
+  EVENTS.forEach(ev => {
+    const g = s.append("g").attr("transform", `translate(${x(ev.y)},${yb - 6})`).style("cursor", "help");
+    g.append("circle").attr("r", 9).attr("fill", "transparent");
+    g.append("path").attr("d", "M0,-3.5 L3.5,0 L0,3.5 L-3.5,0 Z").attr("fill", "rgba(230,236,247,0.85)");
+    g.on("pointerenter", e => showTip("noc", `${esc(ev.t)}<br><em>Illustrative marker, uncited</em>`, e.clientX, e.clientY)).on("pointerleave", hideTip);
+  });
+  const px = x(117);
+  s.append("line").attr("x1", px).attr("x2", px).attr("y1", 10).attr("y2", yb + 6).attr("stroke", "#ffb35c").attr("stroke-width", 1.5).attr("filter", "url(#noc-glow)");
+  s.append("circle").attr("cx", px).attr("cy", yb).attr("r", 4.5).attr("fill", "#ffb35c").attr("filter", "url(#noc-glow)");
+  s.append("text").attr("x", px + 8).attr("y", 14).attr("fill", "#ffd6a0").attr("font-family", "Geist, sans-serif").attr("font-size", 11).attr("letter-spacing", 1.5).text("117 CE");
+  const c = s.append("g").attr("transform", `translate(18,${yb})`).attr("aria-hidden", "true");
+  c.append("circle").attr("r", 14).attr("fill", "rgba(120,160,255,0.12)").attr("stroke", "rgba(160,190,255,0.42)");
+  c.append("path").attr("d", "M-4,-6 L7,0 L-4,6 Z").attr("fill", "#e6ecf7");
+  if (W >= 520) c.append("text").attr("x", 24).attr("y", 4).attr("fill", "rgba(230,236,247,0.6)").attr("font-family", "Geist Mono, monospace").attr("font-size", 10.5).text("100 yr/s");
+});
+
+responsiveSvg(document.getElementById("v-time"), W => {
+  const H = 72, s = d3.select("#v-time").attr("viewBox", `0 0 ${W} ${H}`).attr("height", H); s.selectAll("*").remove();
+  const L = 4, Rt = W - 4, yb = 40, x = d3.scaleLinear([-3400, 2024], [L, Rt]), ink = "#3a2c1d";
+  const hy = d3.scaleLinear([0, d3.max(DEN.count)], [0, 24]);
+  DEN.count.forEach((n, i) => { const xx = x(DEN.bins[i] + 25); s.append("line").attr("x1", xx).attr("x2", xx).attr("y1", yb).attr("y2", yb - hy(n)).attr("stroke", ink).attr("stroke-opacity", 0.5).attr("stroke-width", 0.6); });
+  s.append("line").attr("x1", L).attr("x2", Rt).attr("y1", yb).attr("y2", yb).attr("stroke", ink).attr("stroke-width", 1);
+  s.append("line").attr("x1", L).attr("x2", Rt).attr("y1", yb + 3).attr("y2", yb + 3).attr("stroke", ink).attr("stroke-width", 0.5);
+  for (let t = -3400; t <= 2000; t += 100) {
+    const major = t % 1000 === 0, mid = t % 500 === 0;
+    s.append("line").attr("x1", x(t)).attr("x2", x(t)).attr("y1", yb + 3).attr("y2", yb + 3 + (major ? 9 : mid ? 6 : 3)).attr("stroke", ink).attr("stroke-width", major ? 0.9 : 0.5);
+  }
+  [-3000, -2000, -1000, 1, 1000, 2000].forEach(t => {
+    if (W < 520 && Math.abs(t) === 1000) return;
+    s.append("text").attr("x", x(t)).attr("y", yb + 26).attr("text-anchor", "middle").attr("fill", ink).attr("font-family", "EB Garamond, serif").attr("font-style", "italic").attr("font-size", 13).text(t === 1 ? "A.D. 1" : yrOld(t));
+  });
+  const px = x(117);
+  s.append("path").attr("d", `M${px - 5},${yb - 30} L${px + 5},${yb - 30} L${px},${yb - 22} Z`).attr("fill", "#7a2f22");
+  s.append("line").attr("x1", px).attr("x2", px).attr("y1", yb - 22).attr("y2", yb + 12).attr("stroke", "#7a2f22").attr("stroke-width", 1.1);
+  s.append("text").attr("x", px + 9).attr("y", yb - 24).attr("fill", "#7a2f22").attr("font-family", "Cormorant SC, serif").attr("font-weight", 600).attr("font-size", 13).attr("letter-spacing", 2).text("A.D. 117");
+});
+
+/* ---------- Strata: core sample ---------- */
+const CORE = DATA.core.map(s => ({ ...s })).sort((a, b) => a.from - b.from || a.to - b.to);
+CORE.forEach((s, i) => { s.ov = CORE.some((t, j) => j !== i && t.from <= s.to && t.to >= s.from); });
+{ const ends = []; CORE.forEach(s => { let l = 0; while (ends[l] !== undefined && ends[l] >= s.from) l++; ends[l] = s.to; s.lane = l; }); }
+const GAPS = []; { let maxTo = CORE[0].to; for (let i = 1; i < CORE.length; i++) { const s = CORE[i]; if (s.from > maxTo + 1) GAPS.push({ from: maxTo + 1, to: s.from - 1 }); maxTo = Math.max(maxTo, s.to); } }
+let OVERLAPS = 0; for (let i = 0; i < CORE.length; i++) for (let j = i + 1; j < CORE.length; j++) if (CORE[j].from <= CORE[i].to && CORE[j].to >= CORE[i].from) OVERLAPS++;
+document.getElementById("s-counts").textContent = `${CORE.length} strata · ${GAPS.length} gaps · ${OVERLAPS} overlaps`;
+const FULL = [-760, 2034]; let dom = FULL.slice(), anim = null;
+const plot = document.getElementById("s-plot"), coreSvg = d3.select("#s-core-svg");
+const coreTip = s => `<b>${esc(s.name)}</b><br>${span(s.from, s.to)} · ${s.to - s.from + 1} yrs<br><em>${s.exact ? "Polygon covers Rome's coordinates" : "Within about 5 km of Rome's coordinates (coarse polygon)"}</em>${qaTip(s.name)}`;
+function selectStratum(s) {
+  const f = BYNAME.get(s.name);
+  if (f && f.properties.from <= 117 && 117 <= f.properties.to) { gS.sel = f; sCard.innerHTML = strCard(f); gS.flyTo([f.properties.lx, f.properties.ly]); }
+  else { gS.sel = null; sCard.innerHTML = strStratumCard(s); gS.redraw(); }
+}
+function renderCore() {
+  const W = plot.clientWidth, H = plot.clientHeight; if (!W || !H) return;
+  coreSvg.attr("viewBox", `0 0 ${W} ${H}`).attr("width", W).attr("height", H); coreSvg.selectAll("*").remove();
+  const top = 8, bot = H - 8, y = d3.scaleLinear(dom, [bot, top]);
+  const axW = 50, colX = axW, colW = 40, lx = colX + colW + 16;
+  const defs = coreSvg.append("defs");
+  defs.append("pattern").attr("id", "s-hatch").attr("width", 5).attr("height", 5).attr("patternUnits", "userSpaceOnUse").attr("patternTransform", "rotate(45)")
+    .append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 5).attr("stroke", "rgba(233,226,210,0.35)").attr("stroke-width", 1.2);
+  defs.append("clipPath").attr("id", "s-clip").append("rect").attr("x", 0).attr("y", top).attr("width", W).attr("height", bot - top);
+  const g = coreSvg.append("g").attr("clip-path", "url(#s-clip)");
+  g.append("rect").attr("x", colX).attr("y", top).attr("width", colW).attr("height", bot - top).attr("fill", "#151a21");
+  y.ticks(H < 420 ? 6 : 9).map(t => t === 0 ? 1 : t).forEach(t => {
+    g.append("line").attr("x1", colX - 4).attr("x2", colX).attr("y1", y(t)).attr("y2", y(t)).attr("stroke", "#3a414b");
+    g.append("text").attr("x", colX - 7).attr("y", y(t)).attr("dy", "0.32em").attr("text-anchor", "end").attr("fill", "#6f7680").attr("font-family", "IBM Plex Mono, monospace").attr("font-size", 9.5).text(yr(t));
+  });
+  GAPS.forEach(gp => {
+    const y0 = y(gp.to + 1), hh = Math.max(2, y(gp.from) - y0);
+    g.append("rect").attr("x", colX).attr("y", y(gp.from) - hh).attr("width", colW).attr("height", hh).attr("fill", "url(#s-hatch)")
+      .on("pointerenter pointermove", e => showTip("str", `<b>Unmapped</b><br>${span(gp.from, gp.to)}<br><em>No Cliopatria polygon covers Rome here. ${GAP_NOTES[gp.from] || ""}</em>`, e.clientX, e.clientY)).on("pointerleave", hideTip);
+  });
+  CORE.forEach(s => {
+    const x0 = s.ov ? colX + (s.lane % 2) * (colW / 2) : colX, ww = s.ov ? colW / 2 - 1 : colW;
+    const hh = Math.max(1.6, y(s.from) - y(s.to + 1));
+    g.append("rect").attr("x", x0).attr("y", y(s.from) - hh).attr("width", ww).attr("height", hh)
+      .attr("fill", pig(s.name)).attr("fill-opacity", s.exact ? 0.92 : 0.3)
+      .attr("stroke", s.exact ? "none" : "#e9e2d2").attr("stroke-dasharray", s.exact ? null : "3 2").attr("stroke-width", 1)
+      .style("cursor", "pointer")
+      .on("pointerenter pointermove", e => showTip("str", coreTip(s), e.clientX, e.clientY)).on("pointerleave", hideTip)
+      .on("click", () => selectStratum(s));
+  });
+  const cands = CORE.filter(s => y(s.from) - y(s.to + 1) >= 11).map(s => ({ s, y: (y(s.from) + y(s.to + 1)) / 2, gap: false }))
+    .concat(GAPS.map(gp => ({ s: gp, y: (y(gp.from) + y(gp.to + 1)) / 2, gap: true })))
+    .filter(c => c.y > top - 4 && c.y < bot + 4).sort((a, b) => a.y - b.y);
+  const minG = 27; cands.forEach((c, i) => { c.ly = Math.max(c.y, i ? cands[i - 1].ly + minG : top + 10); });
+  for (let i = cands.length - 1; i >= 0; i--) { const lim = i === cands.length - 1 ? bot - 14 : cands[i + 1].ly - minG; if (cands[i].ly > lim) cands[i].ly = lim; }
+  cands.forEach(c => {
+    g.append("path").attr("d", `M${colX + colW + 2},${c.y} L${lx - 10},${c.y} L${lx - 4},${c.ly}`).attr("fill", "none").attr("stroke", "#3a414b");
+    const name = c.gap ? "Unmapped" : c.s.name + (c.s.exact ? "" : " ≈5 km");
+    g.append("text").attr("x", lx).attr("y", c.ly - 3).attr("fill", c.gap ? "#8d949d" : "#e9e2d2")
+      .attr("font-family", "Newsreader, Georgia, serif").attr("font-style", c.gap ? "italic" : "normal").attr("font-size", 13.5).text(name);
+    g.append("text").attr("x", lx).attr("y", c.ly + 10).attr("fill", "#8d949d").attr("font-family", "IBM Plex Mono, monospace").attr("font-size", 10).text(span(c.s.from, c.s.to));
+  });
+}
+new ResizeObserver(renderCore).observe(plot);
+const LENSES = { "lens-all": FULL, "lens-late": [380, 620], "lens-mod": [1780, 1960] };
+Object.keys(LENSES).forEach(id => document.getElementById(id).addEventListener("click", () => {
+  Object.keys(LENSES).forEach(k => document.getElementById(k).setAttribute("aria-pressed", String(k === id)));
+  const from = dom.slice(), to = LENSES[id];
+  if (anim) anim.stop();
+  if (REDUCED) { dom = to.slice(); renderCore(); return; }
+  const ip = d3.interpolateArray(from, to);
+  anim = d3.timer(el => { const p = Math.min(1, el / 650); dom = ip(d3.easeCubicInOut(p)); renderCore(); if (p === 1) anim.stop(); });
+}));
+
+/* ---------- Strata: stream + overview ---------- */
+const ST = DATA.stream, OTHER = "Other mapped polities";
+const keys = ST.series.map(s => s.name).concat([OTHER]);
+const rows = ST.years.map((y, i) => { const o = { year: y }; ST.series.forEach(s => { o[s.name] = s.area[i]; }); o[OTHER] = ST.other[i]; return o; });
+const stackGen = d3.stack().keys(keys).offset(d3.stackOffsetSilhouette)
+  .order(series => [series.length - 1, ...d3.stackOrderInsideOut(series.slice(0, -1))]);
+const SERIES = stackGen(rows);
+const FAM = [["Roman", "#cf5637"], ["Chinese imperial", "#4b70c6"], ["Iranian", "#d9a845"], ["Steppe", "#4fae9f"], ["South Asian", "#57a067"], ["Hellenistic", "#b25c87"], ["Other mapped", "#262c34"]];
+document.getElementById("s-leg").innerHTML = FAM.map(([n, c]) => `<li><i style="background:${c};${c === "#262c34" ? "outline:1px solid #4a525d" : ""}"></i>${n}</li>`).join("") + `<li><i class="dash"></i>Unique mapped area</li><li style="color:#6f7680">Colour families are an editorial grouping</li>`;
+
+responsiveSvg(document.getElementById("s-over"), W => {
+  const H = 34, s = d3.select("#s-over").attr("viewBox", `0 0 ${W} ${H}`).attr("height", H); s.selectAll("*").remove();
+  const x = d3.scaleLinear([-3400, 2024], [0, W]), hy = d3.scaleLinear([0, d3.max(DEN.count)], [0, 22]), yb = 24;
+  DEN.count.forEach((n, i) => s.append("rect").attr("x", x(DEN.bins[i])).attr("width", Math.max(0.5, x(DEN.bins[i] + 50) - x(DEN.bins[i]) - 0.6)).attr("y", yb - hy(n)).attr("height", hy(n)).attr("fill", "rgba(233,226,210,0.28)"));
+  s.append("rect").attr("x", x(-500)).attr("width", x(700) - x(-500)).attr("y", 0).attr("height", yb + 1).attr("fill", "rgba(233,226,210,0.06)").attr("stroke", "rgba(233,226,210,0.55)");
+  s.append("line").attr("x1", x(117)).attr("x2", x(117)).attr("y1", 0).attr("y2", yb + 2).attr("stroke", "#e9e2d2");
+  [-3000, -2000, -1000, 1, 1000, 2000].forEach(t => { if (W < 520 && Math.abs(t) === 1000) return; s.append("text").attr("x", x(t)).attr("y", H - 1).attr("text-anchor", "middle").attr("fill", "#6f7680").attr("font-family", "IBM Plex Mono, monospace").attr("font-size", 9).text(yr(t)); });
+  const mi = DEN.count.indexOf(d3.max(DEN.count));
+  s.append("text").attr("x", x(DEN.bins[mi]) - 4).attr("y", 8).attr("text-anchor", "end").attr("fill", "#8d949d").attr("font-family", "IBM Plex Mono, monospace").attr("font-size", 9).text(`${DEN.count[mi]} polities`);
+});
+
+responsiveSvg(document.getElementById("s-stream-svg"), W => {
+  const H = W < 600 ? 190 : 230, m = { l: 2, r: W < 600 ? 2 : 70, t: 14, b: 22 };
+  const s = d3.select("#s-stream-svg").attr("viewBox", `0 0 ${W} ${H}`).attr("height", H); s.selectAll("*").remove();
+  const x = d3.scaleLinear([-500, 700], [m.l, W - m.r]);
+  const y0 = d3.min(SERIES, sr => d3.min(sr, d => d[0])), y1 = d3.max(SERIES, sr => d3.max(sr, d => d[1]));
+  const y = d3.scaleLinear([y0, y1], [H - m.b, m.t]);
+  const area = d3.area().x(d => x(d.data.year)).y0(d => y(d[0])).y1(d => y(d[1])).curve(d3.curveBasis);
+  const paths = s.append("g").selectAll("path").data(SERIES).join("path")
+    .attr("d", area).attr("fill", d => pig(d.key)).attr("fill-opacity", d => d.key === OTHER ? 1 : 0.86)
+    .attr("stroke", "#0d1014").attr("stroke-width", 0.6).style("cursor", "crosshair")
+    .on("pointermove", (e, d) => {
+      const [mx] = d3.pointer(e, s.node()); const yrv = x.invert(mx);
+      const i = Math.max(0, Math.min(ST.years.length - 1, Math.round((yrv + 500) / 5)));
+      const tot = keys.reduce((a, k) => a + rows[i][k], 0);
+      paths.attr("fill-opacity", p => p === d ? 1 : (p.key === OTHER ? 0.7 : 0.4));
+      showTip("str", `<b>${esc(d.key)}</b> · ${yr(ST.years[i])}<br>${mkm(rows[i][d.key])} M km² mapped<br><em>All mapped: combined ${mkm(tot)} · unique ${mkm(DATA.uniq.unique_km2[i])} M km²</em>`, e.clientX, e.clientY);
+    })
+    .on("pointerleave", () => { paths.attr("fill-opacity", d => d.key === OTHER ? 1 : 0.86); hideTip(); });
+  const UQ = DATA.uniq, envG = s.append("g").attr("pointer-events", "none");
+  [1, -1].forEach(sign => envG.append("path")
+    .attr("d", d3.line().x((d, i) => x(UQ.years[i])).y(d => y(sign * d / 2)).curve(d3.curveBasis)(UQ.unique_km2))
+    .attr("fill", "none").attr("stroke", "#e9e2d2").attr("stroke-width", 1.2).attr("stroke-dasharray", "3 3"));
+  SERIES.forEach(sr => {
+    if (sr.key === OTHER) return;
+    let best = -1, bi = 0; sr.forEach((d, i) => { const th = y(d[0]) - y(d[1]); if (th > best) { best = th; bi = i; } });
+    if (best < 15) return;
+    const d = sr[bi], xx = Math.max(m.l + 50, Math.min(W - m.r - 50, x(d.data.year)));
+    s.append("text").attr("x", xx).attr("y", (y(d[0]) + y(d[1])) / 2).attr("dy", "0.34em").attr("text-anchor", "middle")
+      .attr("fill", "rgba(13,16,20,0.86)").attr("font-family", "IBM Plex Sans, sans-serif").attr("font-weight", 600).attr("font-size", 10.5)
+      .attr("pointer-events", "none").text(sr.key);
+  });
+  const g = s.append("g").attr("pointer-events", "none");
+  [-500, -400, -300, -200, -100, 1, 100, 200, 300, 400, 500, 600, 700].forEach(t => {
+    if (W < 600 && ![-500, -250, 1, 250, 500, 700].includes(t) && t % 200 !== 0) return;
+    g.append("text").attr("x", x(t)).attr("y", H - 4).attr("text-anchor", t === -500 ? "start" : t === 700 ? "end" : "middle").attr("fill", "#6f7680").attr("font-family", "IBM Plex Mono, monospace").attr("font-size", 9.5).text(yr(t));
+  });
+  g.append("line").attr("x1", x(117)).attr("x2", x(117)).attr("y1", 2).attr("y2", H - m.b + 2).attr("stroke", "#e9e2d2").attr("stroke-width", 1);
+  g.append("text").attr("x", x(117) + 5).attr("y", 10).attr("fill", "#e9e2d2").attr("font-family", "IBM Plex Mono, monospace").attr("font-size", 10).text("117 CE · in view");
+  if (W >= 600) {
+    const barH = y(0) - y(5e6), bx = W - m.r + 26, by = H - m.b;
+    g.append("line").attr("x1", bx).attr("x2", bx).attr("y1", by).attr("y2", by - barH).attr("stroke", "#b9b2a3").attr("stroke-width", 2);
+    g.append("text").attr("x", bx + 6).attr("y", by - barH / 2).attr("dy", "0.32em").attr("fill", "#b9b2a3").attr("font-family", "IBM Plex Mono, monospace").attr("font-size", 9.5).text("5 M km²");
+  }
+});
+
+/* ---------- comparison table ---------- */
+const CMP = [
+  ["First-minute wonder", 5, 3, 4], ["Legibility of dense borders", 2, 3, 4], ["Shows uncertainty", 2, 4, 5], ["Holds nine layers", 3, 2, 5],
+  ["Long reading", 2, 5, 4], ["Ancient and modern alike", 4, 2, 5], ["Distinctiveness", 2, 3, 5]
+];
+const dots = n => `<b>${"●".repeat(n)}</b>${"○".repeat(5 - n)}`;
+document.getElementById("cmp").innerHTML = CMP.map(([c, a, b, d]) => {
+  const mx = Math.max(a, b, d);
+  return `<tr><th scope="row">${c}</th>${[a, b, d].map(v => `<td class="d${v === mx ? " best" : ""}" aria-label="${v} of 5">${dots(v)}</td>`).join("")}</tr>`;
+}).join("");
+})();
+</script>

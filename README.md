@@ -8,11 +8,14 @@ An interactive atlas of human history: a globe you travel through in time. Real,
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | System design, rendering engine choice, time model, pipeline, testing |
 | [docs/data-model.md](docs/data-model.md) | Claim-based data model, fuzzy dates, Cliopatria mapping and findings |
-| [db/schema.sql](db/schema.sql) | Draft PostgreSQL/PostGIS schema (27 tables) |
+| [db/schema.sql](db/schema.sql) | Draft PostgreSQL/PostGIS schema (30 tables) |
 | [docs/data-sources.md](docs/data-sources.md) | Evaluated historical datasets, licenses, coverage gaps, ingestion design |
 | [docs/design-direction.md](docs/design-direction.md) | Three visual directions, the recommendation (Strata), design tokens |
-| [docs/roadmap.md](docs/roadmap.md) | Phases 1–5, the vertical slice, risks, open decisions |
+| [docs/roadmap.md](docs/roadmap.md) | Phases 1–5, the vertical slice, risks, decisions |
 | [docs/decisions.md](docs/decisions.md) | Architecture decision log |
+| [docs/validation/0001-cliopatria-117ce.md](docs/validation/0001-cliopatria-117ce.md) | Technical validation of the 117 CE data: areas, overlaps, coverage, cross-references, gaps |
+| [research/phase0/](research/phase0/README.md) | The scripts that produced every Phase 0 figure, plus verified cross-reference corrections |
+| [infra/postgis/](infra/postgis/README.md) | Prepared (not installed) digest-pinned PostGIS container |
 
 ## Planned stack
 

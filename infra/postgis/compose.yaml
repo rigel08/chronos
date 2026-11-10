@@ -1,0 +1,31 @@
+# CHRONOS development database: PostgreSQL 17 + PostGIS 3.6 in a dedicated container.
+#
+# STATUS: prepared, NOT installed. Docker is not installed on the development Mac yet.
+# Installation and first start happen at roadmap milestone 1.2 (see README.md here).
+#
+# - Pinned by digest, so `docker compose pull` can never silently change the image.
+# - Listens on 127.0.0.1:5433 only, leaving the existing Homebrew PostgreSQL 15 on 5432 untouched.
+# - Data lives in the named volume `chronos-pgdata`, never in the repository.
+name: chronos
+
+services:
+  postgis:
+    # postgis/postgis:17-3.6 as published 2026-10-26 (amd64 only; runs under Rosetta on Apple silicon).
+    image: postgis/postgis:17-3.6@sha256:1ac10b2551ba84ae05db8e7da477afcd0a3fede99bcb7705da2ee157390cb095
+    platform: linux/amd64
+    container_name: chronos-postgis
+    restart: "no"
+    env_file: .env
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - chronos-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    shm_size: 512mb
+
+volumes:
+  chronos-pgdata:
