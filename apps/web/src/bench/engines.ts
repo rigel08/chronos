@@ -10,7 +10,8 @@ import { SolidPolygonLayer } from "@deck.gl/layers";
 import { type ExpressionSpecification, type IControl, Map as MapLibreMap, type StyleSpecification } from "maplibre-gl";
 
 import { yearFilterRange } from "../lib/years";
-import { type Geometry, partItems, type PartItem, territoryFeatures } from "./bundle";
+import { deckBinaryData, type Geometry, partItems, type PartItem, territoryFeatures } from "./bundle";
+import { probe } from "./memory";
 
 export type EngineName = "maplibre" | "deck";
 
@@ -49,7 +50,20 @@ export function baseStyle(): StyleSpecification {
 // Overridable from the URL (?depth=default|always) so the variants can be compared on screenshots.
 const DEPTH = new URLSearchParams(globalThis.location?.search ?? "").get("depth") ?? "always";
 const CURRENT_CHECK = new URLSearchParams(globalThis.location?.search ?? "").get("current");
-const DECK_PARAMETERS = DEPTH === "default" ? {} : { depthCompare: "always" as const, depthWriteEnabled: false };
+const PROBE = new URLSearchParams(globalThis.location?.search ?? "").get("probe") === "1";
+// Engine variants for the memory work (milestone 1.2); default stays the Spike 001 configuration until replaced.
+//   spike001: per-part objects, deck.gl normalises and triangulates in the browser (the Spike 001 configuration)
+//   alloc:    spike001 with exact typed-array allocation and no buffer pool
+//   binary:   pre-triangulated binary geometry from the pipeline (D-021) with exact allocation (the 1.2 default)
+export const VARIANT = new URLSearchParams(globalThis.location?.search ?? "").get("variant") ?? "binary";
+const ALLOCATOR = VARIANT === "spike001" ? undefined : { overAlloc: 1, poolSize: 0 };
+// Face culling (milestone 1.2, D-022). In interleaved mode deck.gl draws inside MapLibre's GL context; Spike 001
+// rendered correctly only because MapLibre's globe pass left back-face culling enabled, which also hid the far
+// hemisphere (seen through the globe, far-side triangles face away). Culling is now explicit, with triangle
+// winding fixed by the pipeline (counter-clockwise in lon/lat). ?cull=back|front|none|inherit for experiments.
+const CULL = new URLSearchParams(globalThis.location?.search ?? "").get("cull") ?? "back";
+const DECK_PARAMETERS = { ...(DEPTH === "default" ? {} : { depthCompare: "always" as const, depthWriteEnabled: false }),
+                          ...(CULL === "inherit" ? {} : { cullMode: CULL as "back" | "front" | "none" }) };
 
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
@@ -65,6 +79,7 @@ export async function createEngine(name: EngineName, container: HTMLElement, g: 
     map.once("load", () => { clearTimeout(watchdog); resolve(); });
     map.on("error", (ev) => { clearTimeout(watchdog); reject(ev.error ?? new Error("map error")); });
   });
+  if (PROBE) await probe("map loaded, no territories");
   const t0 = performance.now();
   const engine = name === "maplibre" ? await maplibreEngine(map, g, initialYear) : await deckEngine(map, g, initialYear);
   await engine.settled();
@@ -105,19 +120,36 @@ async function maplibreEngine(map: MapLibreMap, g: Geometry, year: number): Prom
 }
 
 async function deckEngine(map: MapLibreMap, g: Geometry, year: number): Promise<Engine> {
-  const data = partItems(g);
   const extension = new DataFilterExtension({ filterSize: 2 });
-  const make = (t: number) => new SolidPolygonLayer<PartItem, DataFilterExtensionProps<PartItem>>({
-    id: "polities", data, positionFormat: "XY", extruded: false, filled: true, pickable: true,
-    getPolygon: (d) => d.polygon,
-    getFillColor: (d) => [...(PIGMENTS_RGB[(g.territoryPolity[d.territory] as number) % PIGMENTS_RGB.length] as [number, number, number]), 217],
-    getFilterValue: (d) => [d.start, d.end],
-    filterRange: yearFilterRange(t),
-    extensions: [extension],
-    parameters: DECK_PARAMETERS,
-  });
-  const overlay = new MapLibreOverlay({ interleaved: true, layers: [make(year)] });
+  const colourOf = (polity: number): [number, number, number, number] =>
+    [...(PIGMENTS_RGB[polity % PIGMENTS_RGB.length] as [number, number, number]), 217];
+  let make: (t: number) => SolidPolygonLayer<never, DataFilterExtensionProps<never>>;
+  let polityAt: (index: number, object: unknown) => number;
+  if (VARIANT === "binary") {
+    const data = deckBinaryData(g, colourOf);
+    if (PROBE) await probe("deck: binary attributes built");
+    make = (t) => new SolidPolygonLayer<never, DataFilterExtensionProps<never>>({
+      id: "polities", data: data as never, _normalize: false, positionFormat: "XY", extruded: false, filled: true,
+      pickable: true, filterRange: yearFilterRange(t), extensions: [extension], parameters: DECK_PARAMETERS,
+    });
+    polityAt = (index) => g.territoryPolity[g.partTerritory[index] as number] as number;
+  } else {
+    const data = partItems(g);
+    if (PROBE) await probe("deck: part items built");
+    make = (t) => new SolidPolygonLayer<PartItem, DataFilterExtensionProps<PartItem>>({
+      id: "polities", data, positionFormat: "XY", extruded: false, filled: true, pickable: true,
+      getPolygon: (d) => d.polygon,
+      getFillColor: (d) => colourOf(g.territoryPolity[d.territory] as number),
+      getFilterValue: (d) => [d.start, d.end],
+      filterRange: yearFilterRange(t),
+      extensions: [extension],
+      parameters: DECK_PARAMETERS,
+    }) as unknown as SolidPolygonLayer<never, DataFilterExtensionProps<never>>;
+    polityAt = (_index, object) => g.territoryPolity[(object as PartItem).territory] as number;
+  }
+  const overlay = new MapLibreOverlay({ interleaved: true, layers: [make(year)], ...(ALLOCATOR ? { _typedArrayManagerProps: ALLOCATOR } : {}) });
   map.addControl(overlay as unknown as IControl);
+  if (PROBE) (globalThis as unknown as { __CHRONOS_OVERLAY__?: unknown }).__CHRONOS_OVERLAY__ = overlay;   // memory profiler only
   let pendingFrame: Promise<void> = Promise.resolve();
   return {
     name: "deck", map, dataReadyMs: 0,
@@ -141,7 +173,7 @@ async function deckEngine(map: MapLibreMap, g: Geometry, year: number): Promise<
     },
     pick(x, y) {
       const hits = overlay.pickMultipleObjects({ x, y, radius: 0, depth: 8, layerIds: ["polities"] });
-      return [...new Set(hits.map((h) => g.territoryPolity[(h.object as PartItem).territory] as number))].sort((a, b) => a - b);
+      return [...new Set(hits.map((h) => polityAt(h.index, h.object)))].sort((a, b) => a - b);
     },
   };
 }

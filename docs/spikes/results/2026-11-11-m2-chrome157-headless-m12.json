@@ -1,0 +1,1933 @@
+{
+ "label": "m2-chrome157-headless-m12",
+ "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+ "chrome": "157.0.8103.39",
+ "options": {
+  "engines": [
+   "deck",
+   "maplibre"
+  ],
+  "variants": [
+   "spike001",
+   "binary"
+  ],
+  "reps": 3,
+  "picks": 10000,
+  "step": 5,
+  "cycles": 5,
+  "headed": false,
+  "query": ""
+ },
+ "runs": [
+  {
+   "rep": 1,
+   "variant": "spike001",
+   "wallMs": 157755,
+   "consoleIssues": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ],
+   "engine": "deck",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 102,
+    "decodeMs": 0,
+    "engineDataReadyMs": 33,
+    "timeToInteractiveMs": 386,
+    "timeToFirstCorrectPickMs": 1286
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "staleShare": 0
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 877.5,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 2,
+      "heapMB": 900.4,
+      "p95": 16.8,
+      "staleShare": 0
+     },
+     {
+      "cycle": 3,
+      "heapMB": 823.5,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 4,
+      "heapMB": 809.9,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 5,
+      "heapMB": 820.5,
+      "p95": 16.8,
+      "staleShare": 0
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.2,
+     "p50": 0.2,
+     "p95": 0.4,
+     "p99": 0.5,
+     "max": 1.5
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 17
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.24,
+     "max": 0.5
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 15
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.1,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.2,
+     "max": 0.2
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 16
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 33.18,
+    "p50": 33.35,
+    "p95": 33.71,
+    "p99": 34.49,
+    "max": 34.8
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 821,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 821,
+    "onHeapAfterGcMB": 58.4,
+    "arrayBuffersAfterGcMB": 747.8,
+    "totalAfterGcMB": 806.2,
+    "processes": {
+     "browser": 63,
+     "gpu-process": 921,
+     "utility": 28,
+     "renderer": 861
+    }
+   }
+  },
+  {
+   "rep": 2,
+   "variant": "spike001",
+   "wallMs": 155998,
+   "consoleIssues": [],
+   "engine": "deck",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 77,
+    "decodeMs": 0,
+    "engineDataReadyMs": 36,
+    "timeToInteractiveMs": 349,
+    "timeToFirstCorrectPickMs": 1312
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "staleShare": 0
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 878,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 2,
+      "heapMB": 901,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 3,
+      "heapMB": 810.4,
+      "p95": 16.8,
+      "staleShare": 0
+     },
+     {
+      "cycle": 4,
+      "heapMB": 830.1,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 5,
+      "heapMB": 816.7,
+      "p95": 16.7,
+      "staleShare": 0
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.21,
+     "p50": 0.2,
+     "p95": 0.4,
+     "p99": 0.5,
+     "max": 0.6
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 16
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.3,
+     "max": 0.4
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 16
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.3,
+     "max": 0.3
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 17
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 33.49,
+    "p50": 33.5,
+    "p95": 35,
+    "p99": 35.16,
+    "max": 35.2
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 817,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 817,
+    "onHeapAfterGcMB": 58.4,
+    "arrayBuffersAfterGcMB": 747.8,
+    "totalAfterGcMB": 806.2,
+    "processes": {
+     "browser": 64,
+     "gpu-process": 906,
+     "utility": 28,
+     "renderer": 881
+    }
+   }
+  },
+  {
+   "rep": 3,
+   "variant": "spike001",
+   "wallMs": 156043,
+   "consoleIssues": [],
+   "engine": "deck",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 101,
+    "decodeMs": 0,
+    "engineDataReadyMs": 35,
+    "timeToInteractiveMs": 402,
+    "timeToFirstCorrectPickMs": 1360
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "staleShare": 0
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 897.9,
+      "p95": 16.8,
+      "staleShare": 0
+     },
+     {
+      "cycle": 2,
+      "heapMB": 895.9,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 3,
+      "heapMB": 822.1,
+      "p95": 16.8,
+      "staleShare": 0
+     },
+     {
+      "cycle": 4,
+      "heapMB": 823.4,
+      "p95": 16.78,
+      "staleShare": 0
+     },
+     {
+      "cycle": 5,
+      "heapMB": 834,
+      "p95": 16.8,
+      "staleShare": 0
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.2,
+     "p50": 0.2,
+     "p95": 0.4,
+     "p99": 0.5,
+     "max": 0.7
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 16
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.3,
+     "max": 0.3
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 14
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.12,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.3,
+     "max": 0.8
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 17
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 33.44,
+    "p50": 33.35,
+    "p95": 35.01,
+    "p99": 35.59,
+    "max": 35.9
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 834,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 834,
+    "onHeapAfterGcMB": 58.4,
+    "arrayBuffersAfterGcMB": 747.8,
+    "totalAfterGcMB": 806.2,
+    "processes": {
+     "browser": 65,
+     "gpu-process": 908,
+     "utility": 28,
+     "renderer": 878
+    }
+   }
+  },
+  {
+   "rep": 1,
+   "variant": "binary",
+   "wallMs": 156318,
+   "consoleIssues": [],
+   "engine": "deck",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 77,
+    "decodeMs": 0,
+    "engineDataReadyMs": 44,
+    "timeToInteractiveMs": 366,
+    "timeToFirstCorrectPickMs": 520
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "staleShare": 0
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 331.2,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 2,
+      "heapMB": 265,
+      "p95": 16.78,
+      "staleShare": 0
+     },
+     {
+      "cycle": 3,
+      "heapMB": 258.1,
+      "p95": 16.8,
+      "staleShare": 0
+     },
+     {
+      "cycle": 4,
+      "heapMB": 269.4,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 5,
+      "heapMB": 255.4,
+      "p95": 16.7,
+      "staleShare": 0
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.19,
+     "p50": 0.2,
+     "p95": 0.3,
+     "p99": 0.4,
+     "max": 0.5
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 17
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.3,
+     "max": 0.7
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 15
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.1,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.2,
+     "max": 0.3
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 16
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 33.14,
+    "p50": 33.4,
+    "p95": 33.6,
+    "p99": 34.33,
+    "max": 34.8
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 255,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 255,
+    "onHeapAfterGcMB": 29,
+    "arrayBuffersAfterGcMB": 216.8,
+    "totalAfterGcMB": 245.8,
+    "processes": {
+     "browser": 65,
+     "gpu-process": 721,
+     "utility": 28,
+     "renderer": 402
+    }
+   }
+  },
+  {
+   "rep": 2,
+   "variant": "binary",
+   "wallMs": 155655,
+   "consoleIssues": [],
+   "engine": "deck",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 103,
+    "decodeMs": 0,
+    "engineDataReadyMs": 47,
+    "timeToInteractiveMs": 462,
+    "timeToFirstCorrectPickMs": 633
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "staleShare": 0
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 332.7,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 2,
+      "heapMB": 254.5,
+      "p95": 16.8,
+      "staleShare": 0
+     },
+     {
+      "cycle": 3,
+      "heapMB": 251.4,
+      "p95": 16.8,
+      "staleShare": 0
+     },
+     {
+      "cycle": 4,
+      "heapMB": 262.7,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 5,
+      "heapMB": 248.3,
+      "p95": 16.8,
+      "staleShare": 0
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.21,
+     "p50": 0.2,
+     "p95": 0.4,
+     "p99": 0.5,
+     "max": 0.9
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 17
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.1,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.24,
+     "max": 0.3
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 18
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.2,
+     "max": 0.3
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 14
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 33.09,
+    "p50": 33.3,
+    "p95": 35.11,
+    "p99": 35.32,
+    "max": 35.4
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 248,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 248,
+    "onHeapAfterGcMB": 29,
+    "arrayBuffersAfterGcMB": 216.8,
+    "totalAfterGcMB": 245.8,
+    "processes": {
+     "browser": 65,
+     "gpu-process": 566,
+     "utility": 28,
+     "renderer": 401
+    }
+   }
+  },
+  {
+   "rep": 3,
+   "variant": "binary",
+   "wallMs": 155587,
+   "consoleIssues": [],
+   "engine": "deck",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 91,
+    "decodeMs": 0,
+    "engineDataReadyMs": 47,
+    "timeToInteractiveMs": 414,
+    "timeToFirstCorrectPickMs": 576
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "staleShare": 0
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 318.9,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 2,
+      "heapMB": 264.8,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 3,
+      "heapMB": 256.7,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 4,
+      "heapMB": 268,
+      "p95": 16.7,
+      "staleShare": 0
+     },
+     {
+      "cycle": 5,
+      "heapMB": 254,
+      "p95": 16.8,
+      "staleShare": 0
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.19,
+     "p50": 0.2,
+     "p95": 0.4,
+     "p99": 0.4,
+     "max": 0.6
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 17
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.3,
+     "max": 0.6
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 16
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.71,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.11,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.2,
+     "max": 0.2
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 18
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 33.43,
+    "p50": 33.4,
+    "p95": 35.01,
+    "p99": 35.44,
+    "max": 35.6
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 254,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 254,
+    "onHeapAfterGcMB": 29,
+    "arrayBuffersAfterGcMB": 216.8,
+    "totalAfterGcMB": 245.8,
+    "processes": {
+     "browser": 65,
+     "gpu-process": 583,
+     "utility": 28,
+     "renderer": 405
+    }
+   }
+  },
+  {
+   "rep": 1,
+   "variant": null,
+   "wallMs": 373244,
+   "consoleIssues": [],
+   "engine": "maplibre",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 104,
+    "decodeMs": 0,
+    "engineDataReadyMs": 12251,
+    "timeToInteractiveMs": 12659,
+    "timeToFirstCorrectPickMs": 12703
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 18.96,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 63.69,
+     "max": 549.9,
+     "jankShare": 0.0167,
+     "fps": 52.74
+    },
+    "staleShare": 1
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 912.9,
+      "p95": 16.8,
+      "staleShare": 1
+     },
+     {
+      "cycle": 2,
+      "heapMB": 875.4,
+      "p95": 16.7,
+      "staleShare": 1
+     },
+     {
+      "cycle": 3,
+      "heapMB": 378,
+      "p95": 16.8,
+      "staleShare": 1
+     },
+     {
+      "cycle": 4,
+      "heapMB": 440,
+      "p95": 16.78,
+      "staleShare": 1
+     },
+     {
+      "cycle": 5,
+      "heapMB": 712.5,
+      "p95": 16.8,
+      "staleShare": 1
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 17.42,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 66.62,
+     "max": 149.9,
+     "jankShare": 0.0111,
+     "fps": 57.41
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.04,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.2,
+     "max": 2.3
+    },
+    "staleFrames": 1084,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 1084,
+    "longTasks": {
+     "count": 4,
+     "totalMs": 271
+    },
+    "catchUpMs": 17
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 18.63,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 83.3,
+     "max": 266.6,
+     "jankShare": 0.0197,
+     "fps": 53.67
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.09,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.14,
+     "max": 44.9
+    },
+    "staleFrames": 762,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 762,
+    "longTasks": {
+     "count": 4,
+     "totalMs": 282
+    },
+    "catchUpMs": 51
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 19.72,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 66.87,
+     "max": 516.7,
+     "jankShare": 0.02,
+     "fps": 50.71
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.04,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.2,
+     "max": 2.1
+    },
+    "staleFrames": 299,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 299,
+    "longTasks": {
+     "count": 3,
+     "totalMs": 332
+    },
+    "catchUpMs": 17
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 39.89,
+    "p50": 34.05,
+    "p95": 67.78,
+    "p99": 79.85,
+    "max": 84.1
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 713,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 713,
+    "onHeapAfterGcMB": 214.9,
+    "arrayBuffersAfterGcMB": 45.3,
+    "totalAfterGcMB": 260.2,
+    "processes": {
+     "browser": 66,
+     "gpu-process": 388,
+     "utility": 17,
+     "renderer": 3847
+    }
+   }
+  },
+  {
+   "rep": 2,
+   "variant": null,
+   "wallMs": 393355,
+   "consoleIssues": [],
+   "engine": "maplibre",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 126,
+    "decodeMs": 0,
+    "engineDataReadyMs": 11218,
+    "timeToInteractiveMs": 11660,
+    "timeToFirstCorrectPickMs": 11683
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 18.47,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 400,
+     "jankShare": 0.007,
+     "fps": 54.13
+    },
+    "staleShare": 1
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 840,
+      "p95": 16.7,
+      "staleShare": 1
+     },
+     {
+      "cycle": 2,
+      "heapMB": 968.1,
+      "p95": 16.8,
+      "staleShare": 1
+     },
+     {
+      "cycle": 3,
+      "heapMB": 844,
+      "p95": 33.4,
+      "staleShare": 1
+     },
+     {
+      "cycle": 4,
+      "heapMB": 335.1,
+      "p95": 16.7,
+      "staleShare": 1
+     },
+     {
+      "cycle": 5,
+      "heapMB": 959.3,
+      "p95": 16.7,
+      "staleShare": 1
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 17.31,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 600,
+     "jankShare": 0.0028,
+     "fps": 57.77
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.03,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.2,
+     "max": 4
+    },
+    "staleFrames": 1084,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 1084,
+    "longTasks": {
+     "count": 1,
+     "totalMs": 57
+    },
+    "catchUpMs": 17
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 16.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.04,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.1,
+     "max": 10.5
+    },
+    "staleFrames": 762,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 762,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 18
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 17.05,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.97,
+     "max": 100,
+     "jankShare": 0.0033,
+     "fps": 58.63
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.03,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.1,
+     "max": 2.6
+    },
+    "staleFrames": 299,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 299,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 33
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 48.67,
+    "p50": 34.25,
+    "p95": 100.35,
+    "p99": 175.12,
+    "max": 221.1
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 959,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 959,
+    "onHeapAfterGcMB": 213.2,
+    "arrayBuffersAfterGcMB": 41.8,
+    "totalAfterGcMB": 255,
+    "processes": {
+     "browser": 66,
+     "gpu-process": 388,
+     "utility": 17,
+     "renderer": 3807
+    }
+   }
+  },
+  {
+   "rep": 3,
+   "variant": null,
+   "wallMs": 274405,
+   "consoleIssues": [],
+   "engine": "maplibre",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-311d671871b4",
+   "load": {
+    "fetchMs": 150,
+    "decodeMs": 0,
+    "engineDataReadyMs": 9307,
+    "timeToInteractiveMs": 9763,
+    "timeToFirstCorrectPickMs": 9783
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 18.8,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 30.33,
+     "max": 533.3,
+     "jankShare": 0.0056,
+     "fps": 53.2
+    },
+    "staleShare": 1
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 586.3,
+      "p95": 16.7,
+      "staleShare": 1
+     },
+     {
+      "cycle": 2,
+      "heapMB": 739,
+      "p95": 16.78,
+      "staleShare": 1
+     },
+     {
+      "cycle": 3,
+      "heapMB": 658.9,
+      "p95": 16.8,
+      "staleShare": 1
+     },
+     {
+      "cycle": 4,
+      "heapMB": 334.1,
+      "p95": 16.7,
+      "staleShare": 1
+     },
+     {
+      "cycle": 5,
+      "heapMB": 350.7,
+      "p95": 16.8,
+      "staleShare": 1
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 17.14,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 16.8,
+     "max": 383.3,
+     "jankShare": 0.0037,
+     "fps": 58.34
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.04,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.2,
+     "max": 5.6
+    },
+    "staleFrames": 1084,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 1084,
+    "longTasks": {
+     "count": 1,
+     "totalMs": 113
+    },
+    "catchUpMs": 35
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 17.34,
+     "p50": 16.7,
+     "p95": 16.7,
+     "p99": 16.8,
+     "max": 483.3,
+     "jankShare": 0.0026,
+     "fps": 57.66
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.03,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.1,
+     "max": 4.6
+    },
+    "staleFrames": 762,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 762,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 33
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 25.5,
+     "p50": 16.7,
+     "p95": 16.8,
+     "p99": 234.8,
+     "max": 733.3,
+     "jankShare": 0.0433,
+     "fps": 39.22
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.09,
+     "p50": 0,
+     "p95": 0.1,
+     "p99": 0.91,
+     "max": 9
+    },
+    "staleFrames": 299,
+    "staleShare": 1,
+    "maxConsecutiveStaleFrames": 299,
+    "longTasks": {
+     "count": 5,
+     "totalMs": 855
+    },
+    "catchUpMs": 18
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 41.09,
+    "p50": 33.8,
+    "p95": 67.32,
+    "p99": 154.17,
+    "max": 208.3
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 351,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 351,
+    "onHeapAfterGcMB": 209.4,
+    "arrayBuffersAfterGcMB": 45.4,
+    "totalAfterGcMB": 254.8,
+    "processes": {
+     "browser": 65,
+     "gpu-process": 414,
+     "utility": 17,
+     "renderer": 3848
+    }
+   }
+  }
+ ]
+}

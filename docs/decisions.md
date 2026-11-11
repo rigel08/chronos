@@ -186,9 +186,56 @@ Each number in the UI links to its trace entry ("How is this calculated?"). A vi
 
 **Trade-off:** depth-based occlusion by future 3D objects needs revisiting when terrain or extrusions arrive.
 
+> **Correction (2026-11-11, milestone 1.2, spike 002):** the far-side evidence above was misread. deck.gl's globe projection does **not** clip the back hemisphere. What hid it in Spike 001 was back-face culling left enabled by MapLibre's globe pass: seen through the globe, far-side triangles face away from the camera. Disabling culling made Europe and Africa paint over the Pacific (3.0% of pixels differed from MapLibre). Culling is now explicit (D-022).
+
 ### D-020: Transitions are time-based, never year-based soft filters
 **Status:** accepted 2026-11-11.
 
 **Decision:** cross-dissolves run over wall-clock time after the year changes. deck.gl's `filterSoftRange` is not used.
 
 **Reason:** a soft year range draws a polity, faded, in years when it was not valid. That trades data accuracy for visual smoothness, which the project rules out.
+
+### D-021: Territories are pre-triangulated in the pipeline and rendered from binary buffers
+**Status:** accepted 2026-11-11 (milestone 1.2, spike 002).
+
+**Decision:** the pipeline triangulates every render part and ships the triangles in bundle format 2.
+- Triangulation uses earcut (mapbox-earcut, ISC), with a GEOS constrained-Delaunay fallback.
+- It runs in Web Mercator, deck.gl's own triangulation plane, on the float32 coordinates that are rendered.
+- deck.gl's `SolidPolygonLayer` takes positions and triangles as views of the bundle buffer (`_normalize: false`), plus per-vertex colour and `[start, end]` typed arrays.
+- The browser no longer creates per-part objects, normalises rings, or triangulates.
+
+**Accuracy guard:** QA-013 checks, per part, that the triangles reproduce the polygon's area. Parts that are invalid *in the triangulation plane* are repaired (18). Earcut results that deviate fall back to GEOS (812). The largest remaining mis-drawn area is 9 m² per part, 0.033 km² in total. Errors above 1 km² stop the build.
+
+**Trade-off:** the uncompressed bundle grows from 30.5 MB to 64.5 MB (triangles), in exchange for less memory and no client triangulation. Compressed sizes are in spike 003.
+
+### D-022: Explicit back-face culling with pipeline-fixed winding
+**Status:** accepted 2026-11-11.
+
+**Decision:** the deck.gl territory layer sets `cullMode: "back"`, and the pipeline orients every triangle counter-clockwise in lon/lat.
+
+**Evidence (render agreement against MapLibre, spike 002):**
+- back: ≤ 0.1% of pixels differ (edge anti-aliasing);
+- none: far side bleeds through (3.0% in the Pacific view);
+- front: near side disappears (79% at zoom 7);
+- inherited MapLibre state: identical to back, which is how Spike 001 rendered.
+
+**Consequence:** correctness no longer depends on GL state left behind by MapLibre.
+
+### D-023: Exact typed-array allocation for deck.gl
+**Status:** accepted 2026-11-11.
+
+**Decision:** `_typedArrayManagerProps: { overAlloc: 1, poolSize: 0 }` on the overlay.
+
+**Evidence:** deck.gl's defaults allocate 2× and keep up to 100 released buffers for reuse. On the Spike 001 path that retained about 387 MB of buffers no attribute used. With static geometry, nothing is gained from over-allocation.
+
+### D-024: Delivery: one precompressed bundle now; time chunks next; tiles only for high-zoom regional layers
+**Status:** accepted 2026-11-11 (spike 003).
+
+**Decision:** the global territory layer ships as one full-resolution, pre-triangulated binary bundle, precompressed with brotli (7.1 MiB) under an immutable content-hashed URL. The next format adds delta-coded triangle indices (about 2.5 MiB, lossless). Time chunks are added when first-view load matters. PMTiles are reserved for future high-zoom regional layers.
+
+**Evidence:**
+- MVT tiles at the globe's zooms change polygons by 6–3,362 km² (z0–z2).
+- Each low-zoom tile carries every era (12,064 rows at z0).
+- Tiles bring back client triangulation, undoing spike 002's gains.
+
+**Trade-off:** today's first visit downloads all of time (7.1 MiB) rather than just the current era (0.21 MiB). That is acceptable on desktop, and the time-chunk plan covers mobile.

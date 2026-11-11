@@ -13,7 +13,7 @@ pipeline/registry/*.yaml ─┘     licence gate (QA-012) runs before any input 
 |---|---|
 | `make fetch` | Download the pinned inputs into `data/raw/` and verify every sha256 (network) |
 | `make verify` | Re-check every pinned file against the manifest |
-| `make data` | Run all QA rules and write the public bundle to `data/build/current` (about 70 s, about 1 GB peak memory) |
+| `make data` | Run all QA rules, triangulate, and write the public bundle to `data/build/current` (about 75 s, about 1 GB peak memory) |
 | `make test` / `make test-fast` | All tests / tests that need no data |
 | `make reproducible` | Build twice and require byte-identical outputs |
 | `PYTHONPATH=pipeline/src uv run --no-sync python -m chronos_pipeline core-sample --lon 12.4964 --lat 41.9028` | Every polity that held a point |
@@ -45,7 +45,8 @@ pipeline/registry/*.yaml ─┘     licence gate (QA-012) runs before any input 
 | QA-010 | Point histories record exact versus near (≤ 5 km) hits, gaps and overlaps | Rome: 22 strata, gaps 476–499 and 1944 |
 | QA-011 | Share of ice-free land with a mapped polity, sampled through time | 117 CE: 15.7% |
 | QA-012 | Licence gate: no research-only or unregistered source in a public build | Seshat Equinox blocked |
+| QA-013 | Every render part's triangles reproduce its area (Web Mercator, float32); parts invalid in that plane are repaired; > 1 km² mis-drawn stops the build | 18 repaired, 812 GEOS fallbacks, worst 9 m² (spike 002) |
 
 ## Outputs (`data/build/<release_id>/`)
 
-`bundle.json` + `geometry.bin` (render geometry, little-endian typed arrays) · `basemap_land.geojson` · `testpoints.json` (ground truth for pick accuracy) · `qa_report.json` / `qa_report.md` · `attributions.json` · `trace.json` (inputs with sha256, licences, access tiers, parameters, methods, and the sha256 of every output).
+`bundle.json` + `geometry.bin` (format 2: render geometry and pre-computed triangles as little-endian typed arrays; D-021) · `basemap_land.geojson` · `testpoints.json` (ground truth for pick accuracy) · `qa_report.json` / `qa_report.md` · `attributions.json` · `trace.json` (inputs with sha256, licences, access tiers, parameters, methods, and the sha256 of every output).

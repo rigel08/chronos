@@ -27,7 +27,7 @@ from shapely.strtree import STRtree
 
 from . import __version__
 from .core_sample import PointIndex
-from .geo import area_km2, ice_free, render_parts, to_equal_area, topojson_land
+from .geo import area_km2, ice_free, render_parts, to_equal_area, topojson_land, triangulate
 from .manifest import load_manifest, verified_file, verified_member
 from .measures import YearMeasures, overlaps, year_measures
 from .paths import Paths
@@ -39,6 +39,7 @@ from .sources.wikidata import crosswalk, load_overrides
 from .years import label
 
 CLIOPATRIA_MEMBER = "cliopatria_polities_only_v021.geojson"
+REGISTRY_FILES = ("licenses.yaml", "sources.yaml", "permissions.yaml", "build.yaml", "crosswalk_overrides.csv")
 
 
 class BuildError(RuntimeError):
@@ -59,7 +60,9 @@ def code_fingerprint(paths: Paths) -> str:
     """Hash of the pipeline source and registry: identifies the code that produced a build."""
     h = hashlib.sha256()
     base = paths.root / "pipeline"
-    files = sorted(list((base / "src").rglob("*.py")) + list(paths.registry.glob("*")))
+    # Only the registry files the pipeline reads: stray copies in the folder (e.g. editor or sync conflict copies
+    # such as "build 2.yaml") must not change the fingerprint.
+    files = sorted(list((base / "src").rglob("*.py")) + [paths.registry / n for n in REGISTRY_FILES])
     for f in files:
         if f.is_file():
             h.update(str(f.relative_to(base)).encode() + b"\0" + f.read_bytes() + b"\0")
@@ -140,20 +143,24 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
         point_samples[pc["name"]] = s.as_dict()
         findings += rules.qa010_point(pc["name"], s)
 
+    log("render geometry and triangulation (QA-013) ...")
+    pol_index = {p.id: i for i, p in enumerate(polities)}
+    render_arrays, render_stats, f13 = render_geometry(base, polity_of_row, pol_index, cfg["render"])
+    findings += f13
+
     findings.sort(key=sort_key)
     errors = [f for f in findings if f.severity == "error"]
     if errors:
         raise BuildError(f"{len(errors)} QA errors, e.g. {errors[0].rule}: {errors[0].message}")
 
     fingerprint = code_fingerprint(paths)
-    release_id = (f"m1.1-{profile}-cliopatria-{pins['cliopatria'].release}-wikidata-{pins['wikidata'].release}"
+    release_id = (f"chronos-{__version__}-{profile}-cliopatria-{pins['cliopatria'].release}-wikidata-{pins['wikidata'].release}"
                   f"-{fingerprint[:12]}")
     out = paths.build / release_id
     out.mkdir(parents=True, exist_ok=True)
 
     log("render bundle ...")
-    pol_index = {p.id: i for i, p in enumerate(polities)}
-    bundle = _write_geometry(out, base, polity_of_row, pol_index, cfg["render"])
+    bundle = _write_geometry(out, render_arrays, render_stats)
     qa_by_polity: dict[str, set[str]] = defaultdict(set)
     for f in findings:
         if f.severity != "info" and f.subject_type in ("polity", "external_id"):
@@ -163,7 +170,7 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
         ext_by_polity[e["polity_id"]].append({k: e[k] for k in ("value", "label", "status", "flags")}
                                              | ({"corrected_to": e["corrected_to"]} if "corrected_to" in e else {}))
     bundle |= {
-        "format": 1, "release_id": release_id, "profile": profile, "pipeline_version": __version__,
+        "format": 2, "release_id": release_id, "profile": profile, "pipeline_version": __version__,
         "years": {"min": lo, "max": hi, "numbering": "astronomical (0 = 1 BCE)"},
         "polities": [{"id": p.id, "name": p.name, "start": p.start, "end": p.end,
                       "qa": sorted(qa_by_polity.get(p.id, ())), "wikidata": ext_by_polity.get(p.id, [])}
@@ -203,6 +210,8 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
             "areas": "EPSG:6933 via pyproj; combined = sum per polity, unique = union, land = union with ice-free Natural Earth land. D-012.",
             "checkpoint_land": "Natural Earth 1:10m", "coverage_land": "Natural Earth 1:50m",
             "render": "full-resolution Cliopatria polygons, split on a grid of render.grid_split_deg degrees, RFC 7946 winding. D-017.",
+            "triangulation": ("earcut (mapbox-earcut) per render part in Web Mercator, on float32-rounded coordinates; "
+                              "area deviation checked per part. QA-013, D-021."),
             "testpoints": "seeded random points >= margin_km from every alive boundary; expected polities by point-in-polygon.",
         },
         "outputs": outputs,
@@ -233,33 +242,82 @@ def _linked_pairs(year: int, alive: list, aggs: list, polity_of_row: dict) -> se
     return linked
 
 
-def _write_geometry(out: Path, base: list, polity_of_row: dict, pol_index: dict, render_cfg: dict) -> dict:
+def render_geometry(base: list, polity_of_row: dict, pol_index: dict, render_cfg: dict) -> tuple[dict, dict, list[Finding]]:
+    """Render arrays for the bundle, with every part triangulated and checked (D-021, QA-013).
+
+    Triangulation runs on the float32-rounded coordinates that are actually rendered.
+    """
     terr = sorted(base, key=lambda r: (r.start, polity_of_row[r.index][0], r.index))
     positions: list[np.ndarray] = []
+    triangles: list[np.ndarray] = []
     ring_start = [0]
     part_ring_start = [0]
-    part_territory = []
+    part_triangle_start = [0]
+    part_territory: list[int] = []
     nverts = 0
+    ntri_idx = 0
+    findings: list[Finding] = []
+    warn_km2, error_km2 = render_cfg["triangulation_warn_km2"], render_cfg["triangulation_error_km2"]
+    worst_rel, worst_km2, total_km2, repaired, fallbacks = 0.0, 0.0, 0.0, 0, 0
     for ti, r in enumerate(terr):
         for poly in render_parts(r.geometry, render_cfg["grid_split_deg"], render_cfg["simplify_deg"]):
-            for ring in [poly.exterior, *poly.interiors]:
-                c = np.asarray(ring.coords, dtype=np.float64)[:, :2]
-                positions.append(c)
-                nverts += len(c)
-                ring_start.append(nverts)
-            part_ring_start.append(len(ring_start) - 1)
-            part_territory.append(ti)
+            rings = [np.asarray(ring.coords, dtype=np.float64)[:, :2].astype("<f4").astype(np.float64)
+                     for ring in [poly.exterior, *poly.interiors]]
+            for piece in triangulate(rings):
+                part = len(part_territory)
+                worst_rel, worst_km2 = max(worst_rel, piece.relative_deviation), max(worst_km2, piece.absolute_km2)
+                total_km2 += piece.absolute_km2
+                repaired += piece.repaired
+                fallbacks += piece.method != "earcut"
+                detail = {"part": part, "relative_deviation": piece.relative_deviation,
+                          "absolute_km2": round(piece.absolute_km2, 6), "method": piece.method, "repaired": piece.repaired}
+                where = f"{r.name} ({label(r.start)}-{label(r.end)}), render part {part}"
+                if piece.absolute_km2 > error_km2:
+                    findings.append(Finding("QA-013", "error", "territory", str(r.index),
+                                            f"{where}: triangles mis-draw {piece.absolute_km2:,.2f} km\u00b2.", detail))
+                elif piece.absolute_km2 > warn_km2:
+                    findings.append(Finding("QA-013", "warning", "territory", str(r.index),
+                                            f"{where}: triangles mis-draw {piece.absolute_km2:,.3f} km\u00b2.", detail))
+                if piece.repaired:
+                    findings.append(Finding("QA-013", "warning", "territory", str(r.index),
+                                            f"{where}: invalid in the triangulation plane (Web Mercator, float32); repaired "
+                                            "with make_valid before triangulation.", detail))
+                triangles.append(piece.indices + np.uint32(nverts))
+                ntri_idx += len(piece.indices)
+                part_triangle_start.append(ntri_idx)
+                for c in piece.rings:
+                    positions.append(c)
+                    nverts += len(c)
+                    ring_start.append(nverts)
+                part_ring_start.append(len(ring_start) - 1)
+                part_territory.append(ti)
     arrays = {
         "positions": np.concatenate(positions).astype("<f4").ravel(),
         "ring_start": np.asarray(ring_start, dtype="<u4"),
         "part_ring_start": np.asarray(part_ring_start, dtype="<u4"),
         "part_territory": np.asarray(part_territory, dtype="<u4"),
+        "triangles": np.concatenate(triangles).astype("<u4"),
+        "part_triangle_start": np.asarray(part_triangle_start, dtype="<u4"),
         "territory_start": np.asarray([r.start for r in terr], dtype="<i4"),
         "territory_end": np.asarray([r.end for r in terr], dtype="<i4"),
         "territory_polity": np.asarray([pol_index[polity_of_row[r.index][0]] for r in terr], dtype="<u4"),
         "territory_row": np.asarray([r.index for r in terr], dtype="<u4"),
         "territory_area_km2": np.asarray([r.area_src for r in terr], dtype="<f4"),
     }
+    findings.insert(0, Finding("QA-013", "info", "dataset", "render",
+                               f"{len(part_territory):,} render parts triangulated in Web Mercator ({fallbacks} with constrained "
+                               f"Delaunay, {repaired} repaired). Largest mis-drawn area {worst_km2:.4f} km\u00b2; total "
+                               f"{total_km2:.3f} km\u00b2 across all parts and years.",
+                               {"parts": len(part_territory), "triangles": int(ntri_idx // 3), "max_relative_deviation": worst_rel,
+                                "max_absolute_km2": round(worst_km2, 6), "total_absolute_km2": round(total_km2, 6),
+                                "constrained_delaunay_fallbacks": fallbacks, "repaired_parts": repaired,
+                                "warn_km2": warn_km2, "error_km2": error_km2}))
+    stats = {"territories": len(terr), "parts": len(part_territory), "rings": len(ring_start) - 1, "vertices": nverts,
+             "triangles": int(ntri_idx // 3)}
+    return arrays, stats, findings
+
+
+def _write_geometry(out: Path, arrays: dict, stats: dict) -> dict:
     sections, offset = {}, 0
     with open(out / "geometry.bin", "wb") as fh:
         for name, arr in arrays.items():
@@ -267,9 +325,7 @@ def _write_geometry(out: Path, base: list, polity_of_row: dict, pol_index: dict,
             sections[name] = {"dtype": arr.dtype.str, "offset": offset, "length": int(arr.size)}
             fh.write(b)
             offset += len(b)
-    return {"geometry": {"file": "geometry.bin", "sections": sections, "bytes": offset,
-                         "territories": len(terr), "parts": len(part_territory), "rings": len(ring_start) - 1,
-                         "vertices": nverts}}
+    return {"geometry": {"file": "geometry.bin", "sections": sections, "bytes": offset, **stats}}
 
 
 def _round_geojson(geom: dict, nd: int) -> dict:

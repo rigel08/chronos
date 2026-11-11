@@ -25,6 +25,9 @@ export interface Geometry {
   territoryPolity: Uint32Array;
   territoryRow: Uint32Array;
   territoryArea: Float32Array;
+  /** Format 2: pre-computed triangles (global vertex indices, 3 per triangle) and each part's first index. */
+  triangles: Uint32Array | null;
+  partTriangleStart: Uint32Array | null;
 }
 
 const CTORS: Record<string, Float32ArrayConstructor | Uint32ArrayConstructor | Int32ArrayConstructor> = {
@@ -35,9 +38,12 @@ const CTORS: Record<string, Float32ArrayConstructor | Uint32ArrayConstructor | I
 
 export function decodeGeometry(meta: BundleMeta, buf: ArrayBuffer): Geometry {
   const s = meta.geometry.sections;
-  const view = <T>(name: string): T => {
+  const view = <T>(name: string, optional = false): T => {
     const spec = s[name];
-    if (!spec) throw new Error(`bundle: missing section ${name}`);
+    if (!spec) {
+      if (optional) return null as T;
+      throw new Error(`bundle: missing section ${name}`);
+    }
     const Ctor = CTORS[spec.dtype];
     if (!Ctor) throw new Error(`bundle: unsupported dtype ${spec.dtype}`);
     if (spec.offset + spec.length * Ctor.BYTES_PER_ELEMENT > buf.byteLength) throw new Error(`bundle: section ${name} overruns file`);
@@ -53,6 +59,8 @@ export function decodeGeometry(meta: BundleMeta, buf: ArrayBuffer): Geometry {
     territoryPolity: view<Uint32Array>("territory_polity"),
     territoryRow: view<Uint32Array>("territory_row"),
     territoryArea: view<Float32Array>("territory_area_km2"),
+    triangles: view<Uint32Array | null>("triangles", true),
+    partTriangleStart: view<Uint32Array | null>("part_triangle_start", true),
   };
   if (g.partTerritory.length !== meta.geometry.parts) throw new Error("bundle: part count mismatch");
   if (g.territoryStart.length !== meta.geometry.territories) throw new Error("bundle: territory count mismatch");
@@ -108,5 +116,52 @@ export function territoryFeatures(g: Geometry): GeoJSON.FeatureCollection<GeoJSO
       properties: { s: g.territoryStart[t], e: g.territoryEnd[t], p: g.territoryPolity[t], t },
       geometry: { type: "MultiPolygon", coordinates: c },
     })),
+  };
+}
+
+/**
+ * deck.gl binary input for SolidPolygonLayer (milestone 1.2, D-021): positions and triangles are views of the
+ * bundle's own buffer; per-vertex colour and [start, end] are built once in typed arrays. No per-part
+ * objects, no normalisation and no triangulation in the browser. Use with `_normalize: false`.
+ */
+export interface DeckBinary {
+  length: number;
+  startIndices: Uint32Array;
+  attributes: {
+    getPolygon: { value: Float32Array; size: 2 };
+    indices: Uint32Array;
+    getFillColor: { value: Uint8Array; size: 4; normalized: true };
+    getFilterValue: { value: Float32Array; size: 2 };
+  };
+}
+
+export function deckBinaryData(g: Geometry, colourOf: (polity: number) => [number, number, number, number]): DeckBinary {
+  if (!g.triangles) throw new Error("bundle: format 2 (triangles) required for binary rendering");
+  const parts = g.partTerritory.length;
+  const vertexCount = g.positions.length / 2;
+  const startIndices = new Uint32Array(parts);
+  const colours = new Uint8Array(vertexCount * 4);
+  const filters = new Float32Array(vertexCount * 2);
+  for (let p = 0; p < parts; p++) {
+    const v0 = g.ringStart[g.partRingStart[p] as number] as number;
+    const v1 = g.ringStart[g.partRingStart[p + 1] as number] as number;
+    startIndices[p] = v0;
+    const t = g.partTerritory[p] as number;
+    const [r, gg, b, a] = colourOf(g.territoryPolity[t] as number);
+    const s = g.territoryStart[t] as number;
+    const e = g.territoryEnd[t] as number;
+    for (let v = v0; v < v1; v++) {
+      colours[4 * v] = r; colours[4 * v + 1] = gg; colours[4 * v + 2] = b; colours[4 * v + 3] = a;
+      filters[2 * v] = s; filters[2 * v + 1] = e;
+    }
+  }
+  return {
+    length: parts, startIndices,
+    attributes: {
+      getPolygon: { value: g.positions, size: 2 },
+      indices: g.triangles,
+      getFillColor: { value: colours, size: 4, normalized: true },
+      getFilterValue: { value: filters, size: 2 },
+    },
   };
 }

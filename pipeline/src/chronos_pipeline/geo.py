@@ -105,3 +105,134 @@ def render_parts(geom, grid_deg: float, simplify_deg: float = 0.0) -> list[Polyg
             pieces = [p for c in shapely.intersection(poly, cells) for p in polygons(c)]
         out.extend(orient(p, sign=1.0) for p in pieces)
     return out
+
+
+# --------------------------------------------------------------------------- triangulation (D-021)
+
+MERCATOR_MAX_LAT = 85.051129
+
+
+def web_mercator(lonlat: np.ndarray) -> np.ndarray:
+    """deck.gl's common space for lng/lat (projectFlat): Web Mercator scaled to a 512-unit world.
+
+    deck.gl triangulates lng/lat polygons in this space, so pre-triangulating here keeps parity with the
+    renderer's own behaviour (milestone 1.2).
+    """
+    lon = lonlat[:, 0]
+    lat = np.clip(lonlat[:, 1], -MERCATOR_MAX_LAT, MERCATOR_MAX_LAT)
+    x = (lon + 180.0) / 360.0 * 512.0
+    y = (180.0 - np.degrees(np.log(np.tan(np.pi / 4 + np.radians(lat) / 2)))) / 360.0 * 512.0
+    return np.column_stack([x, y])
+
+
+def inverse_web_mercator(xy: np.ndarray) -> np.ndarray:
+    lon = xy[:, 0] / 512.0 * 360.0 - 180.0
+    lat = np.degrees(2 * np.arctan(np.exp(np.radians(180.0 - xy[:, 1] / 512.0 * 360.0))) - np.pi / 2)
+    return np.column_stack([lon, lat])
+
+
+KM_PER_MERCATOR_UNIT = 40075.017 / 512.0   # at the equator; times cos(latitude) elsewhere
+
+
+def _shoelace(xy: np.ndarray) -> float:
+    x, y = xy[:, 0], xy[:, 1]
+    return 0.5 * float(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1)))
+
+
+def _deviation(merc: list[np.ndarray], idx: np.ndarray) -> tuple[float, float]:
+    """(relative, absolute) area difference between triangles and polygon, absolute in Mercator units squared."""
+    verts = np.vstack(merc)
+    polygon_area = abs(_shoelace(merc[0])) - sum(abs(_shoelace(h)) for h in merc[1:])
+    t = verts[idx.reshape(-1, 3)] if len(idx) else np.zeros((0, 3, 2))
+    tri_area = float(np.abs(0.5 * ((t[:, 1, 0] - t[:, 0, 0]) * (t[:, 2, 1] - t[:, 0, 1])
+                                   - (t[:, 2, 0] - t[:, 0, 0]) * (t[:, 1, 1] - t[:, 0, 1]))).sum())
+    diff = abs(tri_area - polygon_area)
+    rel = diff / polygon_area if polygon_area > 0 else (0.0 if diff == 0 else 1.0)
+    return rel, diff
+
+
+def _earcut(merc: list[np.ndarray]) -> np.ndarray:
+    import mapbox_earcut
+    ends = np.cumsum([len(r) for r in merc]).astype(np.uint32)
+    return mapbox_earcut.triangulate_float64(np.vstack(merc), ends).astype(np.uint32)
+
+
+def _constrained_delaunay(merc: list[np.ndarray]) -> np.ndarray | None:
+    """GEOS constrained Delaunay in the same plane; None if it introduced vertices we cannot index."""
+    verts = np.vstack(merc)
+    lookup: dict[tuple[float, float], int] = {}
+    for i, (x, y) in enumerate(verts):
+        lookup.setdefault((float(x), float(y)), i)
+    tris = shapely.constrained_delaunay_triangles(Polygon(merc[0], merc[1:]))
+    out: list[int] = []
+    for tri in getattr(tris, "geoms", []):
+        for x, y in list(tri.exterior.coords)[:3]:
+            j = lookup.get((float(x), float(y)))
+            if j is None:
+                return None
+            out.append(j)
+    return np.asarray(out, dtype=np.uint32)
+
+
+class RenderPiece:
+    """One renderable polygon: float32-exact lon/lat rings, triangle indices into them, and its quality."""
+
+    __slots__ = ("rings", "indices", "relative_deviation", "absolute_km2", "method", "repaired")
+
+    def __init__(self, rings, indices, relative_deviation, absolute_km2, method, repaired):
+        self.rings, self.indices = rings, indices
+        self.relative_deviation, self.absolute_km2 = relative_deviation, absolute_km2
+        self.method, self.repaired = method, repaired
+
+
+def triangulate(rings: list[np.ndarray], fallback_rel: float = 1e-9) -> list[RenderPiece]:
+    """Triangulate one render part in Web Mercator, deck.gl's triangulation plane (D-021, QA-013).
+
+    `rings` are float32-exact lon/lat rings (exterior first). A part that is invalid in the Mercator plane
+    (lon/lat validity does not survive the projection or float32 rounding) is repaired with make_valid in
+    that plane and may become several pieces. Earcut is tried first; if its triangles do not reproduce the
+    polygon's area, GEOS constrained Delaunay is used when it does better. The remaining error is reported,
+    never hidden.
+    """
+    merc = [web_mercator(r) for r in rings]
+    mpoly = Polygon(merc[0], merc[1:])
+    candidates: list[tuple[list[np.ndarray], bool]]
+    if mpoly.is_valid:
+        candidates = [(rings, False)]
+    else:
+        candidates = []
+        for q in polygons(shapely.make_valid(mpoly)):
+            ll = [inverse_web_mercator(np.asarray(r.coords)[:, :2]).astype("<f4").astype(np.float64)
+                  for r in [q.exterior, *q.interiors]]
+            candidates.append((ll, True))
+    pieces = []
+    for ll, repaired in candidates:
+        m = [web_mercator(r) for r in ll]
+        idx, method = _earcut(m), "earcut"
+        rel, absu = _deviation(m, idx)
+        if rel > fallback_rel:
+            cdt = _constrained_delaunay(m)
+            if cdt is not None:
+                rel2, abs2 = _deviation(m, cdt)
+                if abs2 < absu:
+                    idx, rel, absu, method = cdt, rel2, abs2, "constrained-delaunay"
+        lat = float(np.mean(ll[0][:, 1]))
+        km2 = absu * (KM_PER_MERCATOR_UNIT * np.cos(np.radians(lat))) ** 2
+        pieces.append(RenderPiece(ll, orient_ccw(np.vstack(ll), idx), rel, km2, method, repaired))
+    return pieces
+
+
+def orient_ccw(lonlat: np.ndarray, idx: np.ndarray) -> np.ndarray:
+    """Make every triangle counter-clockwise in lon/lat (north up), so no renderer's face culling can hide one.
+
+    Earcut and GEOS return triangles in whichever orientation their plane produced; Web Mercator here has
+    y pointing south. Degenerate (zero-area) triangles are left as they are.
+    """
+    if len(idx) == 0:
+        return idx
+    t = idx.reshape(-1, 3).copy()
+    a, b, c = lonlat[t[:, 0]], lonlat[t[:, 1]], lonlat[t[:, 2]]
+    cross = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (c[:, 0] - a[:, 0]) * (b[:, 1] - a[:, 1])
+    flip = cross < 0
+    t[flip, 1], t[flip, 2] = t[flip, 2], t[flip, 1].copy()
+    return t.reshape(-1).astype(np.uint32)

@@ -1,0 +1,235 @@
+{
+ "label": "m2-chrome157-headed-m12",
+ "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-5adf473e176e",
+ "chrome": "157.0.8103.39",
+ "options": {
+  "engines": [
+   "deck"
+  ],
+  "variants": [
+   "binary"
+  ],
+  "reps": 1,
+  "picks": 10000,
+  "step": 5,
+  "cycles": 5,
+  "headed": true,
+  "query": ""
+ },
+ "runs": [
+  {
+   "rep": 1,
+   "variant": "binary",
+   "wallMs": 157951,
+   "consoleIssues": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ],
+   "engine": "deck",
+   "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-5adf473e176e",
+   "load": {
+    "fetchMs": 188,
+    "decodeMs": 0,
+    "engineDataReadyMs": 49,
+    "timeToInteractiveMs": 541,
+    "timeToFirstCorrectPickMs": 717
+   },
+   "explore": {
+    "frames": {
+     "n": 719,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 17.6,
+     "p99": 17.7,
+     "max": 17.8,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "staleShare": 0
+   },
+   "endurance": {
+    "cycles": 5,
+    "framesPerCycle": 1085,
+    "results": [
+     {
+      "cycle": 1,
+      "heapMB": 326.2,
+      "p95": 17.6,
+      "staleShare": 0
+     },
+     {
+      "cycle": 2,
+      "heapMB": 267.4,
+      "p95": 17.6,
+      "staleShare": 0
+     },
+     {
+      "cycle": 3,
+      "heapMB": 266.7,
+      "p95": 17.6,
+      "staleShare": 0
+     },
+     {
+      "cycle": 4,
+      "heapMB": 274,
+      "p95": 17.6,
+      "staleShare": 0
+     },
+     {
+      "cycle": 5,
+      "heapMB": 263.8,
+      "p95": 17.6,
+      "staleShare": 0
+     }
+    ]
+   },
+   "sweep": {
+    "years": 1085,
+    "step": 5,
+    "frames": {
+     "n": 1085,
+     "mean": 16.68,
+     "p50": 16.7,
+     "p95": 17.6,
+     "p99": 17.7,
+     "max": 32.6,
+     "jankShare": 0,
+     "fps": 59.94
+    },
+    "setYearCpuMs": {
+     "n": 1085,
+     "mean": 0.14,
+     "p50": 0.1,
+     "p95": 0.3,
+     "p99": 0.4,
+     "max": 2.3
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 16
+   },
+   "regionalSweep": {
+    "view": "Europe, zoom 3.5",
+    "years": 763,
+    "step": 2,
+    "from": 500,
+    "frames": {
+     "n": 763,
+     "mean": 16.82,
+     "p50": 16.7,
+     "p95": 17.6,
+     "p99": 17.7,
+     "max": 50.9,
+     "jankShare": 0.0039,
+     "fps": 59.45
+    },
+    "setYearCpuMs": {
+     "n": 763,
+     "mean": 0.09,
+     "p50": 0.1,
+     "p95": 0.2,
+     "p99": 0.3,
+     "max": 1.1
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 2,
+     "totalMs": 114
+    },
+    "catchUpMs": 17
+   },
+   "jumps": {
+    "years": 300,
+    "frames": {
+     "n": 300,
+     "mean": 16.67,
+     "p50": 16.7,
+     "p95": 17.6,
+     "p99": 17.7,
+     "max": 17.7,
+     "jankShare": 0,
+     "fps": 60
+    },
+    "setYearCpuMs": {
+     "n": 300,
+     "mean": 0.06,
+     "p50": 0.05,
+     "p95": 0.2,
+     "p99": 0.2,
+     "max": 0.2
+    },
+    "staleFrames": 0,
+    "staleShare": 0,
+    "maxConsecutiveStaleFrames": 0,
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "catchUpMs": 17
+   },
+   "latencyMs": {
+    "n": 40,
+    "mean": 32.96,
+    "p50": 33.2,
+    "p95": 34.2,
+    "p99": 35.83,
+    "max": 36.8
+   },
+   "picks": {
+    "n": 343,
+    "correct": 343,
+    "wrong": 0,
+    "missed": 0,
+    "extra": 0,
+    "byKind": {
+     "unmapped": {
+      "n": 80,
+      "correct": 80
+     },
+     "inside": {
+      "n": 263,
+      "correct": 263
+     }
+    },
+    "failures": [],
+    "accuracy": 1
+   },
+   "jsHeapMB": 264,
+   "jsHeapAfterGcMB": null,
+   "memoryStages": [],
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ],
+    "hardwareConcurrency": 8
+   },
+   "geometry": {
+    "territories": 12064,
+    "parts": 229026,
+    "vertices": 3442677
+   },
+   "memoryAfterProtocol": {
+    "jsHeapNoGcMB": 264,
+    "onHeapAfterGcMB": 29.5,
+    "arrayBuffersAfterGcMB": 216.8,
+    "totalAfterGcMB": 246.3,
+    "processes": {
+     "browser": 66,
+     "gpu-process": 760,
+     "utility": 28,
+     "renderer": 421
+    }
+   }
+  }
+ ]
+}

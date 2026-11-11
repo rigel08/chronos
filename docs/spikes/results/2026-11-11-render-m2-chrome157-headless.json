@@ -1,0 +1,282 @@
+{
+ "threshold": 24,
+ "viewport": [
+  1440,
+  900
+ ],
+ "views": [
+  {
+   "id": "117ce-globe",
+   "lon": 30,
+   "lat": 30,
+   "zoom": 1.4,
+   "year": 117
+  },
+  {
+   "id": "1914-pacific-far-side",
+   "lon": -160,
+   "lat": 0,
+   "zoom": 1.4,
+   "year": 1914
+  },
+  {
+   "id": "1500-europe",
+   "lon": 10,
+   "lat": 48,
+   "zoom": 4,
+   "year": 1500
+  },
+  {
+   "id": "500bce-near-east",
+   "lon": 45,
+   "lat": 33,
+   "zoom": 3.5,
+   "year": -499
+  },
+  {
+   "id": "1765-mughal-area",
+   "lon": 73.54,
+   "lat": 24.78,
+   "zoom": 7,
+   "year": 1765
+  },
+  {
+   "id": "1265-lithuania-area",
+   "lon": 24,
+   "lat": 55,
+   "zoom": 5,
+   "year": 1265
+  }
+ ],
+ "results": [
+  {
+   "view": "117ce-globe",
+   "a": "deck-binary",
+   "b": "deck-spike001",
+   "differingPixels": 0,
+   "share": 0,
+   "bbox": null
+  },
+  {
+   "view": "117ce-globe",
+   "a": "deck-binary",
+   "b": "maplibre",
+   "differingPixels": 196,
+   "share": 0.000151,
+   "bbox": [
+    603,
+    313,
+    930,
+    521
+   ]
+  },
+  {
+   "view": "117ce-globe",
+   "a": "deck-spike001",
+   "b": "maplibre",
+   "differingPixels": 196,
+   "share": 0.000151,
+   "bbox": [
+    603,
+    313,
+    930,
+    521
+   ]
+  },
+  {
+   "view": "1914-pacific-far-side",
+   "a": "deck-binary",
+   "b": "deck-spike001",
+   "differingPixels": 32,
+   "share": 0.000025,
+   "bbox": [
+    542,
+    296,
+    907,
+    595
+   ]
+  },
+  {
+   "view": "1914-pacific-far-side",
+   "a": "deck-binary",
+   "b": "maplibre",
+   "differingPixels": 144,
+   "share": 0.000111,
+   "bbox": [
+    536,
+    269,
+    907,
+    598
+   ]
+  },
+  {
+   "view": "1914-pacific-far-side",
+   "a": "deck-spike001",
+   "b": "maplibre",
+   "differingPixels": 150,
+   "share": 0.000116,
+   "bbox": [
+    536,
+    269,
+    907,
+    598
+   ]
+  },
+  {
+   "view": "1500-europe",
+   "a": "deck-binary",
+   "b": "deck-spike001",
+   "differingPixels": 135,
+   "share": 0.000104,
+   "bbox": [
+    15,
+    0,
+    1294,
+    743
+   ]
+  },
+  {
+   "view": "1500-europe",
+   "a": "deck-binary",
+   "b": "maplibre",
+   "differingPixels": 1084,
+   "share": 0.000836,
+   "bbox": [
+    40,
+    0,
+    1439,
+    896
+   ]
+  },
+  {
+   "view": "1500-europe",
+   "a": "deck-spike001",
+   "b": "maplibre",
+   "differingPixels": 974,
+   "share": 0.000752,
+   "bbox": [
+    15,
+    0,
+    1439,
+    896
+   ]
+  },
+  {
+   "view": "500bce-near-east",
+   "a": "deck-binary",
+   "b": "deck-spike001",
+   "differingPixels": 64,
+   "share": 0.000049,
+   "bbox": [
+    151,
+    149,
+    1349,
+    575
+   ]
+  },
+  {
+   "view": "500bce-near-east",
+   "a": "deck-binary",
+   "b": "maplibre",
+   "differingPixels": 645,
+   "share": 0.000498,
+   "bbox": [
+    149,
+    100,
+    1365,
+    779
+   ]
+  },
+  {
+   "view": "500bce-near-east",
+   "a": "deck-spike001",
+   "b": "maplibre",
+   "differingPixels": 623,
+   "share": 0.000481,
+   "bbox": [
+    149,
+    100,
+    1365,
+    779
+   ]
+  },
+  {
+   "view": "1765-mughal-area",
+   "a": "deck-binary",
+   "b": "deck-spike001",
+   "differingPixels": 6,
+   "share": 0.000005,
+   "bbox": [
+    214,
+    566,
+    215,
+    587
+   ]
+  },
+  {
+   "view": "1765-mughal-area",
+   "a": "deck-binary",
+   "b": "maplibre",
+   "differingPixels": 1265,
+   "share": 0.000976,
+   "bbox": [
+    0,
+    39,
+    1439,
+    886
+   ]
+  },
+  {
+   "view": "1765-mughal-area",
+   "a": "deck-spike001",
+   "b": "maplibre",
+   "differingPixels": 1271,
+   "share": 0.000981,
+   "bbox": [
+    0,
+    39,
+    1439,
+    886
+   ]
+  },
+  {
+   "view": "1265-lithuania-area",
+   "a": "deck-binary",
+   "b": "deck-spike001",
+   "differingPixels": 38,
+   "share": 0.000029,
+   "bbox": [
+    0,
+    102,
+    861,
+    825
+   ]
+  },
+  {
+   "view": "1265-lithuania-area",
+   "a": "deck-binary",
+   "b": "maplibre",
+   "differingPixels": 597,
+   "share": 0.000461,
+   "bbox": [
+    0,
+    0,
+    1147,
+    898
+   ]
+  },
+  {
+   "view": "1265-lithuania-area",
+   "a": "deck-spike001",
+   "b": "maplibre",
+   "differingPixels": 565,
+   "share": 0.000436,
+   "bbox": [
+    7,
+    0,
+    1147,
+    898
+   ]
+  }
+ ]
+}

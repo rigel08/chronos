@@ -7,6 +7,7 @@
  */
 import { yearLabel } from "../lib/years";
 import type { Engine } from "./engines";
+import { heapMB } from "./memory";
 import { frameStats, summarize } from "./stats";
 
 export interface TestPoint {
@@ -24,6 +25,7 @@ export interface Options {
   pickLimit: number;
   pickZoom: number;
   seed: number;
+  enduranceCycles: number;
   view: { center: [number, number]; zoom: number };
   onProgress?: (msg: string) => void;
 }
@@ -132,7 +134,37 @@ export async function runProtocol(engine: Engine, years: { min: number; max: num
     else results.wrong++;
     if (results.failures.length < 25) results.failures.push({ year: yearLabel(p.year), lon: p.lon, lat: p.lat, want: p.expected, got: got.map((i) => polityIds[i]) });
   }
+  // ---- milestone 1.2 additions (after the Spike 001 phases, so those stay comparable) ----
+  say("explore");
+  // Regional exploration: the camera moves between regions and zoom levels while time advances 1 year per frame.
+  const waypoints: [number, number, number][] = [[30, 30, 1.4], [10, 48, 4], [105, 32, 4], [78, 22, 4.5], [-75, 10, 3], [20, 5, 3.5], [30, 30, 1.4]];
+  const exploreStamps: number[] = [];
+  let exploreStale = 0;
+  let exploreYear = 600;
+  for (let leg = 0; leg < waypoints.length - 1; leg++) {
+    const [a, b] = [waypoints[leg] as [number, number, number], waypoints[leg + 1] as [number, number, number]];
+    for (let f = 0; f < 120; f++) {
+      const k = f / 120;
+      map.jumpTo({ center: [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k], zoom: a[2] + (b[2] - a[2]) * k });
+      engine.setYear(exploreYear++);
+      exploreStamps.push(await frame());
+      if (exploreStamps.length > 1 && !engine.isCurrent()) exploreStale++;
+    }
+  }
+  const explore = { frames: frameStats(exploreStamps), staleShare: Math.round((exploreStale / Math.max(1, exploreStamps.length - 1)) * 10000) / 10000 };
+  map.jumpTo({ center: opts.view.center, zoom: opts.view.zoom });
+  await engine.settled();
+
+  say("endurance");
+  // Repeated timeline interaction: full sweeps back to back; heap (no forced GC) after each cycle shows growth.
+  const cycles: { cycle: number; heapMB: number | null; p95: number; staleShare: number }[] = [];
+  for (let c = 1; c <= opts.enduranceCycles; c++) {
+    const res = await scrub(engine, sweepYears);
+    cycles.push({ cycle: c, heapMB: heapMB(), p95: res.frames.p95, staleShare: res.staleShare });
+  }
+
   return {
+    explore, endurance: { cycles: opts.enduranceCycles, framesPerCycle: sweepYears.length, results: cycles },
     sweep: { years: sweepYears.length, step: opts.sweepStep, ...sweep },
     regionalSweep: { view: "Europe, zoom 3.5", years: regionYears.length, step: 2, from: 500, ...regional },
     jumps: { years: jumpYears.length, ...jumps },
