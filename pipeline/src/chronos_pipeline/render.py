@@ -14,7 +14,7 @@ from typing import Any
 import numpy as np
 import shapely
 
-from .geo import polygons, render_parts, triangulate
+from .geo import densify, polygons, render_parts, triangulate
 from .qa.findings import Finding
 
 EDGE_SYNTHETIC = 1
@@ -75,6 +75,11 @@ def build_mesh(owners: list[tuple[Any, str, str]], render_cfg: dict, with_edge_f
         for poly in render_parts(geom, grid, render_cfg["simplify_deg"]):
             rings = [np.asarray(ring.coords, dtype=np.float64)[:, :2].astype("<f4").astype(np.float64)
                      for ring in [poly.exterior, *poly.interiors]]
+            # long real borders follow the lon/lat line on the globe (D-028); grid cuts are shared chords and stay as they are
+            max_edge = float(render_cfg.get("max_edge_deg", 0.0))
+            if max_edge > 0:
+                rings = [densify(r, max_edge, (_edge_flags(r, geom, grid) & EDGE_SYNTHETIC) == 0 if with_edge_flags else None)
+                         for r in rings]
             for piece in triangulate(rings):
                 part = len(part_owner)
                 worst_rel, worst_km2 = max(worst_rel, piece.relative_deviation), max(worst_km2, piece.absolute_km2)

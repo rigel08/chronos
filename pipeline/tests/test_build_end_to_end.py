@@ -25,7 +25,7 @@ def test_build_is_byte_identical_across_runs(mini_repo):
     assert first == second
     top = {re.sub(r"\.[0-9a-f]{12}\.", ".<hash>.", n) for n in first if "/" not in n}
     plain = {"attributions.json", "bundle.json", "trace.json"}
-    hashed = {"geometry.<hash>.bin", "catalog.<hash>.json", "basemap.<hash>.json"}
+    hashed = {"geometry.<hash>.bin", "catalog.<hash>.json"} | {f"basemap-{n}.<hash>.json" for n in ("land", "coastline", "lakes", "rivers")}
     assert top == ({"qa_report.json", "qa_report.md", "testpoints.json"} | plain | hashed
                    | {f"{n}.{e}" for n in plain | hashed for e in ("br", "gz")})
     relief = [n for n in first if n.startswith("relief-")]
@@ -35,12 +35,12 @@ def test_build_is_byte_identical_across_runs(mini_repo):
 def test_precompressed_copies_and_content_hashes(mini_repo):
     out = run(mini_repo, "public", log=lambda *_: None)
     b = json.loads((out / "bundle.json").read_text())
-    for key in ("geometry", "catalog", "basemap", "attributions", "bundle"):
+    for key in ("geometry", "catalog", "basemap_land", "basemap_rivers", "attributions", "bundle"):
         f = b["files"][key] if key != "bundle" else {"path": "bundle.json"}
         raw = (out / f["path"]).read_bytes()
         assert gzip.decompress((out / (f["path"] + ".gz")).read_bytes()) == raw
         assert brotli.decompress((out / (f["path"] + ".br")).read_bytes()) == raw
-        if key in ("geometry", "catalog", "basemap"):
+        if key in ("geometry", "catalog", "basemap_land", "basemap_rivers"):
             assert hashlib.sha256(raw).hexdigest().startswith(f["path"].split(".")[1]) and f["sha256"] == hashlib.sha256(raw).hexdigest()
     assert b["files"]["relief"]["template"].startswith("relief-") and b["files"]["relief"]["tiles"] == 5
 

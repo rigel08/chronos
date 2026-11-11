@@ -4,7 +4,7 @@ Outputs in data/build/<release_id>/ (and data/build/current -> that directory):
   bundle.json                 catalogue, years, palette, sources, coverage samples and the file manifest
   geometry.<hash>.bin         territory and overlap meshes: float32 positions, varint triangles (D-021, D-025, D-026)
   catalog.<hash>.json         per-polity and per-row QA findings and review notes, for the polity card
-  basemap.<hash>.json         Natural Earth land, coastline, lakes and rivers (modern physical geography)
+  basemap-{land,coastline,lakes,rivers}.<hash>.json   Natural Earth physical geography (modern), one file per layer
   relief-<hash>/{z}/{x}/{y}.webp  transparent hillshade tiles from Natural Earth shaded relief
   testpoints.json             ground truth for pick-accuracy benchmarks
   qa_report.json / .md        every QA finding
@@ -224,14 +224,14 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
         "territory_end": np.asarray([base[bi].end for bi in terr], dtype="<i4"),
         "territory_polity": np.asarray([pol_index[polity_of_row[base[bi].index][0]] for bi in terr], dtype="<u4"),
         "territory_row": np.asarray([base[bi].index for bi in terr], dtype="<u4"),
-        "territory_area_km2": np.asarray([base[bi].area_src for bi in terr], dtype="<f4"),
+        "territory_area_km2": np.asarray([base[bi].area_src for bi in terr], dtype="<f8"),   # f4 mis-rounds large areas
         "territory_label": labels.ravel(),
         "ov_positions": omesh.positions, "ov_ring_start": omesh.ring_start, "ov_part_ring_start": omesh.part_ring_start,
         "ov_part_region": omesh.part_owner, "ov_part_triangle_start": omesh.part_triangle_start,
         "region_start": np.asarray([r.start for r in regions], dtype="<i4"),
         "region_end": np.asarray([r.end for r in regions], dtype="<i4"),
         "region_territories": region_terr.ravel(),
-        "region_area_km2": np.asarray([r.km2 for r in regions], dtype="<f4"),
+        "region_area_km2": np.asarray([r.km2 for r in regions], dtype="<f8"),
         "triangles_varint": np.frombuffer(tri_bytes, np.uint8), "ov_triangles_varint": np.frombuffer(otri_bytes, np.uint8),
         "edge_flags": _required(tmesh.edge_flags), "region_kind": np.asarray([KIND_CODES[r.kind] for r in regions], dtype="u1"),
     }
@@ -243,8 +243,11 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
     land50_full = topojson_land(land50)
     lakes = json.loads(verified_file(paths.raw, pins["natural-earth-lakes"]).read_text())
     rivers = json.loads(verified_file(paths.raw, pins["natural-earth-rivers"]).read_text())
-    publish("basemap", "basemap", ".json", dumps(vector_layers(land50_full, lakes, rivers, cfg["basemap"]["vector_decimals"])))
-    files["basemap"]["dropped_empty"] = {"lakes": dropped_features(lakes), "rivers": dropped_features(rivers)}
+    # one file per layer, so MapLibre fetches and parses each in its own worker
+    for layer_name, fc in vector_layers(land50_full, lakes, rivers, cfg["basemap"]["vector_decimals"]).items():
+        publish(f"basemap_{layer_name}", f"basemap-{layer_name}", ".json", dumps(fc))
+    files["basemap_rivers"]["dropped_empty"] = dropped_features(rivers)
+    files["basemap_lakes"]["dropped_empty"] = dropped_features(lakes)
     rcfg = cfg["basemap"]["relief"]
     tmp = out / "relief-tmp"
     relief = hillshade_tiles(verified_member(paths.raw, pins["natural-earth-relief"], "SR_50M.tif"),

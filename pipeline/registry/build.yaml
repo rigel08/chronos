@@ -26,6 +26,9 @@ qa:
 render:
   simplify_deg: 0.0                  # D-017: Cliopatria is already atlas-scale; render full resolution
   grid_split_deg: 5.0                # keeps triangles small enough to follow the globe's curvature
+  # D-028: deck.gl draws each edge as a straight 3D chord on the globe; GeoJSON edges are straight in lon/lat.
+  # Real borders longer than this are densified so the two agree within about 0.24 km (5 km before).
+  max_edge_deg: 1.0
   # QA-013: every part is triangulated in the pipeline (D-021). The area the triangles draw must match the
   # polygon (Web Mercator plane). Judged in absolute km2 so near-zero slivers do not drown real defects:
   # above warn the part is reported, above error the build stops.

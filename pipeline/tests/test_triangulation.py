@@ -92,3 +92,28 @@ def test_parts_mis_drawn_by_plain_earcut_are_now_exact(real):
                      for x in [poly.exterior, *poly.interiors]]
             for piece in triangulate(rings):
                 assert piece.absolute_km2 < 1e-3, (r.name, r.from_src, piece.absolute_km2)
+
+
+def test_long_sliver_on_a_parallel_faces_outward_on_the_globe():
+    # A 5-degree sliver along 60 N: counter-clockwise in lon/lat, but its flat triangle through the projected
+    # vertices faces inward on the sphere (the parallel is a small circle). Culling used to drop such triangles.
+    from chronos_pipeline.geo import globe_xyz, orient_outward
+    pts = ring([[15, 60], [20, 60], [17.5, 60.001]])
+    idx = orient_outward(pts, np.array([0, 1, 2], dtype=np.uint32))
+    a, b, c = globe_xyz(pts[idx])
+    assert np.dot(np.cross(b - a, c - a), a + b + c) > 0
+    # an ordinary triangle keeps its lon/lat counter-clockwise order
+    q = ring([[0, 0], [1, 0], [0, 1]])
+    assert list(orient_outward(q, np.array([0, 2, 1], dtype=np.uint32))) == [0, 1, 2]
+
+
+def test_densify_caps_marked_edges_only_and_keeps_endpoints():
+    from chronos_pipeline.geo import densify
+    r = ring([[0, 0], [3, 0], [3, 0.5], [0, 0.5], [0, 0]])
+    d = densify(r, 1.0)
+    assert len(d) == 5 + 2 + 2                                   # two 3-degree edges get two extra points each
+    assert np.allclose(d[[0, 3, 4, 7, 8]], r)
+    seg = np.hypot(*np.diff(d, axis=0).T)
+    assert seg.max() <= 1.0 + 1e-6
+    only_first = densify(r, 1.0, np.array([True, False, False, False, False]))
+    assert len(only_first) == 7

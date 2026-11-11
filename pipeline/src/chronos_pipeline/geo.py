@@ -218,8 +218,60 @@ def triangulate(rings: list[np.ndarray], fallback_rel: float = 1e-9) -> list[Ren
                     idx, rel, absu, method = cdt, rel2, abs2, "constrained-delaunay"
         lat = float(np.mean(ll[0][:, 1]))
         km2 = absu * (KM_PER_MERCATOR_UNIT * np.cos(np.radians(lat))) ** 2
-        pieces.append(RenderPiece(ll, orient_ccw(np.vstack(ll), idx), rel, km2, method, repaired))
+        pieces.append(RenderPiece(ll, orient_outward(np.vstack(ll), idx), rel, km2, method, repaired))
     return pieces
+
+
+def globe_xyz(lonlat: np.ndarray) -> np.ndarray:
+    """deck.gl's globe common space (project_globe_ in its project shader), on the unit sphere."""
+    lam, phi = np.radians(lonlat[:, 0]), np.radians(lonlat[:, 1])
+    return np.column_stack([np.sin(lam) * np.cos(phi), -np.cos(lam) * np.cos(phi), np.sin(phi)])
+
+
+def orient_outward(lonlat: np.ndarray, idx: np.ndarray) -> np.ndarray:
+    """Make every triangle face outward as deck.gl draws it on the globe: a flat triangle through its three
+    projected vertices, with its normal pointing away from the Earth's centre (milestone 1.3, D-028).
+
+    For ordinary triangles this is the same as counter-clockwise in lon/lat (D-022). It differs for long slivers,
+    typically along a cut on a parallel at high latitude: counter-clockwise in lon/lat, but facing inward once
+    their vertices sit on the sphere, so back-face culling removed them and left a gap (spike 002's "seams").
+    Triangles that are degenerate in 3D keep their lon/lat orientation.
+    """
+    if len(idx) == 0:
+        return idx
+    t = orient_ccw(lonlat, idx).reshape(-1, 3).copy()
+    xyz = globe_xyz(lonlat)
+    a, b, c = xyz[t[:, 0]], xyz[t[:, 1]], xyz[t[:, 2]]
+    facing = np.einsum("ij,ij->i", np.cross(b - a, c - a), a + b + c)
+    flip = facing < 0
+    t[flip, 1], t[flip, 2] = t[flip, 2], t[flip, 1].copy()
+    return t.reshape(-1).astype(np.uint32)
+
+
+def densify(ring: np.ndarray, max_deg: float, mask: np.ndarray | None = None) -> np.ndarray:
+    """Insert points so no edge (where `mask` allows) is longer than `max_deg` degrees, on the lon/lat straight line.
+
+    GeoJSON edges are straight in lon/lat; deck.gl draws each edge as a straight chord in 3D on the globe. A long
+    chord drifts from the lon/lat line (up to about 5 km for a 5-degree edge at mid-latitudes), so long real borders
+    are densified (milestone 1.3, D-028). Inserted points are float32-rounded like every rendered vertex.
+    """
+    if max_deg <= 0 or len(ring) < 2:
+        return ring
+    a, b = ring[:-1], ring[1:]
+    length = np.hypot(b[:, 0] - a[:, 0], b[:, 1] - a[:, 1])
+    n = np.where(length > max_deg, np.ceil(length / max_deg), 1).astype(int)
+    if mask is not None:
+        n = np.where(mask[:-1], n, 1)
+    if (n == 1).all():
+        return ring
+    out = [ring[:1]]
+    for i in range(len(a)):
+        k = n[i]
+        if k > 1:
+            f = (np.arange(1, k) / k)[:, None]
+            out.append((a[i] + (b[i] - a[i]) * f).astype("<f4").astype(np.float64))
+        out.append(ring[i + 1:i + 2])
+    return np.vstack(out)
 
 
 def orient_ccw(lonlat: np.ndarray, idx: np.ndarray) -> np.ndarray:

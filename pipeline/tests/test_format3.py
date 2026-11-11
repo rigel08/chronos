@@ -72,7 +72,7 @@ def test_mini_build_overlap_regions_colours_and_catalogue(mini_repo):
     assert 40_000 < float(sec("region_area_km2")[0]) < 50_000          # 1 x 4 degrees near the equator
     ov_tri = decode_triangles(sec("ov_triangles_varint").tobytes(), sec("ov_part_triangle_start"),
                               sec("ov_ring_start")[sec("ov_part_ring_start")[:-1]])
-    assert len(ov_tri) == 6                                             # one rectangle, two triangles
+    assert len(ov_tri) >= 6 and len(ov_tri) % 3 == 0                   # one rectangle (its 4-degree sides densified, D-028)
     # neighbours (Alpha touches Beta) get different colours; colours are indices into the palette
     colour = {p["id"]: p["colour"] for p in b["polities"]}
     assert colour["alpha"] != colour["beta"] and all(0 <= c < len(b["palette"]["colours"]) for c in colour.values())
