@@ -27,6 +27,7 @@ export function CoreSamplePanel() {
   const at = useStore(sampleStore, (s) => s.at);
   const t = useStore(timeStore, (s) => s.t);
   const selected = useStore(selectionStore, (s) => s.polity);
+  const onLand = useStore(sampleStore, (s) => s.onLand);
   const d = appData();
   if (!d || !at) return null;
   if (!result) return <p className="text-[12px] text-slate-500">Sampling…</p>;
@@ -43,8 +44,9 @@ export function CoreSamplePanel() {
       <div className="space-y-4">
         {header}
         <p className="text-[12.5px] leading-relaxed text-bone-400">
-          Cliopatria maps no polity at this point in any year. Unmapped is not empty: the dataset leaves out polities under 5,000 km²
-          or 50 years, and its coverage is thinnest outside Eurasia.
+          {onLand === false
+            ? "Open water on today's coastline. Cliopatria maps no polity here in any year."
+            : "Cliopatria maps no polity at this point in any year. Unmapped is not empty: the dataset leaves out polities under 5,000 km² or 50 years, and its coverage is thinnest outside Eurasia."}
         </p>
       </div>
     );

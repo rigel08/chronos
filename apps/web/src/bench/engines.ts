@@ -4,6 +4,8 @@
  *   - "deck":     deck.gl SolidPolygonLayer interleaved into MapLibre; year filter on the GPU (DataFilterExtension).
  * Both draw exactly the same polygons from the same bundle.
  */
+import "../atlas/maplibreWorker";
+
 import { MapLibreOverlay } from "@deck.gl/maplibre";
 import { DataFilterExtension, type DataFilterExtensionProps } from "@deck.gl/extensions";
 import { SolidPolygonLayer } from "@deck.gl/layers";
@@ -33,6 +35,8 @@ const PIGMENTS = ["#cf5637", "#4b70c6", "#d9a845", "#4fae9f", "#57a067", "#b25c8
 const hex = (c: string): [number, number, number] => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
 const PIGMENTS_RGB = PIGMENTS.map(hex);
 
+// ?mask=1: territories white on black, nothing else (render agreement of territory coverage, milestone 1.3).
+const MASK = new URLSearchParams(globalThis.location?.search ?? "").get("mask") === "1";
 let landUrl = "/basemap-land.json";
 /** The land layer's content-hashed file name, from bundle.json (format 3). */
 export function setLandUrl(url: string) { landUrl = url; }
@@ -41,11 +45,11 @@ export function baseStyle(): StyleSpecification {
   return {
     version: 8,
     projection: { type: "globe" },
-    sky: { "atmosphere-blend": 0.6 },
+    sky: { "atmosphere-blend": MASK ? 0 : 0.6 },
     sources: { land: { type: "geojson", data: landUrl } },
     layers: [
-      { id: "ocean", type: "background", paint: { "background-color": "#10161e" } },
-      { id: "land", type: "fill", source: "land", paint: { "fill-color": "#1a222c" } },
+      { id: "ocean", type: "background", paint: { "background-color": MASK ? "#000000" : "#10161e" } },
+      { id: "land", type: "fill", source: "land", paint: { "fill-color": MASK ? "#000000" : "#1a222c" } },
     ],
   };
 }
@@ -126,7 +130,7 @@ async function maplibreEngine(map: MapLibreMap, g: Geometry, year: number): Prom
 async function deckEngine(map: MapLibreMap, g: Geometry, year: number): Promise<Engine> {
   const extension = new DataFilterExtension({ filterSize: 2 });
   const colourOf = (polity: number): [number, number, number, number] =>
-    [...(PIGMENTS_RGB[polity % PIGMENTS_RGB.length] as [number, number, number]), 217];
+    MASK ? [255, 255, 255, 255] : [...(PIGMENTS_RGB[polity % PIGMENTS_RGB.length] as [number, number, number]), 217];
   let make: (t: number) => SolidPolygonLayer<never, DataFilterExtensionProps<never>>;
   let polityAt: (index: number, object: unknown) => number;
   if (VARIANT === "binary") {

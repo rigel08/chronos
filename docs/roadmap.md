@@ -10,7 +10,7 @@
 |---|---|---|---|
 | **1.1** | **Foundations, data spine v0, engine spike** (first; detailed below) | M | Repo tooling; the Cliopatria adapter through `validate`, with the QA rules from validation 0001; a static spike bundle with `trace.json`; the MapLibre + deck.gl spike page with measurements. This is the go/no-go for D-001. |
 | 1.2 | **Data & rendering foundation** (done, 2026-11-11; spikes [002](spikes/002-memory-and-rendering.md), [003](spikes/003-data-delivery.md)) | M | Memory 821 → 254 MB with accuracy and smoothness unchanged; pre-triangulated binary bundle (format 2, QA-013); explicit culling; render-agreement and memory tooling; measured delivery recommendation (D-021 to D-024). *Replaced the originally planned "Database & tiles": spike 003 showed tiles aren't the right delivery for the territory layer, and no 1.2 feature needed PostGIS.* |
-| **1.3** | **First vertical slice: the Strata stage, time engine and loading path** (recommended next; detailed below) | M | Globe and basemap styling; TimeEngine and scrubber; brotli-precompressed format 3 (delta triangles) with real readiness gating; polity selection and highlight; polity card with QA and trace; client-side core sample |
+| **1.3** | **First vertical slice: the Strata stage, time engine and loading path** (built 2026-11-11 on `m1.3/first-usable-slice`; [plan](plans/m1.3-first-usable-slice.md), [report 004](spikes/004-first-usable-slice.md)) | M | Globe and basemap styling; TimeEngine and scrubber; brotli-precompressed format 3 (delta triangles) with real readiness gating; polity selection and highlight; polity card with QA and trace; client-side core sample |
 | 1.4 | Database & API | M | PostGIS container up (D-009); Alembic migration from `db/schema.sql`; load with `qa_flag` and `external_id`; FastAPI `/v1/polities/{id}`, `/v1/at`, `/v1/search` (when server-side features need them) |
 | 1.5 | Inspect depth | M | Names in many scripts, fuzzy dates, three area measures, evidence/source/licence chips, "How is this calculated?" trace, overlap display rule |
 | 1.6 | Polish, accessibility, performance, tests | M | ✦ Label spines, loading choreography, reduced motion, screen-reader "describe this moment", Playwright and screenshot tests, performance budget check |
@@ -71,7 +71,15 @@
 7. Every aggregate shows its coverage statement; unmapped land is textured, never blank.
 8. All tests pass.
 
-### Milestone 1.3 in detail (recommended next)
+### Milestone 1.3 in detail
+
+> **Status (2026-11-11): built on `m1.3/first-usable-slice`, awaiting review.** The plan's work packages and their results are in [report 004](spikes/004-first-usable-slice.md).
+>
+> Deviations from the spec below:
+> - Contemporaries dimming became dimming of everything except the selected polity. The contemporaries *lens* stays in Phase 2.
+> - Label spines stay in 1.6.
+> - The Safari run is prepared (`compat.html`) and needs one manual session.
+> - The 5° grid "seams" turned out to be culled triangles and long-edge chords, both fixed (D-028).
 
 **Goal:** the first experience a person can use. They see a styled Strata globe, scrub 3400 BCE → 2024 CE, select a polity, read its card with sources and QA flags, and click anywhere for a core sample. It must hold every 1.2 guarantee: 0% stale frames, 343/343 picks, heap under 400 MB.
 

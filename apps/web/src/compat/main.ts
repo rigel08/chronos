@@ -65,7 +65,13 @@ async function automatic() {
     add("glsl", "Shader features (StrataExtension)", ok, d);
     add("maxtex", "Max texture size", null, String(gl.getParameter(gl.MAX_TEXTURE_SIZE)));
   }
-  add("workers", "Module workers", (() => { try { new Worker(URL.createObjectURL(new Blob([""], { type: "text/javascript" })), { type: "module" }).terminate(); return true; } catch { return false; } })(), "the loader decodes geometry in a module worker");
+  // A browser without module workers ignores `type` silently; it only reads the option if it supports it.
+  let moduleWorkers = false;
+  try {
+    const probe = { get type() { moduleWorkers = true; return "module" as const; } };
+    new Worker(URL.createObjectURL(new Blob([""], { type: "text/javascript" })), probe).terminate();
+  } catch { /* unsupported */ }
+  add("workers", "Module workers", moduleWorkers, "the loader decodes geometry in a module worker");
   add("subtle", "crypto.subtle (sha256 check)", !!globalThis.crypto?.subtle, globalThis.crypto?.subtle ? "available" : "unavailable: geometry is drawn without the checksum check");
   add("css", "CSS: color-mix, backdrop-filter", CSS.supports("color", "color-mix(in oklab, red, blue)") && (CSS.supports("backdrop-filter", "blur(2px)") || CSS.supports("-webkit-backdrop-filter", "blur(2px)")), "glass panels and tokens");
   add("motion", "prefers-reduced-motion", null, matchMedia("(prefers-reduced-motion: reduce)").matches ? "reduce" : "no-preference");

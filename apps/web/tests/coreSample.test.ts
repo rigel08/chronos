@@ -51,6 +51,19 @@ describe.skipIf(!has)("core sample (real bundle)", () => {
     expect(got.gaps).toEqual(want.gaps);
     expect(got.overlaps).toEqual(want.overlaps);
   }, 60_000);
+  it("answers a query in milliseconds once the index exists", () => {
+    const g = load();
+    const t0 = performance.now();
+    const idx = buildIndex(g);
+    const buildMs = performance.now() - t0;
+    const times: number[] = [];
+    for (const [lon, lat] of [[12.4964, 41.9028], [2.35, 48.86], [116.4, 39.9], [31.2, 30.0], [-99.1, 19.4], [77.2, 28.6], [0, 0]]) {
+      for (let k = 0; k < 5; k++) times.push(sample(g, meta, idx, lon as number, lat as number, 5).ms);
+    }
+    times.sort((a, b) => a - b);
+    console.log(`core sample: index ${buildMs.toFixed(0)} ms, query median ${times[Math.floor(times.length / 2)]?.toFixed(2)} ms, max ${times.at(-1)?.toFixed(2)} ms`);
+    expect(times.at(-1)).toBeLessThan(50);
+  }, 60_000);
   it("agrees with all ground-truth test points", () => {
     const g = load();
     const idx = buildIndex(g);

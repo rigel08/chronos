@@ -98,3 +98,9 @@ node bench/compare-render.mjs --label m2-chrome157-headless
 - **Safari and Firefox:** see Browsers.
 - **GPU memory per attribute:** WebGL exposes no per-buffer accounting. Only the GPU process footprint is measured (binary: 566–721 MB after the protocol; Spike 001 configuration: 906–921 MB).
 - **The 1-pixel seams:** two short seams along 5° grid lines (Scandinavia) differ between deck.gl and MapLibre in the 1500 CE view. This is edge-level; worth a look when the Strata styling lands.
+
+> **Resolved in milestone 1.3 (D-028, [report 004](004-first-usable-slice.md)).** These were not grid artefacts.
+> - 16,487 triangles (0.6%) faced inward on the globe and were removed by back-face culling, leaving gaps (up to 0.22 deg² per triangle).
+> - Long real edges drifted up to 4.95 km from the lon/lat line.
+>
+> Both are fixed in the pipeline. The 1.2 render-agreement figures above were measured before the fix.

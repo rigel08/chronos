@@ -221,6 +221,8 @@ Each number in the UI links to its trace entry ("How is this calculated?"). A vi
 
 **Consequence:** correctness no longer depends on GL state left behind by MapLibre.
 
+> **Refined (2026-11-11, milestone 1.3, D-028):** "counter-clockwise in lon/lat" is not enough on the globe. 0.6% of triangles, long slivers, faced inward once projected and were culled. Triangles are now oriented by their outward normal in deck.gl's globe space; for ordinary triangles that is the same rule.
+
 ### D-023: Exact typed-array allocation for deck.gl
 **Status:** accepted 2026-11-11.
 
@@ -239,3 +241,112 @@ Each number in the UI links to its trace entry ("How is this calculated?"). A vi
 - Tiles bring back client triangulation, undoing spike 002's gains.
 
 **Trade-off:** today's first visit downloads all of time (7.1 MiB) rather than just the current era (0.21 MiB). That is acceptable on desktop, and the time-chunk plan covers mobile.
+
+### D-025: Bundle format 3: varint triangles, edge flags, label points
+**Status:** accepted 2026-11-11 (milestone 1.3).
+
+**Decision:** triangle indices are stored per render part, relative to the part's first vertex, delta-coded, zigzag-mapped and written as LEB128 varints. The build decodes them again and fails unless the result equals the source triangles. Format 3 also carries:
+- one byte of edge flags per vertex (bit 0: the edge to the next vertex is a grid cut or the antimeridian);
+- a label point per row (pole of inaccessibility of its largest part);
+- the overlap mesh (D-026);
+- areas as float64.
+
+**Evidence (measured on the real bundle):**
+
+| Encoding | Raw | Brotli |
+|---|---|---|
+| uint32 indices (format 2) | 31.5 MiB | 5.22 MiB |
+| per-part delta + zigzag, byte-shuffled uint32 (spike 003's best) | 31.5 MiB | 0.48 MiB |
+| **per-part delta + zigzag, LEB128** | **7.9 MiB** | **0.48 MiB** |
+
+Varints match the best measured size at a quarter of the memory before decoding, and decode in one pass (≈ 125 ms for 8.6 M indices in a worker). Whole geometry: 46.0 MB raw, **2.84 MiB brotli**, 17.2 MiB gzip.
+
+**Why float64 areas:** float32 spacing near 5 M km² is 0.5, which displayed the Roman 117–126 row as 5,263,200 km² instead of the source's 5,263,199.
+
+### D-026: Overlapping territories are drawn as explicit regions, every claimant shown
+**Status:** accepted 2026-11-11.
+
+**Decision:**
+- The pipeline intersects every pair of base rows that share interior while both are valid. Each region has its own span (the intersection of the years), area (EPSG:6933) and QA-004 kind (linked, sliver or unlinked).
+- Regions shared by 3 or 4 rows are built explicitly (kind *multiple*). Counts: 6,632 / 223 / 6 regions for 2 / 3 / 4 rows; none for 5 or more, and the build stops if such a region ever appears.
+- The renderer draws regions above the fills as world-anchored stripes cycling through every claimant's colour, so what shows no longer depends on draw order.
+- Picking returns all claimants. The card names the shared ground; the core sample splits its column.
+
+**Checks:**
+- The build verifies that the regions reproduce QA-004's per-year totals at every checkpoint year, e.g. 420 CE 489,037 km² and 117 CE 207 km².
+- Wording is neutral: "both mapped here in Cliopatria; no relationship recorded".
+
+### D-027: Colours separate neighbours and carry no meaning
+**Status:** accepted 2026-11-11.
+
+**Decision:**
+- Each polity gets one colour for its whole life, from 10 pigments: the Strata seven plus sienna, olive and cerulean. Papal gold was dropped as too close to orpiment.
+- Colours come from DSatur colouring of the polity neighbour graph: rows within 0.1° while both are valid count as neighbours, weighted by shared years.
+- An identical neighbour colour costs 4× a merely similar one (similar = OKLab distance < 0.12).
+
+**Result:** 13 of 6,751 neighbouring pairs share a colour (43 of 375,665 shared years).
+
+The legend and credits state that colours carry no meaning. Lineage colour families (design-direction.md) replace this once lineage data exists.
+
+### D-028: Triangles face outward on the globe; long real borders are densified
+**Status:** accepted 2026-11-11 (resolves spike 002 §7, "two grid seams").
+
+**Finding:** the seams were not grid artefacts. They had two measured causes:
+1. **16,487 triangles (0.6%)** were counter-clockwise in lon/lat but faced inward as flat triangles on deck.gl's globe. These are long slivers, typically along cuts on a parallel at high latitude, where the parallel is a small circle. Explicit back-face culling (D-022) dropped them, leaving gaps inside territories, up to 0.22 deg² per triangle.
+2. deck.gl draws each edge as a straight 3D chord, while GeoJSON edges are straight in lon/lat. Long real borders drifted up to 4.95 km from MapLibre's rendering.
+
+**Decision:**
+- Triangles are oriented by their outward normal in deck.gl's globe space (`orient_outward`); for ordinary triangles this is identical to D-022's rule.
+- Real borders longer than `render.max_edge_deg` (1°) are densified on the lon/lat line, adding 3% vertices.
+- Grid cuts are not densified: both sides share the same chord.
+
+**Result:**
+- 0 inward-facing triangles.
+- Worst border drift 0.22 km.
+- At the Scandinavian seam (1500 CE, zoom 8) deck.gl and MapLibre differ by 545 px instead of 20,151.
+- The one remaining line in the Europe view (mid-Atlantic, 15 px at zoom 4) is MapLibre's own low-zoom tiling: 0 px differ at zoom 8.
+
+### D-029: StrataExtension replaces DataFilterExtension in the application
+**Status:** accepted 2026-11-11.
+
+**Decision:** one deck.gl `LayerExtension` carries per-vertex `[start, end]` and a polity code, with uniforms for the current year, the previous year, dissolve progress, and the selected and hovered polity. It provides:
+- exact year visibility (the same ±0.5 test as D-003/1.2);
+- the wall-clock cross-dissolve of D-020: picking always uses the current year only, and once the dissolve ends no polity shows outside its years;
+- selection, hover and dimming without attribute re-upload;
+- the overlap stripes (D-026).
+
+The palette is compiled into the shader as a constant array. In benchmark mode (`?test=1`) the dissolve is off, so the protocol measures the engine and not the designed transition. Scrubbing always cuts; steps and jumps dissolve over 240 ms; reduced motion cuts.
+
+### D-030: Application stack: React 19 and Tailwind v4, no state library, self-hosted fonts
+**Status:** accepted 2026-11-11 (fulfils D-015).
+
+**Decision:**
+- React 19.2 and Tailwind 4.3 enter for the application UI.
+- State lives in four small external stores (`useSyncExternalStore`, ~30 lines) instead of zustand: one dependency fewer, and React never owns the map.
+- Newsreader and IBM Plex Sans and Plex Mono (OFL) are bundled, never fetched from a font CDN.
+- React StrictMode is not used: its development double mount would create the WebGL map and fetch the bundle twice.
+- Dependencies are pinned to releases at least two weeks old.
+
+### D-031: Readiness and delivery: what "loaded" means, and what a host must do
+**Status:** accepted 2026-11-11.
+
+**Decision:**
+- The loading state ends only when a territory valid in the current year, visible on screen, is picked back at its label point (the first correct pick), not on an engine signal.
+- A worker fetches the geometry with real progress (decoded bytes against `bundle.json`), checks its sha256 against `bundle.json` (in secure contexts), decodes, and transfers typed arrays to the main thread.
+- A host must:
+  - serve the `.br` (or `.gz`) copy with `Content-Encoding` when the client accepts it;
+  - mark content-hashed files (`name.<12 hex>.ext`, `relief-<hash>/`) immutable;
+  - revalidate `bundle.json`, `trace.json` and `attributions.json`.
+
+The dev and preview servers do this (`precompressedData` in `vite.config.ts`).
+
+### D-032: The physical basemap is modern Natural Earth, shown as context
+**Status:** accepted 2026-11-11 (downloads approved).
+
+**Decision:**
+- Natural Earth 1:50m lakes, rivers (v5.1.2) and shaded relief (SR_50M 2.0.0) join the pinned inputs. All are public domain.
+- Relief becomes transparent hillshade tiles: z0–4, 512 px, WebP, 341 tiles, 11.8 MiB in total, about 0.3 MiB per view.
+- The full land layer now includes Antarctica; coverage measures still use ice-free land.
+- One empty feature in the source (the Loire) is dropped and recorded in `bundle.json`.
+
+The basemap is modern physical geography: coastlines, rivers and lakes as they are today, labelled as such in the credits.

@@ -18,7 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../../..");
 const arg = (n, d) => { const i = process.argv.indexOf(`--${n}`); return i < 0 ? d : process.argv[i + 1]; };
 const out = resolve(arg("out", resolve(repo, "docs/spikes/img/m13")));
-const steps = arg("steps", "load,select,overlap,sample,flat,dissolve").split(",");
+const steps = arg("steps", "load,uploads,select,overlap,sample,flat,dissolve").split(",");
 mkdirSync(out, { recursive: true });
 
 const server = await createServer({ configFile: resolve(here, "../vite.config.ts"), root: resolve(here, ".."), logLevel: "warn" });
@@ -31,6 +31,18 @@ const fail = (m) => { report.errors.push(m); };
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
   page.on("pageerror", (e) => fail(`pageerror: ${e.message}`));
+  // Count bytes uploaded to GPU buffers, to show that time, hover and selection changes re-upload no geometry.
+  await page.addInitScript(() => {
+    window.__UPLOADS__ = 0;
+    const P = WebGL2RenderingContext.prototype;
+    for (const name of ["bufferData", "bufferSubData"]) {
+      const orig = P[name];
+      P[name] = function (target, data, ...rest) {
+        window.__UPLOADS__ += typeof data === "number" ? data : (data?.byteLength ?? 0);
+        return orig.call(this, target, data, ...rest);
+      };
+    }
+  });
   page.on("console", (m) => {
     if (m.type() === "error") fail(`console: ${m.text()}`.slice(0, 400));
     else if (m.type() === "warning") report.warnings.push(m.text().slice(0, 300));
@@ -48,6 +60,26 @@ try {
   if (steps.includes("load")) { await shot("01-117ce-globe"); report.steps.push("load"); }
   const engine = (fn, ...a) => page.evaluate(fn, ...a);
 
+  if (steps.includes("uploads")) {
+    const measure = async (label, fn) => {
+      await page.waitForTimeout(300);
+      const before = await page.evaluate(() => window.__UPLOADS__);
+      await fn();
+      await page.waitForTimeout(400);
+      const bytes = (await page.evaluate(() => window.__UPLOADS__)) - before;
+      return { label, bytes };
+    };
+    const geometryBytes = await page.evaluate(() => window.__UPLOADS__);
+    const u = [
+      await measure("year change (117 -> 118 -> 117)", () => page.keyboard.press("ArrowRight").then(() => page.keyboard.press("ArrowLeft"))),
+      await measure("hover over a territory", () => page.mouse.move(720, 470).then(() => page.mouse.move(724, 474))),
+      await measure("select a polity (adds its outline)", () => page.evaluate(() => window.__CHRONOS__.engine.setSelected(0))),
+      await measure("deselect", () => page.evaluate(() => window.__CHRONOS__.engine.setSelected(-1))),
+    ];
+    for (const x of u) if (x.bytes > 2_000_000) fail(`uploads: ${x.label} uploaded ${x.bytes} bytes`);
+    report.uploads = { initialBytes: geometryBytes, changes: u };
+    report.steps.push({ uploads: u.map((x) => `${x.label}: ${x.bytes} B`) });
+  }
   if (steps.includes("select")) {
     // Click on Rome's territory near Rome itself at 117 CE: the Roman Empire should be selected and outlined.
     const p = await engine(() => { const m = window.__CHRONOS__.engine.map; m.jumpTo({ center: [14, 40], zoom: 3.6 }); return null; });

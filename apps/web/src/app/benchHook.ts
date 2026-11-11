@@ -8,6 +8,7 @@ import type { Engine } from "../bench/engines";
 import { heapMB, probe } from "../bench/memory";
 import { runProtocol, type TestPoint } from "../bench/protocol";
 import type { BundleMeta } from "../lib/bundle";
+import { timeStore } from "./state";
 
 declare global {
   interface Window { __BENCH__?: unknown; __BENCH_ERROR__?: string }
@@ -32,12 +33,16 @@ export async function runBench(engine: AtlasEngine, meta: BundleMeta, _tNav: num
     }
     const tp = (await (await fetch("/testpoints.json")).json()) as { points: TestPoint[] };
     const c = engine.map.getCenter();
+    const zoom0 = engine.map.getZoom();
     const res = await runProtocol(engine as unknown as Engine, meta.years, tp.points, meta.polities.map((p) => p.id), {
       sweepStep: Number(params.get("step") ?? 5), jumpFrames: 300, latencySamples: 40,
       pickLimit: Number(params.get("picks") ?? 10000), pickZoom: 3, seed: 20261111,
       view: { center: [c.lng, c.lat], zoom: engine.map.getZoom() },
       enduranceCycles: Number(params.get("cycles") ?? 5),
     });
+    // The protocol drives the engine directly; put the engine back in step with the app's own state and view.
+    engine.map.jumpTo({ center: [c.lng, c.lat], zoom: zoom0 });
+    engine.setYear(timeStore.get().t);
     const heapNoGc = heapMB();
     const afterGc = params.get("probe") === "1" ? await probe("after protocol") : null;
     window.__BENCH__ = {

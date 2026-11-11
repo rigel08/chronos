@@ -41,7 +41,7 @@ function rgb(hex: string): string {
   return `vec3(${n(1)}, ${n(3)}, ${n(5)})`;
 }
 
-function shaderModule(name: string, palette: string[], stripes: boolean) {
+function shaderModule(name: string, palette: string[], stripes: boolean, wash: number) {
   const block = /* glsl */ `\
 layout(std140) uniform ${name}Uniforms {
   float tCur;
@@ -67,7 +67,7 @@ const vec3 STRATA_PALETTE[${n}] = vec3[${n}](${palette.map(rgb).join(", ")});
 vec3 strata_shade(float code) {
   float pol = floor(code / 16.0);
   int ci = int(mod(code, 16.0) + 0.5);
-  vec3 c = mix(STRATA_PALETTE[clamp(ci, 0, ${n - 1})], vec3(0.051, 0.063, 0.078), 0.14);
+  vec3 c = mix(STRATA_PALETTE[clamp(ci, 0, ${n - 1})], vec3(0.051, 0.063, 0.078), ${wash.toFixed(3)});
   bool sel = ${name}.selected >= 0.0 && abs(pol - ${name}.selected) < 0.5;
   bool hov = ${name}.hovered >= 0.0 && abs(pol - ${name}.hovered) < 0.5;
   if (${name}.selected >= 0.0 && !sel) {
@@ -123,15 +123,15 @@ vec3 strata_shade(float code) {
 
 type StrataLayer = Layer<StrataExtensionProps & Record<string, unknown>>;
 
-export class StrataExtension extends LayerExtension<{ palette: string[]; stripes: boolean }> {
+export class StrataExtension extends LayerExtension<{ palette: string[]; stripes: boolean; wash?: number }> {
   static override extensionName = "StrataExtension";
   static override defaultProps = defaultProps;
 
   private module: ReturnType<typeof shaderModule>;
 
-  constructor(opts: { palette: string[]; stripes: boolean }) {
+  constructor(opts: { palette: string[]; stripes: boolean; wash?: number }) {
     super(opts);
-    this.module = shaderModule(opts.stripes ? "strataStripes" : "strataFill", opts.palette, opts.stripes);
+    this.module = shaderModule(opts.stripes ? "strataStripes" : "strataFill", opts.palette, opts.stripes, opts.wash ?? 0.14);
   }
 
   override getShaders(this: StrataLayer, extension: StrataExtension) {

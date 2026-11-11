@@ -47,15 +47,15 @@ export function App() {
       if (cancelled || !mapRef.current) return;
       engine = await AtlasEngine.create(mapRef.current, meta, {
         center: initialView.center, zoom: initialView.zoom, projection: uiStore.get().projection, year: timeStore.get().t,
-        reducedMotion: uiStore.get().reducedMotion, dissolveMs: TEST ? 0 : 240,
+        reducedMotion: uiStore.get().reducedMotion, dissolveMs: TEST ? 0 : 240, mask: params.get("mask") === "1",
       }, {
         onHover: (h) => selectionStore.set({ hover: h }),
-        onClick: ({ lngLat, polities }) => {
+        onClick: ({ lngLat, polities, onLand }) => {
           const current = selectionStore.get().polity;
           const next = polities.includes(current) && polities.length > 1
             ? (polities[(polities.indexOf(current) + 1) % polities.length] as number) : (polities[0] ?? -1);
           selectionStore.set({ polity: next });
-          sampleStore.set({ at: lngLat });
+          sampleStore.set({ at: lngLat, onLand });
           uiStore.set({ panel: next >= 0 ? "polity" : "sample" });
         },
         onMove: () => scheduleHash(),

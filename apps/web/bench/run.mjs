@@ -17,7 +17,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { chromium } from "playwright-core";
-import { createServer } from "vite";
+import { build, createServer, preview } from "vite";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../../..");
@@ -42,9 +42,19 @@ const imgDir = resolve(repo, "docs/spikes/img");
 mkdirSync(outDir, { recursive: true });
 mkdirSync(imgDir, { recursive: true });
 
-const server = await createServer({ configFile: resolve(here, "../vite.config.ts"), root: resolve(here, ".."), logLevel: "warn" });
-await server.listen();
-const base = `http://localhost:${server.config.server.port}`;
+// --preview: measure the production build (vite build + vite preview), which is what people load.
+const usePreview = flag("preview");
+let server;
+let base;
+if (usePreview) {
+  await build({ configFile: resolve(here, "../vite.config.ts"), root: resolve(here, ".."), logLevel: "warn" });
+  server = await preview({ configFile: resolve(here, "../vite.config.ts"), root: resolve(here, ".."), logLevel: "warn" });
+  base = server.resolvedUrls.local[0].replace(/\/$/, "");
+} else {
+  server = await createServer({ configFile: resolve(here, "../vite.config.ts"), root: resolve(here, ".."), logLevel: "warn" });
+  await server.listen();
+  base = `http://localhost:${server.config.server.port}`;
+}
 const browser = await chromium.launch({
   channel: "chrome", headless: !headed,
   args: ["--ignore-gpu-blocklist", "--enable-gpu-rasterization", "--disable-renderer-backgrounding",
@@ -122,12 +132,12 @@ try {
   }
 } finally {
   await browser.close();
-  await server.close();
+  await (server.close?.() ?? server.httpServer?.close());
 }
 
 const bundle = JSON.parse(readFileSync(resolve(repo, "data/build/current/bundle.json"), "utf8"));
 const stamp = new Date().toISOString().slice(0, 10);
 const file = resolve(outDir, `${stamp}-${label}${extra.includes("mode=load") ? "" : picks < 10000 || step !== 5 ? "-quick" : ""}.json`);
 writeFileSync(file, JSON.stringify({ label, release: bundle.release_id, chrome: browser.version?.() ?? null,
-  options: { engines, variants, reps, picks, step, cycles, headed, query: extra }, runs }, null, 1) + "\n");
+  options: { engines, variants, reps, picks, step, cycles, headed, query: extra, build: usePreview ? "production (vite preview)" : "dev server" }, runs }, null, 1) + "\n");
 console.log(`results -> ${file.replace(repo + "/", "")}`);

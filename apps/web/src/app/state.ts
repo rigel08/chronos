@@ -25,6 +25,8 @@ export const selectionStore = createStore({
 
 export const sampleStore = createStore({
   at: (initial.sample ?? null) as [number, number] | null,
+  /** Whether the point is on modern land (Natural Earth); null when unknown (e.g. from a link). */
+  onLand: null as boolean | null,
   result: null as CoreSample | null,
 });
 

@@ -7,6 +7,8 @@
  * allocation (D-023). New in 1.3: StrataExtension instead of DataFilterExtension (exact years plus a
  * wall-clock dissolve, selection and overlap stripes as uniforms).
  */
+import "./maplibreWorker";
+
 import { PathLayer, ScatterplotLayer, SolidPolygonLayer } from "@deck.gl/layers";
 import { MapLibreOverlay } from "@deck.gl/maplibre";
 import { type IControl, Map as MapLibreMap, type MapMouseEvent } from "maplibre-gl";
@@ -21,7 +23,7 @@ export type Projection = "globe" | "flat";
 
 export interface EngineEvents {
   onHover?(e: { x: number; y: number; polities: number[] } | null): void;
-  onClick?(e: { lngLat: [number, number]; polities: number[] }): void;
+  onClick?(e: { lngLat: [number, number]; polities: number[]; onLand: boolean }): void;
   onMove?(view: { center: [number, number]; zoom: number }): void;
 }
 
@@ -32,6 +34,8 @@ export interface EngineOptions {
   year: number;
   reducedMotion: boolean;
   dissolveMs?: number;
+  /** Render-agreement mode: territories pure white on black; no basemap, atmosphere or overlap stripes. */
+  mask?: boolean;
 }
 
 const BONE: [number, number, number] = [233, 226, 210];
@@ -73,6 +77,7 @@ export class AtlasEngine {
   private firstPart: Uint32Array | null = null;
   private pendingFrame: Promise<void> = Promise.resolve();
   private hoverQueued = false;
+  private mask = false;
   private lastPointer: { x: number; y: number } | null = null;
 
   private constructor(map: MapLibreMap, o: EngineOptions, private readonly events: EngineEvents) {
@@ -91,6 +96,11 @@ export class AtlasEngine {
     const style = strataStyle(
       { tiles: absolute(f.relief.template), tileSize: f.relief.tile_size, minzoom: f.relief.minzoom, maxzoom: f.relief.maxzoom },
       null, o.projection === "globe" ? "globe" : "mercator");
+    if (o.mask) {
+      style.layers = [{ id: "ocean", type: "background", paint: { "background-color": "#000000" } },
+                      { id: "relief", type: "background", paint: { "background-opacity": 0 } }];
+      style.sky = { "atmosphere-blend": 0 };
+    }
     const map = new MapLibreMap({
       container, style, center: o.center, zoom: o.zoom, attributionControl: false, fadeDuration: 0,
       canvasContextAttributes: { antialias: true, preserveDrawingBuffer: false }, maxPitch: 60, renderWorldCopies: false,
@@ -102,16 +112,18 @@ export class AtlasEngine {
       map.on("error", (ev) => { if (!map.loaded()) { clearTimeout(watchdog); reject(ev.error ?? new Error("map error")); } });
     });
     // Basemap layers: MapLibre fetches and parses each file in its own worker.
-    for (const key of ["land", "coastline", "lakes", "rivers"] as const) {
+    for (const key of (o.mask ? [] : ["land", "coastline", "lakes", "rivers"]) as ("land" | "coastline" | "lakes" | "rivers")[]) {
       const src = map.getSource(key) as { setData(d: string): void } | undefined;
       src?.setData(absolute(f[`basemap_${key}`].path));
     }
     const engine = new AtlasEngine(map, o, events);
+    engine.mask = !!o.mask;
     map.on("mousemove", (e: MapMouseEvent) => engine.queueHover(e.point.x, e.point.y));
     map.on("mouseout", () => { engine.lastPointer = null; engine.setHovered(-1); events.onHover?.(null); });
     map.on("click", (e: MapMouseEvent) => {
       const polities = engine.pick(e.point.x, e.point.y);
-      events.onClick?.({ lngLat: [e.lngLat.lng, e.lngLat.lat], polities });
+      const onLand = map.queryRenderedFeatures(e.point, { layers: ["land"] }).length > 0;   // modern Natural Earth land
+      events.onClick?.({ lngLat: [e.lngLat.lng, e.lngLat.lat], polities, onLand });
     });
     map.on("movestart", () => { engine.setHovered(-1); events.onHover?.(null); });
     map.on("moveend", () => {
@@ -126,8 +138,8 @@ export class AtlasEngine {
   async attach(data: Loaded): Promise<void> {
     const t0 = performance.now();
     this.data = data;
-    const palette = data.meta.palette.colours;
-    this.fillExt = new StrataExtension({ palette, stripes: false });
+    const palette = this.mask ? ["#ffffff"] : data.meta.palette.colours;
+    this.fillExt = new StrataExtension({ palette, stripes: false, wash: this.mask ? 0 : 0.14 });
     this.stripeExt = new StrataExtension({ palette, stripes: true });
     const g = data.geometry;
     const first = new Uint32Array(g.territoryStart.length + 1).fill(0xffffffff);
@@ -166,9 +178,11 @@ export class AtlasEngine {
                      parameters: this.params, beforeId: TERRITORY_BEFORE, ...this.strataProps() };
     const layers: unknown[] = [
       new SolidPolygonLayer({ id: "territories", pickable: true, extensions: [this.fillExt], ...common, data: this.territoryData } as never),
-      new SolidPolygonLayer({ id: "overlaps", pickable: false, extensions: [this.stripeExt], strataStripes: [5, pxPerDeg], ...common,
-                              data: this.overlapData } as never),
     ];
+    if (!this.mask) {
+      layers.push(new SolidPolygonLayer({ id: "overlaps", pickable: false, extensions: [this.stripeExt], strataStripes: [5, pxPerDeg], ...common,
+                                          data: this.overlapData } as never));
+    }
     const outline = this.outlineData();
     if (outline) {
       const base = { data: outline as never, positionFormat: "XY" as const, _pathType: "open" as const, widthUnits: "pixels" as const,
