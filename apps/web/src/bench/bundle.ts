@@ -1,19 +1,10 @@
-/** Decode the pipeline's spike bundle (bundle.json + geometry.bin). Layout is defined in pipeline build.py. */
-export interface SectionSpec {
-  dtype: string;
-  offset: number;
-  length: number;
-}
+/**
+ * The 1.1/1.2 benchmark harness's view of the bundle, now read from format 3 through src/lib/bundle.ts.
+ * The harness keeps its own flat Geometry shape so the Spike 001 and 1.2 code paths stay unchanged.
+ */
+import { type BundleMeta, decodeGeometry as decodeFormat3 } from "../lib/bundle";
 
-export interface BundleMeta {
-  format: number;
-  release_id: string;
-  profile: string;
-  years: { min: number; max: number; numbering: string };
-  polities: { id: string; name: string; start: number; end: number; qa: string[] }[];
-  geometry: { file: string; sections: Record<string, SectionSpec>; territories: number; parts: number; rings: number; vertices: number; bytes: number };
-  attribution: string[];
-}
+export type { BundleMeta };
 
 export interface Geometry {
   positions: Float32Array;
@@ -24,47 +15,19 @@ export interface Geometry {
   territoryEnd: Int32Array;
   territoryPolity: Uint32Array;
   territoryRow: Uint32Array;
-  territoryArea: Float32Array;
-  /** Format 2: pre-computed triangles (global vertex indices, 3 per triangle) and each part's first index. */
+  territoryArea: Float64Array;
   triangles: Uint32Array | null;
   partTriangleStart: Uint32Array | null;
 }
 
-const CTORS: Record<string, Float32ArrayConstructor | Uint32ArrayConstructor | Int32ArrayConstructor> = {
-  "<f4": Float32Array,
-  "<u4": Uint32Array,
-  "<i4": Int32Array,
-};
-
 export function decodeGeometry(meta: BundleMeta, buf: ArrayBuffer): Geometry {
-  const s = meta.geometry.sections;
-  const view = <T>(name: string, optional = false): T => {
-    const spec = s[name];
-    if (!spec) {
-      if (optional) return null as T;
-      throw new Error(`bundle: missing section ${name}`);
-    }
-    const Ctor = CTORS[spec.dtype];
-    if (!Ctor) throw new Error(`bundle: unsupported dtype ${spec.dtype}`);
-    if (spec.offset + spec.length * Ctor.BYTES_PER_ELEMENT > buf.byteLength) throw new Error(`bundle: section ${name} overruns file`);
-    return new Ctor(buf, spec.offset, spec.length) as T;
+  const g = decodeFormat3(meta, buf);
+  const m = g.territories;
+  return {
+    positions: m.positions, ringStart: m.ringStart, partRingStart: m.partRingStart, partTerritory: m.partOwner,
+    territoryStart: g.territoryStart, territoryEnd: g.territoryEnd, territoryPolity: g.territoryPolity, territoryRow: g.territoryRow,
+    territoryArea: g.territoryArea, triangles: m.triangles, partTriangleStart: m.partTriangleStart,
   };
-  const g: Geometry = {
-    positions: view<Float32Array>("positions"),
-    ringStart: view<Uint32Array>("ring_start"),
-    partRingStart: view<Uint32Array>("part_ring_start"),
-    partTerritory: view<Uint32Array>("part_territory"),
-    territoryStart: view<Int32Array>("territory_start"),
-    territoryEnd: view<Int32Array>("territory_end"),
-    territoryPolity: view<Uint32Array>("territory_polity"),
-    territoryRow: view<Uint32Array>("territory_row"),
-    territoryArea: view<Float32Array>("territory_area_km2"),
-    triangles: view<Uint32Array | null>("triangles", true),
-    partTriangleStart: view<Uint32Array | null>("part_triangle_start", true),
-  };
-  if (g.partTerritory.length !== meta.geometry.parts) throw new Error("bundle: part count mismatch");
-  if (g.territoryStart.length !== meta.geometry.territories) throw new Error("bundle: territory count mismatch");
-  return g;
 }
 
 /** One deck.gl item per polygon part, in deck's flat complex-polygon format. */
@@ -120,9 +83,8 @@ export function territoryFeatures(g: Geometry): GeoJSON.FeatureCollection<GeoJSO
 }
 
 /**
- * deck.gl binary input for SolidPolygonLayer (milestone 1.2, D-021): positions and triangles are views of the
- * bundle's own buffer; per-vertex colour and [start, end] are built once in typed arrays. No per-part
- * objects, no normalisation and no triangulation in the browser. Use with `_normalize: false`.
+ * deck.gl binary input for SolidPolygonLayer (milestone 1.2, D-021): positions and triangles from the bundle;
+ * per-vertex colour and [start, end] are built once in typed arrays. Use with `_normalize: false`.
  */
 export interface DeckBinary {
   length: number;
@@ -136,7 +98,7 @@ export interface DeckBinary {
 }
 
 export function deckBinaryData(g: Geometry, colourOf: (polity: number) => [number, number, number, number]): DeckBinary {
-  if (!g.triangles) throw new Error("bundle: format 2 (triangles) required for binary rendering");
+  if (!g.triangles) throw new Error("bundle: triangles required for binary rendering");
   const parts = g.partTerritory.length;
   const vertexCount = g.positions.length / 2;
   const startIndices = new Uint32Array(parts);

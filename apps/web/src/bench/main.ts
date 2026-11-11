@@ -7,7 +7,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { yearLabel } from "../lib/years";
 import { type BundleMeta, decodeGeometry } from "./bundle";
-import { createEngine, type EngineName, VARIANT } from "./engines";
+import { createEngine, type EngineName, setLandUrl, VARIANT } from "./engines";
 import { heapMB, probe } from "./memory";
 import { runProtocol, type TestPoint } from "./protocol";
 
@@ -39,17 +39,19 @@ async function main() {
   const tNav = performance.now();
   if (PROBE) await probe("page start");
   status.textContent = `loading bundle (${engineName}) ...`;
-  const [meta, buf, tp] = await Promise.all([
-    fetch("/bundle.json").then((r) => r.json() as Promise<BundleMeta>),
-    fetch("/geometry.bin").then((r) => r.arrayBuffer()),
+  const meta = await fetch("/bundle.json").then((r) => r.json() as Promise<BundleMeta>);
+  const [buf, tp] = await Promise.all([
+    fetch(`/${meta.files.geometry.path}`).then((r) => r.arrayBuffer()),
     fetch("/testpoints.json").then((r) => r.json() as Promise<{ points: TestPoint[] }>),
   ]);
+  setLandUrl(`/${meta.files.basemap_land.path}`);
   const tFetched = performance.now();
   const g = decodeGeometry(meta, buf);
   const tDecoded = performance.now();
   if (PROBE) await probe("bundle fetched and decoded");
   const engine = await createEngine(engineName, document.getElementById("map") as HTMLElement, g, START_YEAR, VIEW);
   const tReady = performance.now();
+  (window as unknown as { __BENCH_MAP__?: unknown }).__BENCH_MAP__ = engine.map;     // tooling: bench/seams.mjs unprojects pixels
   // Stricter readiness: the first frame in which the engine can actually report a drawn territory at the
   // screen centre (30 E, 30 N is Roman Egypt in 117 CE). "Ready" signals alone can precede real geometry.
   let firstPickMs: number | null = null;

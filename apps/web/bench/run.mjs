@@ -2,7 +2,10 @@
 /**
  * Reproducible engine benchmark runner (milestone 1.1).
  *
- *   node bench/run.mjs [--engines deck,maplibre] [--reps 3] [--picks 10000] [--step 5] [--headed] [--label m2]
+ *   node bench/run.mjs [--engines app,deck,maplibre] [--reps 3] [--picks 10000] [--step 5] [--headed] [--label m2]
+ *
+ * Engine "app" (milestone 1.3) is the real application (index.html?bench=1): the same protocol runs against the
+ * React UI, the Strata stage and the StrataExtension layers, opened at the protocol's view (117 CE, 30 E 30 N).
  *
  * Starts the Vite dev server (serving data/build/current), drives the locally installed Google Chrome
  * through playwright-core (no browser download), runs the protocol in src/bench/protocol.ts for each
@@ -81,7 +84,10 @@ try {
       // Fail fast: any uncaught error or a worker load failure ends the run instead of waiting for the timeout.
       page.on("console", (m) => { if (m.type() === "error" && /Worker failed|WebGL|context lost/i.test(m.text())) void page.evaluate((t) => { window.__BENCH_ERROR__ = t; }, m.text()).catch(() => {}); });
       const t0 = Date.now();
-      await page.goto(`${base}/bench.html?engine=${engine}${variant ? `&variant=${variant}` : ""}&run=1&picks=${picks}&step=${step}&cycles=${cycles}${extra}`);
+      const url = engine === "app"
+        ? `${base}/?test=1&bench=1&run=1&picks=${picks}&step=${step}&cycles=${cycles}${extra}#t=117&c=30.000,30.000,1.40`
+        : `${base}/bench.html?engine=${engine}${variant ? `&variant=${variant}` : ""}&run=1&picks=${picks}&step=${step}&cycles=${cycles}${extra}`;
+      await page.goto(url);
       await page.waitForFunction(() => window.__BENCH__ || window.__BENCH_ERROR__, null, { timeout: timeoutMs, polling: 1000 });
       const res = await page.evaluate(() => window.__BENCH__ ?? { error: window.__BENCH_ERROR__ });
       // Memory after the protocol: forced GC through DevTools, then on-heap and ArrayBuffer backing stores separately.

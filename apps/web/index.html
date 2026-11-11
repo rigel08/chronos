@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CHRONOS · milestone 1.1</title>
-  <style>body { margin: 0; padding: 32px; background: #0d1014; color: #e9e2d2; font: 15px/1.6 ui-sans-serif, system-ui; } a { color: #d8b54a; }</style>
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0d1014">
+  <title>CHRONOS · Strata</title>
+  <meta name="description" content="A globe of historical polities mapped in Cliopatria, 3400 BCE to 2024 CE, with sources, licences and quality flags.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='%2310161e' stroke='%23e9e2d2' stroke-width='1'/%3E%3Cpath d='M3 6h10M2.5 9h11M4 12h8' stroke='%23cf5637' stroke-width='1.2'/%3E%3C/svg%3E">
+  <style>html, body { background: #0d1014; }</style>
 </head>
 <body>
-  <h1>CHRONOS, milestone 1.1: technical proof</h1>
-  <p>No application UI yet. This build contains only the engine benchmark harness.</p>
-  <ul>
-    <li><a href="/bench.html?engine=deck">deck.gl on the MapLibre globe (GPU year filter)</a></li>
-    <li><a href="/bench.html?engine=maplibre">MapLibre native fill layer (global-state year filter)</a></li>
-  </ul>
+  <div id="root"></div>
+  <noscript>CHRONOS needs JavaScript and WebGL2.</noscript>
+  <script type="module" src="/src/app/main.tsx"></script>
 </body>
 </html>

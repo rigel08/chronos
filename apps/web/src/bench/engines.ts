@@ -33,12 +33,16 @@ const PIGMENTS = ["#cf5637", "#4b70c6", "#d9a845", "#4fae9f", "#57a067", "#b25c8
 const hex = (c: string): [number, number, number] => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
 const PIGMENTS_RGB = PIGMENTS.map(hex);
 
+let landUrl = "/basemap-land.json";
+/** The land layer's content-hashed file name, from bundle.json (format 3). */
+export function setLandUrl(url: string) { landUrl = url; }
+
 export function baseStyle(): StyleSpecification {
   return {
     version: 8,
     projection: { type: "globe" },
     sky: { "atmosphere-blend": 0.6 },
-    sources: { land: { type: "geojson", data: "/basemap_land.geojson" } },
+    sources: { land: { type: "geojson", data: landUrl } },
     layers: [
       { id: "ocean", type: "background", paint: { "background-color": "#10161e" } },
       { id: "land", type: "fill", source: "land", paint: { "fill-color": "#1a222c" } },

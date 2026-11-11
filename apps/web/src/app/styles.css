@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/* Strata design system v0 (docs/design-direction.md). Fonts are self-hosted (OFL), never fetched from a CDN. */
+@theme {
+  --color-ink-950: #0d1014;
+  --color-ink-900: #10161e;
+  --color-ink-800: #1a222c;
+  --color-graphite: #262c34;
+  --color-bone-100: #e9e2d2;
+  --color-bone-400: #b9b2a3;
+  --color-slate-400: #8d949d;
+  --color-slate-500: #6f7680;
+  --color-cinnabar: #cf5637;
+  --color-orpiment: #d9a845;
+
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --ease-strata: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--color-ink-950);
+    color: var(--color-bone-100);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "kern";
+  }
+  :focus-visible { outline: 1.5px solid var(--color-bone-400); outline-offset: 2px; border-radius: 3px; }
+  button { cursor: pointer; }
+}
+
+@layer components {
+  .tabular { font-variant-numeric: tabular-nums; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-slate-400);
+  }
+  .glass {
+    background: color-mix(in oklab, var(--color-ink-950) 90%, transparent);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    border: 1px solid color-mix(in oklab, var(--color-bone-100) 9%, transparent);
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px; border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--color-bone-100) 14%, transparent);
+    font-size: 11px; color: var(--color-bone-400);
+  }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 28px; padding: 0 10px; border-radius: 6px;
+    color: var(--color-bone-400);
+    border: 1px solid color-mix(in oklab, var(--color-bone-100) 12%, transparent);
+    background: color-mix(in oklab, var(--color-ink-800) 70%, transparent);
+    transition: color 120ms, border-color 120ms, background 120ms;
+  }
+  .btn:hover { color: var(--color-bone-100); border-color: color-mix(in oklab, var(--color-bone-100) 28%, transparent); }
+  .btn[aria-pressed="true"] { color: var(--color-ink-950); background: var(--color-bone-100); border-color: var(--color-bone-100); }
+  .hatch-unmapped {
+    background-image: repeating-linear-gradient(45deg, color-mix(in oklab, var(--color-bone-100) 35%, transparent) 0 1px, transparent 1px 6px);
+  }
+}
+
+/* Night-side vignette: the Nocturne stage around the globe. */
+.stage-vignette {
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(5, 7, 10, 0.55) 100%),
+    radial-gradient(60% 50% at 50% 42%, rgba(60, 80, 105, 0.10), transparent 70%);
+}
+.stage-space {
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgba(233, 226, 210, 0.35), transparent 60%),
+    radial-gradient(1px 1px at 78% 12%, rgba(233, 226, 210, 0.25), transparent 60%),
+    radial-gradient(1px 1px at 88% 64%, rgba(233, 226, 210, 0.22), transparent 60%),
+    radial-gradient(1px 1px at 22% 72%, rgba(233, 226, 210, 0.2), transparent 60%),
+    radial-gradient(1.2px 1.2px at 64% 84%, rgba(233, 226, 210, 0.18), transparent 60%),
+    radial-gradient(140% 120% at 50% 40%, #121a24 0%, #0b0e12 55%, #07090c 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
