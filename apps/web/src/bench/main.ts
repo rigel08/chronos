@@ -7,7 +7,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { yearLabel } from "../lib/years";
 import { type BundleMeta, decodeGeometry } from "./bundle";
-import { createEngine, type EngineName } from "./engines";
+import { createEngine, type EngineName, VARIANT } from "./engines";
+import { heapMB, probe } from "./memory";
 import { runProtocol, type TestPoint } from "./protocol";
 
 declare global {
@@ -32,8 +33,11 @@ function webglRenderer(): string {
   return ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER));
 }
 
+const PROBE = params.get("probe") === "1";
+
 async function main() {
   const tNav = performance.now();
+  if (PROBE) await probe("page start");
   status.textContent = `loading bundle (${engineName}) ...`;
   const [meta, buf, tp] = await Promise.all([
     fetch("/bundle.json").then((r) => r.json() as Promise<BundleMeta>),
@@ -43,6 +47,7 @@ async function main() {
   const tFetched = performance.now();
   const g = decodeGeometry(meta, buf);
   const tDecoded = performance.now();
+  if (PROBE) await probe("bundle fetched and decoded");
   const engine = await createEngine(engineName, document.getElementById("map") as HTMLElement, g, START_YEAR, VIEW);
   const tReady = performance.now();
   // Stricter readiness: the first frame in which the engine can actually report a drawn territory at the
@@ -55,6 +60,7 @@ async function main() {
       await new Promise((r) => requestAnimationFrame(r));
     }
   }
+  if (PROBE) await probe("first correct pick");
   const load = {
     fetchMs: Math.round(tFetched - tNav), decodeMs: Math.round(tDecoded - tFetched),
     engineDataReadyMs: engine.dataReadyMs, timeToInteractiveMs: Math.round(tReady - tNav), timeToFirstCorrectPickMs: firstPickMs,
@@ -74,12 +80,16 @@ async function main() {
     const res = await runProtocol(engine, meta.years, tp.points, meta.polities.map((p) => p.id), {
       sweepStep: Number(params.get("step") ?? 5), jumpFrames: 300, latencySamples: 40,
       pickLimit: Number(params.get("picks") ?? 10000), pickZoom: 3, seed: 20261111, view: VIEW,
+      enduranceCycles: Number(params.get("cycles") ?? 5),
       onProgress: (m) => { status.textContent = `${engineName}: ${m} ...`; },
     });
-    const mem = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
+    const heapNoGc = heapMB();
+    const afterGc = PROBE ? await probe("after protocol") : null;
     const result = {
-      engine: engineName, release: meta.release_id, load, ...res,
-      jsHeapMB: mem ? Math.round(mem.usedJSHeapSize / 1048576) : null,
+      engine: engineName, variant: engineName === "deck" ? VARIANT : null, release: meta.release_id, load, ...res,
+      jsHeapMB: heapNoGc === null ? null : Math.round(heapNoGc),
+      jsHeapAfterGcMB: afterGc ? afterGc.usedMB : null,
+      memoryStages: window.__MEM__ ?? [],
       env: { renderer: webglRenderer(), userAgent: navigator.userAgent, dpr: devicePixelRatio,
              viewport: [innerWidth, innerHeight], hardwareConcurrency: navigator.hardwareConcurrency },
       geometry: { territories: meta.geometry.territories, parts: meta.geometry.parts, vertices: meta.geometry.vertices },
@@ -92,8 +102,9 @@ async function main() {
   };
   (document.getElementById("run") as HTMLButtonElement).addEventListener("click", () => void run());
   if (params.get("mode") === "load") {
-    const mem = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
-    window.__BENCH__ = { engine: engineName, release: meta.release_id, load, jsHeapMB: mem ? Math.round(mem.usedJSHeapSize / 1048576) : null,
+    const heapNoGc = heapMB();
+    window.__BENCH__ = { engine: engineName, release: meta.release_id, load, jsHeapMB: heapNoGc === null ? null : Math.round(heapNoGc),
+                         memoryStages: window.__MEM__ ?? [],
                          env: { renderer: webglRenderer(), dpr: devicePixelRatio, viewport: [innerWidth, innerHeight] } };
     out.textContent = JSON.stringify(window.__BENCH__, null, 1);
   } else if (params.get("run") === "1") await run();
