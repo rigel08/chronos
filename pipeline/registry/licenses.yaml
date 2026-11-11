@@ -1,0 +1,58 @@
+# Licence registry. Every source must reference one of these ids (D-007).
+# commercial_use: false  =>  the source can only be public with a recorded permission (D-010).
+- id: CC-BY-4.0
+  name: Creative Commons Attribution 4.0 International
+  url: https://creativecommons.org/licenses/by/4.0/
+  attribution_required: true
+  share_alike: false
+  commercial_use: true
+
+- id: CC0-1.0
+  name: Creative Commons Zero 1.0 (public domain dedication)
+  url: https://creativecommons.org/publicdomain/zero/1.0/
+  attribution_required: false
+  share_alike: false
+  commercial_use: true
+
+- id: LicenseRef-NaturalEarth-PD
+  name: Natural Earth (public domain), packaged by world-atlas (ISC)
+  url: https://www.naturalearthdata.com/about/terms-of-use/
+  attribution_required: false
+  share_alike: false
+  commercial_use: true
+  notes: Attribution is not required but CHRONOS gives it.
+
+- id: CC-BY-NC-SA-4.0
+  name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+  url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  attribution_required: true
+  share_alike: true
+  commercial_use: false
+
+- id: CC-BY-NC-4.0
+  name: Creative Commons Attribution-NonCommercial 4.0
+  url: https://creativecommons.org/licenses/by-nc/4.0/
+  attribution_required: true
+  share_alike: false
+  commercial_use: false
+
+- id: LicenseRef-Smithsonian-TOU
+  name: Smithsonian Terms of Use (non-commercial without permission)
+  url: https://volcano.si.edu/gvp_termsofuse.cfm
+  attribution_required: true
+  share_alike: false
+  commercial_use: false
+
+- id: LicenseRef-Unverified
+  name: Licence not yet verified
+  attribution_required: true
+  share_alike: false
+  commercial_use: false
+  notes: Placeholder for sources whose terms are still being checked. Always research-only.
+
+- id: LicenseRef-CHRONOS-Editorial
+  name: CHRONOS editorial content
+  attribution_required: true
+  share_alike: false
+  commercial_use: true
+  notes: Corrections and annotations authored by the CHRONOS project.

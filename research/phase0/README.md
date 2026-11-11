@@ -6,7 +6,7 @@ These scripts produced every figure in [`docs/validation/0001-cliopatria-117ce.m
 |---|---|
 | `validate_cliopatria.py` | Areas in 117 CE (combined, unique, land), overlaps, coverage, unique area for 500 BCE–700 CE, temporal gaps, gaps at Rome, QID inventory |
 | `wikidata_crosswalk.py` | Checks each Cliopatria QID against Wikidata (label, type, dates) and writes QA flags |
-| `crosswalk_overrides.csv` | Editorial corrections verified against Wikidata. Cliopatria data is never edited. |
+| `../../pipeline/registry/crosswalk_overrides.csv` | Editorial corrections verified against Wikidata (moved into the pipeline registry in M1.1). Cliopatria data is never edited. |
 | `direction-studies/` | Source of the three visual studies (template + build script). The built page embeds derived data and is not committed. |
 
 ## Inputs (downloaded outside the repo, never committed)
