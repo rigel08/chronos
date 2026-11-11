@@ -1,0 +1,438 @@
+{
+ "release": "chronos-0.2.0-public-cliopatria-v0.2.1-wikidata-2026-11-11-5adf473e176e",
+ "geometry": {
+  "territories": 12064,
+  "parts": 229026,
+  "vertices": 3442677,
+  "triangles": 2753260,
+  "bytes": 64497636
+ },
+ "A_single_bundle": {
+  "geometry_bin": {
+   "raw": 64497636,
+   "gzip9": 24643478,
+   "brotli11": 7465968,
+   "zstd19": 9903739
+  },
+  "bundle_json": {
+   "raw": 305004,
+   "gzip9": 48390,
+   "brotli11": 38115,
+   "zstd19": 41816
+  },
+  "per_section": {
+   "part_ring_start": {
+    "raw": 916108,
+    "gzip9": 316898,
+    "brotli11": 228479,
+    "zstd19": 198267
+   },
+   "part_territory": {
+    "raw": 916104,
+    "gzip9": 27221,
+    "brotli11": 19715,
+    "zstd19": 24817
+   },
+   "part_triangle_start": {
+    "raw": 916108,
+    "gzip9": 368149,
+    "brotli11": 347656,
+    "zstd19": 322752
+   },
+   "positions": {
+    "raw": 27541416,
+    "gzip9": 14042433,
+    "brotli11": 1177872,
+    "zstd19": 1320539
+   },
+   "ring_start": {
+    "raw": 927500,
+    "gzip9": 341176,
+    "brotli11": 310882,
+    "zstd19": 276064
+   },
+   "territory_area_km2": {
+    "raw": 48256,
+    "gzip9": 41529,
+    "brotli11": 40380,
+    "zstd19": 41407
+   },
+   "territory_end": {
+    "raw": 48256,
+    "gzip9": 9176,
+    "brotli11": 7458,
+    "zstd19": 8219
+   },
+   "territory_polity": {
+    "raw": 48256,
+    "gzip9": 13657,
+    "brotli11": 11121,
+    "zstd19": 12733
+   },
+   "territory_row": {
+    "raw": 48256,
+    "gzip9": 17504,
+    "brotli11": 13170,
+    "zstd19": 28476
+   },
+   "territory_start": {
+    "raw": 48256,
+    "gzip9": 1326,
+    "brotli11": 1091,
+    "zstd19": 1283
+   },
+   "triangles": {
+    "raw": 33039120,
+    "gzip9": 9456846,
+    "brotli11": 5642851,
+    "zstd19": 7372681
+   }
+  }
+ },
+ "B_without_triangles": {
+  "raw": 30542408,
+  "gzip9": 14817205,
+  "brotli11": 1793459,
+  "zstd19": 1917390
+ },
+ "C_shuffled_delta": {
+  "positions_shuffled": {
+   "raw": 27541416,
+   "gzip9": 8686946,
+   "brotli11": 2072004,
+   "zstd19": 2234656
+  },
+  "triangles_local_delta_zigzag_shuffled": {
+   "raw": 33039120,
+   "gzip9": 1528495,
+   "brotli11": 521585,
+   "zstd19": 529955
+  },
+  "whole": {
+   "raw": 64497636,
+   "gzip9": 11360373,
+   "brotli11": 3538930,
+   "zstd19": 3658322
+  }
+ },
+ "timing_A_to_C_s": 365.1,
+ "D_time_chunks": {
+  "window_years": 250,
+  "chunks": 22,
+  "sum_raw_with_duplication_MB": 62.68,
+  "duplication_factor": 1.02,
+  "largest_chunk": {
+   "from": 1851,
+   "to": 2100,
+   "territories": 2266,
+   "parts": 78252,
+   "vertices": 1126753,
+   "triangles": 891969,
+   "raw_bytes_est": 20701996
+  },
+  "chunk_for_117ce": {
+   "from": 101,
+   "to": 350,
+   "territories": 298,
+   "parts": 6528,
+   "vertices": 103042,
+   "triangles": 83460,
+   "raw_bytes_est": 1910152
+  },
+  "chunk_for_117ce_measured": {
+   "raw": 1825856,
+   "gzip9": 520998,
+   "brotli11": 220071,
+   "zstd19": 295688
+  },
+  "all": [
+   {
+    "from": -3399,
+    "to": -3150,
+    "territories": 3,
+    "parts": 5,
+    "vertices": 88,
+    "triangles": 73,
+    "raw_bytes_est": 1700
+   },
+   {
+    "from": -3149,
+    "to": -2900,
+    "territories": 5,
+    "parts": 11,
+    "vertices": 184,
+    "triangles": 151,
+    "raw_bytes_est": 3516
+   },
+   {
+    "from": -2899,
+    "to": -2650,
+    "territories": 7,
+    "parts": 20,
+    "vertices": 316,
+    "triangles": 256,
+    "raw_bytes_est": 5980
+   },
+   {
+    "from": -2649,
+    "to": -2400,
+    "territories": 6,
+    "parts": 28,
+    "vertices": 441,
+    "triangles": 357,
+    "raw_bytes_est": 8268
+   },
+   {
+    "from": -2399,
+    "to": -2150,
+    "territories": 13,
+    "parts": 80,
+    "vertices": 1370,
+    "triangles": 1130,
+    "raw_bytes_est": 25740
+   },
+   {
+    "from": -2149,
+    "to": -1900,
+    "territories": 14,
+    "parts": 70,
+    "vertices": 1178,
+    "triangles": 968,
+    "raw_bytes_est": 22160
+   },
+   {
+    "from": -1899,
+    "to": -1650,
+    "territories": 22,
+    "parts": 121,
+    "vertices": 1700,
+    "triangles": 1337,
+    "raw_bytes_est": 31536
+   },
+   {
+    "from": -1649,
+    "to": -1400,
+    "territories": 25,
+    "parts": 97,
+    "vertices": 1620,
+    "triangles": 1328,
+    "raw_bytes_est": 30560
+   },
+   {
+    "from": -1399,
+    "to": -1150,
+    "territories": 28,
+    "parts": 249,
+    "vertices": 3632,
+    "triangles": 2885,
+    "raw_bytes_est": 67224
+   },
+   {
+    "from": -1149,
+    "to": -900,
+    "territories": 24,
+    "parts": 123,
+    "vertices": 1872,
+    "triangles": 1503,
+    "raw_bytes_est": 34968
+   },
+   {
+    "from": -899,
+    "to": -650,
+    "territories": 76,
+    "parts": 460,
+    "vertices": 6233,
+    "triangles": 4853,
+    "raw_bytes_est": 115140
+   },
+   {
+    "from": -649,
+    "to": -400,
+    "territories": 182,
+    "parts": 1687,
+    "vertices": 23144,
+    "triangles": 18074,
+    "raw_bytes_est": 425924
+   },
+   {
+    "from": -399,
+    "to": -150,
+    "territories": 510,
+    "parts": 6504,
+    "vertices": 93742,
+    "triangles": 74193,
+    "raw_bytes_est": 1728500
+   },
+   {
+    "from": -149,
+    "to": 100,
+    "territories": 353,
+    "parts": 6427,
+    "vertices": 101641,
+    "triangles": 82359,
+    "raw_bytes_est": 1885620
+   },
+   {
+    "from": 101,
+    "to": 350,
+    "territories": 298,
+    "parts": 6528,
+    "vertices": 103042,
+    "triangles": 83460,
+    "raw_bytes_est": 1910152
+   },
+   {
+    "from": 351,
+    "to": 600,
+    "territories": 652,
+    "parts": 9658,
+    "vertices": 153934,
+    "triangles": 124983,
+    "raw_bytes_est": 2860204
+   },
+   {
+    "from": 601,
+    "to": 850,
+    "territories": 864,
+    "parts": 12323,
+    "vertices": 186200,
+    "triangles": 149237,
+    "raw_bytes_est": 3445600
+   },
+   {
+    "from": 851,
+    "to": 1100,
+    "territories": 1462,
+    "parts": 12494,
+    "vertices": 197562,
+    "triangles": 159906,
+    "raw_bytes_est": 3678536
+   },
+   {
+    "from": 1101,
+    "to": 1350,
+    "territories": 1577,
+    "parts": 12080,
+    "vertices": 194531,
+    "triangles": 158162,
+    "raw_bytes_est": 3630692
+   },
+   {
+    "from": 1351,
+    "to": 1600,
+    "territories": 1932,
+    "parts": 22760,
+    "vertices": 378996,
+    "triangles": 309632,
+    "raw_bytes_est": 7059312
+   },
+   {
+    "from": 1601,
+    "to": 1850,
+    "territories": 2640,
+    "parts": 66603,
+    "vertices": 980289,
+    "triangles": 779484,
+    "raw_bytes_est": 18048156
+   },
+   {
+    "from": 1851,
+    "to": 2100,
+    "territories": 2266,
+    "parts": 78252,
+    "vertices": 1126753,
+    "triangles": 891969,
+    "raw_bytes_est": 20701996
+   }
+  ]
+ },
+ "E_vector_tiles": {
+  "source_rows": 12064,
+  "max_zoom": 5,
+  "per_zoom": {
+   "0": {
+    "tiles": 1,
+    "gzip_total_MB": 0.88,
+    "largest_tile_KB": 903.0,
+    "features_per_tile_mean": 12064.0,
+    "features_per_tile_max": 12064,
+    "simplify_tolerance_m": 4892.0
+   },
+   "1": {
+    "tiles": 4,
+    "gzip_total_MB": 0.96,
+    "largest_tile_KB": 735.3,
+    "features_per_tile_mean": 3639.8,
+    "features_per_tile_max": 10630,
+    "simplify_tolerance_m": 2446.0
+   },
+   "2": {
+    "tiles": 12,
+    "gzip_total_MB": 1.01,
+    "largest_tile_KB": 601.0,
+    "features_per_tile_mean": 1392.6,
+    "features_per_tile_max": 9162,
+    "simplify_tolerance_m": 1223.0
+   },
+   "3": {
+    "tiles": 41,
+    "gzip_total_MB": 1.14,
+    "largest_tile_KB": 303.0,
+    "features_per_tile_mean": 581.5,
+    "features_per_tile_max": 5268,
+    "simplify_tolerance_m": 611.5
+   },
+   "4": {
+    "tiles": 131,
+    "gzip_total_MB": 1.37,
+    "largest_tile_KB": 225.8,
+    "features_per_tile_mean": 287.0,
+    "features_per_tile_max": 4188,
+    "simplify_tolerance_m": 305.7
+   },
+   "5": {
+    "tiles": 397,
+    "gzip_total_MB": 1.9,
+    "largest_tile_KB": 81.2,
+    "features_per_tile_mean": 179.3,
+    "features_per_tile_max": 2032,
+    "simplify_tolerance_m": 152.9
+   }
+  },
+  "simplification_error": {
+   "0": {
+    "sampled_features": 400,
+    "mean_area_changed_km2": 505.627,
+    "max_area_changed_km2": 3362.08
+   },
+   "1": {
+    "sampled_features": 400,
+    "mean_area_changed_km2": 93.519,
+    "max_area_changed_km2": 723.996
+   },
+   "2": {
+    "sampled_features": 400,
+    "mean_area_changed_km2": 5.965,
+    "max_area_changed_km2": 141.18
+   },
+   "3": {
+    "sampled_features": 400,
+    "mean_area_changed_km2": 0.053,
+    "max_area_changed_km2": 1.34
+   },
+   "4": {
+    "sampled_features": 400,
+    "mean_area_changed_km2": 0.005,
+    "max_area_changed_km2": 0.086
+   },
+   "5": {
+    "sampled_features": 400,
+    "mean_area_changed_km2": 0.005,
+    "max_area_changed_km2": 0.049
+   }
+  },
+  "archive_gzip_MB_sum": 7.26,
+  "build_seconds": 119.2,
+  "note": "Every tile carries every year's rows that touch it; the GPU year filter then needs per-feature start/end in the tile. Geometry beyond max_zoom is over-zoomed from max_zoom tiles."
+ }
+}

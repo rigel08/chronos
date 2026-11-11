@@ -9,15 +9,15 @@
 | # | Milestone | Size | Contents |
 |---|---|---|---|
 | **1.1** | **Foundations, data spine v0, engine spike** (first; detailed below) | M | Repo tooling; the Cliopatria adapter through `validate`, with the QA rules from validation 0001; a static spike bundle with `trace.json`; the MapLibre + deck.gl spike page with measurements. This is the go/no-go for D-001. |
-| 1.2 | Database & tiles | M | PostGIS container up (D-009); first Alembic migration from `db/schema.sql`; load into PostGIS, with QA findings in `qa_flag` and source QIDs as `external_id` assertions; PMTiles with `from`/`to`; gain/loss diffs; `attributions.json`; `trace.json` |
-| 1.3 | Globe & basemap (Strata stage) | M | Custom style from Natural Earth (relief, coastlines, rivers, lakes), atmosphere, globe ↔ flat transition, cinematic `flyTo` arcs |
-| 1.4 | Time engine & timeline | M | Zoomable scrubber plus the record-density overview strip; play/pause/rewind/speed; step by year, decade, century or millennium; BCE/CE/ka formatting; jump-to-year; keyboard control; cross-dissolve and gain/loss pulses |
-| 1.5 | Inspect & core sample | M | Hover names; polity card (names, fuzzy dates, three area measures, evidence + source + licence chips, QA flags, "How is this calculated?"); ✦ **core sample** at any point via `GET /v1/at`, with exact/near hits, gaps and overlaps |
+| 1.2 | **Data & rendering foundation** (done, 2026-11-11; spikes [002](spikes/002-memory-and-rendering.md), [003](spikes/003-data-delivery.md)) | M | Memory 821 → 254 MB with accuracy and smoothness unchanged; pre-triangulated binary bundle (format 2, QA-013); explicit culling; render-agreement and memory tooling; measured delivery recommendation (D-021 to D-024). *Replaced the originally planned "Database & tiles": spike 003 showed tiles aren't the right delivery for the territory layer, and no 1.2 feature needed PostGIS.* |
+| **1.3** | **First vertical slice: the Strata stage, time engine and loading path** (recommended next; detailed below) | M | Globe and basemap styling; TimeEngine and scrubber; brotli-precompressed format 3 (delta triangles) with real readiness gating; polity selection and highlight; polity card with QA and trace; client-side core sample |
+| 1.4 | Database & API | M | PostGIS container up (D-009); Alembic migration from `db/schema.sql`; load with `qa_flag` and `external_id`; FastAPI `/v1/polities/{id}`, `/v1/at`, `/v1/search` (when server-side features need them) |
+| 1.5 | Inspect depth | M | Names in many scripts, fuzzy dates, three area measures, evidence/source/licence chips, "How is this calculated?" trace, overlap display rule |
 | 1.6 | Polish, accessibility, performance, tests | M | ✦ Label spines, loading choreography, reduced motion, screen-reader "describe this moment", Playwright and screenshot tests, performance budget check |
 
 ### Milestone 1.1 in detail (the first implementation milestone)
 
-> **Status (2026-11-11): implemented on `m1.1/foundations-spike`, awaiting review.**
+> **Status (2026-11-11): done, merged to `main` (`d3ee0aa`).**
 > - Pipeline: 47 tests; byte-identical real-data builds.
 > - QA: validation 0001 reproduced.
 > - Licence gate: enforced and tested.
@@ -70,6 +70,28 @@
 6. The credits page lists every source used, and no research-only source appears in any public artifact.
 7. Every aggregate shows its coverage statement; unmapped land is textured, never blank.
 8. All tests pass.
+
+### Milestone 1.3 in detail (recommended next)
+
+**Goal:** the first experience a person can use. They see a styled Strata globe, scrub 3400 BCE → 2024 CE, select a polity, read its card with sources and QA flags, and click anywhere for a core sample. It must hold every 1.2 guarantee: 0% stale frames, 343/343 picks, heap under 400 MB.
+
+| Part | Scope |
+|---|---|
+| Loading path | Bundle format 3 (delta + zigzag triangle indices); brotli-precompressed build output; content-hashed file names; a "loading territories" state gated on real readiness (first correct pick), not the engine signal |
+| Strata stage | Natural Earth relief, coastlines and rivers style; atmosphere; globe ↔ flat; `flyTo`; the Strata tokens from design-direction.md |
+| TimeEngine | Scrubber (zoomable), play/pause/speed, year/decade/century steps, BCE/CE/ka labels, keyboard; time-based transitions (D-020); state in the URL |
+| Selection | Shader extension: a per-vertex polity id against a uniform, for highlight and "contemporaries" dimming, with no geometry re-upload. Memory measured against the 400 MB budget. |
+| Polity card | Name, years, combined vs unique area, Wikidata as given / corrected, QA flags, source and licence, trace link |
+| Core sample | Client-side point query over the bundle's triangles in a Web Worker (no server). Same exact/near/gap/overlap semantics as the pipeline's `PointIndex`, tested against it for Rome. |
+| Quality | React 19 + Tailwind enter here (D-015); the benchmark protocol, render agreement and pick accuracy run against the real UI build in CI-ready scripts |
+
+**Acceptance:**
+- every 1.2 guarantee holds on the UI build;
+- the core sample matches the pipeline's Rome result exactly;
+- the first view at 117 CE becomes interactive within 1.5 s on this M2 (local);
+- a Safari manual run is recorded.
+
+**Out of scope:** PostGIS/API (1.4), events/routes layers, journeys.
 
 ## Phase 2: "Who, Where, What"
 

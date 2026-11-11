@@ -37,6 +37,7 @@ These came out of building the spike. Each changed the design:
 
 1. **`@deck.gl/mapbox` 9.4.0 crashes with MapLibre 6** in interleaved mode (`getViewport` reads a property MapLibre 6 no longer passes). The supported integration is `@deck.gl/maplibre` (`MapLibreOverlay`). → D-019.
 2. **Default depth testing makes deck.gl polygons z-fight with MapLibre's globe surface.** Territories render speckled with holes. That is a silent accuracy failure that a frame-rate benchmark alone would never catch. Drawing polygons with `depthCompare: "always"` fixes it. A far-side check (Pacific view, 1914, when the hidden hemisphere is almost fully covered) shows deck's globe projection already clips the back hemisphere, so nothing leaks through. → D-019.
+   > **Correction (milestone 1.2, [spike 002](002-memory-and-rendering.md)):** the far side was hidden by back-face culling left enabled by MapLibre's globe pass, not by deck.gl's projection. The rendering was correct, but for a fragile reason. Culling is now explicit (D-022).
 3. **MapLibre 6 is ESM-only** and starts its worker from a sibling file by relative URL; Vite's dependency pre-bundling breaks that. The fix is to exclude it from `optimizeDeps`.
 4. **`filterSoftRange` would show polities outside their valid years** (faded). Transitions must be time-based instead. → D-020.
 

@@ -1,0 +1,277 @@
+{
+ "engine": "deck",
+ "variant": "default",
+ "protocol": false,
+ "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+ "memoryStages": [
+  {
+   "label": "page start",
+   "usedMB": 33.2,
+   "totalMB": 35.7,
+   "gc": true,
+   "t": 356
+  },
+  {
+   "label": "bundle fetched and decoded",
+   "usedMB": 62.9,
+   "totalMB": 65.3,
+   "gc": true,
+   "t": 409
+  },
+  {
+   "label": "map loaded, no territories",
+   "usedMB": 75.6,
+   "totalMB": 80.5,
+   "gc": true,
+   "t": 751
+  },
+  {
+   "label": "deck: part items built",
+   "usedMB": 95,
+   "totalMB": 112.2,
+   "gc": true,
+   "t": 788
+  },
+  {
+   "label": "first correct pick",
+   "usedMB": 769.2,
+   "totalMB": 848.1,
+   "gc": true,
+   "t": 2087
+  }
+ ],
+ "load": {
+  "fetchMs": 65,
+  "decodeMs": 0,
+  "engineDataReadyMs": 58,
+  "timeToInteractiveMs": 470,
+  "timeToFirstCorrectPickMs": 1667
+ },
+ "heapAfterProtocolNoGcMB": 769,
+ "heapAfterProtocolGcMB": null,
+ "cdpHeapUsage": {
+  "usedMB": 53.9,
+  "totalMB": 54.8,
+  "embedderMB": 0.8,
+  "arrayBufferBackingStoresMB": 714.8
+ },
+ "samplingProfile": {
+  "liveSampledMB": 38.6,
+  "byPackage": [
+   {
+    "key": "chronos src",
+    "MB": 28.4
+   },
+   {
+    "key": ".pnpm",
+    "MB": 4.2
+   },
+   {
+    "key": "@deck__gl_layers.js",
+    "MB": 2.4
+   },
+   {
+    "key": "(native/V8)",
+    "MB": 1.9
+   },
+   {
+    "key": "@deck__gl_maplibre.js",
+    "MB": 0.4
+   },
+   {
+    "key": "webgl-device-CALRtJFK.js",
+    "MB": 0.4
+   },
+   {
+    "key": "deep-equal-Brudu5IF.js",
+    "MB": 0.3
+   },
+   {
+    "key": "shader-DCbkM3jG.js",
+    "MB": 0.2
+   },
+   {
+    "key": "debug-hooks-D1oz2nSt.js",
+    "MB": 0.1
+   },
+   {
+    "key": "shader-type-decoder-BkvMWEFI.js",
+    "MB": 0.1
+   },
+   {
+    "key": "/@vite/client",
+    "MB": 0
+   },
+   {
+    "key": "get-attribute-from-layouts-B1hDo1fL.js",
+    "MB": 0
+   }
+  ],
+  "byFunction": [
+   {
+    "key": "partItems @ chronos src:31",
+    "MB": 15.6
+   },
+   {
+    "key": "subarray @ (native/V8):0",
+    "MB": 12.7
+   },
+   {
+    "key": "map @ (native/V8):0",
+    "MB": 2.3
+   },
+   {
+    "key": "(V8 API) @ (native/V8):0",
+    "MB": 1.7
+   },
+   {
+    "key": "_forEachGeometry @ @deck__gl_layers.js:7742",
+    "MB": 1
+   },
+   {
+    "key": "_updateIndices @ @deck__gl_layers.js:14736",
+    "MB": 1
+   },
+   {
+    "key": "sD @ .pnpm:5",
+    "MB": 0.5
+   },
+   {
+    "key": "(anonymous) @ .pnpm:1",
+    "MB": 0.3
+   },
+   {
+    "key": "replace @ (native/V8):0",
+    "MB": 0.2
+   },
+   {
+    "key": "(anonymous) @ @deck__gl_maplibre.js:1",
+    "MB": 0.1
+   },
+   {
+    "key": "_setupPainter @ .pnpm:818",
+    "MB": 0.1
+   },
+   {
+    "key": "(anonymous) @ @deck__gl_layers.js:1",
+    "MB": 0.1
+   },
+   {
+    "key": "(anonymous) @ (native/V8):2",
+    "MB": 0.1
+   },
+   {
+    "key": "(anonymous) @ webgl-device-CALRtJFK.js:1",
+    "MB": 0.1
+   },
+   {
+    "key": "(PARSER) @ (native/V8):0",
+    "MB": 0.1
+   },
+   {
+    "key": "createShader @ shader-DCbkM3jG.js:315",
+    "MB": 0.1
+   },
+   {
+    "key": "_getHash @ shader-DCbkM3jG.js:272",
+    "MB": 0.1
+   },
+   {
+    "key": "getWebGLExtension @ webgl-device-CALRtJFK.js:1622",
+    "MB": 0
+   },
+   {
+    "key": "createMapLibreInterleavedDeck @ @deck__gl_maplibre.js:7892",
+    "MB": 0
+   },
+   {
+    "key": "isExternalImage @ debug-hooks-D1oz2nSt.js:2195",
+    "MB": 0
+   },
+   {
+    "key": "Deck @ @deck__gl_maplibre.js:6384",
+    "MB": 0
+   },
+   {
+    "key": "addToLayout @ get-attribute-from-layouts-B1hDo1fL.js:368",
+    "MB": 0
+   },
+   {
+    "key": "K @ .pnpm:5",
+    "MB": 0
+   },
+   {
+    "key": "(anonymous) @ deep-equal-Brudu5IF.js:1",
+    "MB": 0
+   },
+   {
+    "key": "lF @ .pnpm:818",
+    "MB": 0
+   }
+  ]
+ },
+ "deckBuffers": {
+  "attributes": {
+   "polities.indices:Uint32Array": 52.5,
+   "polities.vertexPositions:Float64Array": 157.6,
+   "polities.instanceVertexValid:Uint16Array": 13.1,
+   "polities.elevations:Float32Array": 0,
+   "polities.fillColors:Uint8ClampedArray": 26.3,
+   "polities.lineColors:Float32Array": 0,
+   "polities.rowIndexes:Uint32Array": 26.3,
+   "polities.filterValues:Float32Array": 52.5
+  },
+  "tesselator": {},
+  "pool": 0,
+  "input": 0
+ },
+ "processes": [
+  {
+   "pid": 23614,
+   "type": "browser",
+   "rssMB": 93,
+   "footprintMB": 65
+  },
+  {
+   "pid": 23620,
+   "type": "gpu-process",
+   "rssMB": 417,
+   "footprintMB": 899
+  },
+  {
+   "pid": 23621,
+   "type": "utility",
+   "rssMB": 38,
+   "footprintMB": 24
+  },
+  {
+   "pid": 23623,
+   "type": "utility",
+   "rssMB": 22,
+   "footprintMB": 6
+  },
+  {
+   "pid": 23625,
+   "type": "renderer",
+   "rssMB": 60,
+   "footprintMB": 27
+  },
+  {
+   "pid": 23627,
+   "type": "renderer",
+   "rssMB": 37,
+   "footprintMB": 12
+  },
+  {
+   "pid": 23628,
+   "type": "renderer",
+   "rssMB": 299,
+   "footprintMB": 865
+  }
+ ],
+ "processTotals": {
+  "rssMB": 966,
+  "footprintMB": 1898
+ },
+ "picks": null
+}

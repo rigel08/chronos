@@ -2,7 +2,12 @@
 
 An interactive atlas of human history: a globe you travel through in time. Real, sourced polity territories rise and fall from 3400 BCE to today. Click anywhere on Earth to see every power that held that ground.
 
-> **Status: milestone 1.1, technical proof.** A source-aware data pipeline with automated QA and licence enforcement, plus a MapLibre + deck.gl rendering benchmark. There is no application UI yet (by design).
+> **Status: milestone 1.2, data and rendering foundation.**
+> - A source-aware pipeline with 13 QA rules and licence enforcement.
+> - Pre-triangulated binary territories, rendered by deck.gl on a MapLibre globe: 254 MB JS heap, 60 fps scrubbing, 0% stale frames, 343/343 historical picks.
+> - A measured delivery architecture.
+>
+> There is no application UI yet (by design).
 
 ## Quick start
 
@@ -33,6 +38,9 @@ The Wikidata snapshot is created once with `snapshot-wikidata` and pinned (see [
 | [infra/postgis/](infra/postgis/README.md) | Prepared (not installed) digest-pinned PostGIS container |
 | [pipeline/](pipeline/README.md) | The data pipeline: registry, QA rules QA-001 to QA-012, outputs |
 | [docs/spikes/001-engine.md](docs/spikes/001-engine.md) | Engine benchmark: method, results on the M2, go/no-go |
+| [docs/spikes/002-memory-and-rendering.md](docs/spikes/002-memory-and-rendering.md) | Memory profiling and optimisation, accuracy regression, culling finding (milestone 1.2) |
+| [docs/spikes/003-data-delivery.md](docs/spikes/003-data-delivery.md) | Measured delivery options: compression, time chunks, vector tiles; recommendation |
+| [docs/product-readiness.md](docs/product-readiness.md) | Can the foundation carry each planned CHRONOS experience? |
 
 ## Planned stack
 
