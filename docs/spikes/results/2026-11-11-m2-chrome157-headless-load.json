@@ -1,0 +1,158 @@
+{
+ "label": "m2-chrome157-headless-load",
+ "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+ "chrome": "157.0.8103.39",
+ "options": {
+  "engines": [
+   "deck",
+   "maplibre"
+  ],
+  "reps": 3,
+  "picks": 10000,
+  "step": 5,
+  "headed": false,
+  "query": "&mode=load"
+ },
+ "runs": [
+  {
+   "rep": 1,
+   "wallMs": 3492,
+   "consoleIssues": [
+    "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+   ],
+   "engine": "deck",
+   "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+   "load": {
+    "fetchMs": 54,
+    "decodeMs": 0,
+    "engineDataReadyMs": 43,
+    "timeToInteractiveMs": 453,
+    "timeToFirstCorrectPickMs": 1354
+   },
+   "jsHeapMB": 905,
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ]
+   }
+  },
+  {
+   "rep": 2,
+   "wallMs": 1504,
+   "consoleIssues": [],
+   "engine": "deck",
+   "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+   "load": {
+    "fetchMs": 49,
+    "decodeMs": 0,
+    "engineDataReadyMs": 38,
+    "timeToInteractiveMs": 294,
+    "timeToFirstCorrectPickMs": 1163
+   },
+   "jsHeapMB": 926,
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ]
+   }
+  },
+  {
+   "rep": 3,
+   "wallMs": 1304,
+   "consoleIssues": [],
+   "engine": "deck",
+   "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+   "load": {
+    "fetchMs": 36,
+    "decodeMs": 0,
+    "engineDataReadyMs": 35,
+    "timeToInteractiveMs": 274,
+    "timeToFirstCorrectPickMs": 1131
+   },
+   "jsHeapMB": 926,
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ]
+   }
+  },
+  {
+   "rep": 1,
+   "wallMs": 9338,
+   "consoleIssues": [],
+   "engine": "maplibre",
+   "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+   "load": {
+    "fetchMs": 34,
+    "decodeMs": 0,
+    "engineDataReadyMs": 7123,
+    "timeToInteractiveMs": 7353,
+    "timeToFirstCorrectPickMs": 7365
+   },
+   "jsHeapMB": 714,
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ]
+   }
+  },
+  {
+   "rep": 2,
+   "wallMs": 7591,
+   "consoleIssues": [],
+   "engine": "maplibre",
+   "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+   "load": {
+    "fetchMs": 38,
+    "decodeMs": 0,
+    "engineDataReadyMs": 7100,
+    "timeToInteractiveMs": 7331,
+    "timeToFirstCorrectPickMs": 7339
+   },
+   "jsHeapMB": 714,
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ]
+   }
+  },
+  {
+   "rep": 3,
+   "wallMs": 8836,
+   "consoleIssues": [],
+   "engine": "maplibre",
+   "release": "m1.1-public-cliopatria-v0.2.1-wikidata-2026-11-11-462388f57173",
+   "load": {
+    "fetchMs": 38,
+    "decodeMs": 0,
+    "engineDataReadyMs": 7447,
+    "timeToInteractiveMs": 7699,
+    "timeToFirstCorrectPickMs": 7708
+   },
+   "jsHeapMB": 714,
+   "env": {
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M2, Unspecified Version)",
+    "dpr": 2,
+    "viewport": [
+     1440,
+     900
+    ]
+   }
+  }
+ ]
+}

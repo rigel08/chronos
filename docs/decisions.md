@@ -5,7 +5,12 @@ Short ADR-style records. Status values: **proposed** (awaiting approval), **acce
 ---
 
 ### D-001: MapLibre GL JS + deck.gl as the atlas engine, not CesiumJS
-**Status:** proposed. A spike (milestone 1.1) must confirm it.
+**Status:** accepted 2026-11-11 after spike 001 ([docs/spikes/001-engine.md](spikes/001-engine.md)). The spike measured, on the M2 in Chrome 157:
+- 60 fps scrubbing with 0% stale frames;
+- 1.25 s to first correct pick;
+- 343/343 pick accuracy.
+
+Time-dynamic layers use deck.gl GPU filtering. MapLibre-native filtering was rejected: its frames lagged the requested year 100% of the time while scrubbing.
 
 **Context:** the core visual is ~14k time-varying vector polygons on a globe, plus a flat map. The product needs strong art direction, fast scrubbing and atlas-quality labels.
 
@@ -134,3 +139,56 @@ Each number in the UI links to its trace entry ("How is this calculated?"). A vi
 **Status:** accepted 2026-11-11.
 
 **Decision:** the repository stays local for now. `main` holds reviewed work only. Each milestone is developed on its own branch in small, descriptive commits and merged after review. A private GitHub repository will be created after the foundation is reviewed.
+
+### D-015: The 1.1 benchmark harness is framework-free; React and Tailwind wait for the UI milestones
+**Status:** accepted 2026-11-11.
+
+**Decision:** `apps/web` contains only a TypeScript benchmark harness (Vite, Vitest, MapLibre, deck.gl). React and Tailwind are added when application UI starts (1.3+).
+
+**Trade-off:** this deviates from the 1.1 spec's "React 19, Tailwind v4". It keeps framework cost out of the engine measurements and honours "do not begin the complete application UI yet".
+
+### D-016: Identity splitting rule
+**Status:** accepted 2026-11-11 (proposed in validation 0001, tuned on the data).
+
+**Decision:** rows sharing a name are split into separate polities at an internal gap of more than 50 years. The exception is when aggregate rows that list the polity in `Components` (or a grouping named exactly after it) cover at least 50% of the gap.
+
+**Evidence:**
+- The Holy Roman Empire's 1260–1618 gap is 100% covered, so it is kept as one polity.
+- Later Zhou, Kingdom of Italy, Kingdom of Serbia and Georgia gaps are 0–1% covered, so they are split.
+
+**Consequence:** 93 splits are flagged for review (QA-006 warnings). Linking by substring was rejected because "Han" would match "Chauhan".
+
+### D-017: Render full-resolution geometry, split on a 5° grid
+**Status:** accepted 2026-11-11.
+
+**Decision:** no simplification. Polygons are split into cells of at most 5° so triangles follow the globe's curvature.
+
+**Evidence:** Cliopatria is already atlas-scale. Simplifying at 0.05° removes only 10% of 2.65 M vertices, while the grid split adds 30% (3.44 M vertices, 229,020 parts).
+
+**Trade-off:** about 30 MB of geometry and more GPU memory, in exchange for zero simplification error.
+
+### D-018: Wikidata is a pinned snapshot, never queried during a build
+**Status:** accepted 2026-11-11.
+
+**Decision:** `snapshot-wikidata` queries every asserted QID once and writes a deterministic snapshot. Its sha256 is pinned in the manifest, and builds read only the snapshot.
+
+**Consequence:** builds are reproducible and offline. Refreshing Wikidata is a deliberate, reviewable change.
+
+### D-019: deck.gl joins MapLibre through `@deck.gl/maplibre`, with explicit depth handling
+**Status:** accepted 2026-11-11 (from the engine spike).
+
+**Decision:** use `MapLibreOverlay` (interleaved). Polygons are drawn with `depthCompare: "always"` and no depth writes.
+
+**Evidence:**
+- `@deck.gl/mapbox` 9.4.0 crashes against MapLibre 6 in interleaved mode.
+- With default depth testing, polygons z-fight with MapLibre's globe surface and render speckled with holes.
+- A far-side check (Pacific view, 1914) shows deck's globe projection already clips the back hemisphere, so disabling the depth test leaks nothing.
+
+**Trade-off:** depth-based occlusion by future 3D objects needs revisiting when terrain or extrusions arrive.
+
+### D-020: Transitions are time-based, never year-based soft filters
+**Status:** accepted 2026-11-11.
+
+**Decision:** cross-dissolves run over wall-clock time after the year changes. deck.gl's `filterSoftRange` is not used.
+
+**Reason:** a soft year range draws a polity, faded, in years when it was not valid. That trades data accuracy for visual smoothness, which the project rules out.

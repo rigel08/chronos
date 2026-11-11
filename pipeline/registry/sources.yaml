@@ -1,0 +1,72 @@
+# Source registry (D-007, D-010). access_tier defaults to research_only when omitted.
+# A source may be `public` only if its licence allows commercial use or a permission is recorded
+# in permissions.yaml. The registry loader rejects anything else.
+
+- id: cliopatria
+  kind: dataset
+  title: "Cliopatria: a geospatial database of world-wide political entities from 3400BCE to 2024CE"
+  authors: [Seshat Global History Databank]
+  url: https://github.com/Seshat-Global-History-Databank/cliopatria
+  doi: 10.1038/s41597-025-04516-9
+  license: CC-BY-4.0
+  access_tier: public
+  adapter: cliopatria
+  citation: "Cliopatria v0.2.1, Seshat Global History Databank (CC BY 4.0). Simplified and re-projected by CHRONOS."
+
+- id: natural-earth-land
+  kind: dataset
+  title: Natural Earth land polygons (1:10m, 1:50m, 1:110m) via world-atlas 2.0.2
+  authors: [Natural Earth, Mike Bostock (world-atlas)]
+  url: https://github.com/topojson/world-atlas
+  license: LicenseRef-NaturalEarth-PD
+  access_tier: public
+  adapter: naturalearth
+  citation: "Made with Natural Earth. Land polygons via world-atlas 2.0.2."
+
+- id: wikidata
+  kind: dataset
+  title: Wikidata (labels, types and dates for QIDs asserted by Cliopatria)
+  authors: [Wikidata contributors]
+  url: https://www.wikidata.org
+  license: CC0-1.0
+  access_tier: public
+  adapter: wikidata
+  citation: "Wikidata (CC0), snapshot taken through the Wikidata Query Service."
+
+- id: chronos-editorial
+  kind: editorial
+  title: CHRONOS editorial cross-reference corrections
+  authors: [CHRONOS project]
+  license: LicenseRef-CHRONOS-Editorial
+  access_tier: public
+  adapter: editorial
+  citation: "CHRONOS editorial corrections, verified against Wikidata."
+
+# Registered so the policy is explicit. No adapter yet; never part of a public build.
+- id: seshat-equinox
+  kind: dataset
+  title: Seshat Equinox-2020 data release
+  authors: [Seshat Global History Databank]
+  url: https://seshat-db.com/downloads_page
+  doi: 10.5281/zenodo.6642229
+  license: CC-BY-NC-SA-4.0
+  access_tier: research_only
+  citation: "Seshat Equinox-2020 (CC BY-NC-SA 4.0). Research use only."
+
+- id: cshapes-2
+  kind: dataset
+  title: CShapes 2.0 (state borders 1886-2019)
+  authors: [ETH Zurich]
+  url: https://icr.ethz.ch/data/cshapes/
+  license: CC-BY-NC-SA-4.0
+  access_tier: research_only
+  citation: "CShapes 2.0 (non-commercial; exact licence version disputed). Research use only."
+
+- id: smithsonian-gvp
+  kind: dataset
+  title: "Smithsonian Global Volcanism Program: Volcanoes of the World"
+  authors: [Global Volcanism Program, Smithsonian Institution]
+  url: https://volcano.si.edu
+  license: LicenseRef-Smithsonian-TOU
+  access_tier: research_only
+  citation: "Global Volcanism Program, Smithsonian Institution. Research use only."

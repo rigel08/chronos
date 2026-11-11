@@ -17,6 +17,17 @@
 
 ### Milestone 1.1 in detail (the first implementation milestone)
 
+> **Status (2026-11-11): implemented on `m1.1/foundations-spike`, awaiting review.**
+> - Pipeline: 47 tests; byte-identical real-data builds.
+> - QA: validation 0001 reproduced.
+> - Licence gate: enforced and tested.
+> - Engine spike: **GO** for MapLibre + deck.gl with GPU time filtering; see [spike 001](spikes/001-engine.md).
+>
+> Deviations from the spec below:
+> - The harness is framework-free (D-015).
+> - The pipeline renders full-resolution geometry (D-017).
+> - The real-data rebuild takes about 55 s.
+
 **Goal:** before building any product UI, prove three things on the real data:
 1. The rendering stack scrubs about 12,000 time-varying polygons smoothly on this Mac.
 2. The pipeline turns Cliopatria into a validated, traceable, licence-gated bundle.

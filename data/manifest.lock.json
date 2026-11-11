@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "sources": {
+    "cliopatria": {
+      "release": "v0.2.1",
+      "url": "https://raw.githubusercontent.com/Seshat-Global-History-Databank/cliopatria/v0.2.1/cliopatria.geojson.zip",
+      "filename": "cliopatria.geojson.zip",
+      "sha256": "e10a4e429fca708788ff9e7572a95fce801fae55852d217cffabc1c59cd4eed4",
+      "archive": "zip",
+      "members": {
+        "cliopatria_polities_only_v021.geojson": "fc6f0d1e4cc42f45da83522b3696db6f2cc85ec0d12259a85c89b31347b8fc0a"
+      },
+      "retrieved_on": "2026-11-11"
+    },
+    "natural-earth-land": {
+      "release": "world-atlas@2.0.2",
+      "url": "https://registry.npmjs.org/world-atlas/-/world-atlas-2.0.2.tgz",
+      "filename": "world-atlas-2.0.2.tgz",
+      "sha256": "032e7765f2ce00edaeafec23ff22bc3b77e42987c257da944cc585b452c05b97",
+      "archive": "tgz",
+      "members": {
+        "package/land-10m.json": "9b9f584709c119d63fbadf484ce425260497697b7166be7a2fe360e8c0b171a8",
+        "package/land-50m.json": "619477ff690c086885e45cb91707d783805561bd75ae8e437b7d4694b0204e0f",
+        "package/LICENSE": "8048290dfdb6e83fbed17e8985c8cfc4ce9da9b842642f3d3e497280790cfa31"
+      },
+      "retrieved_on": "2026-11-11",
+      "notes": "Tarball sha512 matches the npm registry integrity for world-atlas@2.0.2."
+    },
+    "wikidata": {
+      "release": "2026-11-11",
+      "url": "https://query.wikidata.org/sparql",
+      "filename": "snapshot.json",
+      "sha256": "d1146537bdb558324a601a7b18bf529cab15ad7d7e3e45bf9dfd1c3949a075ad",
+      "retrieved_on": "2026-11-11",
+      "generated_by": "chronos-pipeline snapshot-wikidata"
+    }
+  }
+}

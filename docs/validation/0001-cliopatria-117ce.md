@@ -74,7 +74,7 @@ Automatic checks over 1,404 QIDs (1,545 name–QID pairs):
 | Han Dynasty | Q1068371 | Chauhan (a Rajput clan) | **Q7209** Han dynasty |
 | Sasanian Empire | Q1661685 | Indo-Sassanids | **Q83891** Sasanian Empire |
 
-The Sasanian case shows that even the stricter heuristics miss errors ("Sasanian" and "Indo-Sassanids" look alike). Automatic flags are a triage tool, and review is required. Verified corrections are recorded in [`research/phase0/crosswalk_overrides.csv`](../../research/phase0/crosswalk_overrides.csv) as CHRONOS editorial rows. Cliopatria's data is never edited.
+The Sasanian case shows that even the stricter heuristics miss errors ("Sasanian" and "Indo-Sassanids" look alike). Automatic flags are a triage tool, and review is required. Verified corrections are recorded in [`pipeline/registry/crosswalk_overrides.csv`](../../pipeline/registry/crosswalk_overrides.csv) as CHRONOS editorial rows. Cliopatria's data is never edited.
 
 ## 4. Temporal gaps
 
@@ -93,7 +93,13 @@ The Sasanian case shows that even the stricter heuristics miss errors ("Sasanian
 
 ## 5. Geometry outliers
 
-The **Kingdom of Soissons** row for 476–479 has a bounding box reaching **19.46° E, 42.24° N** (the Adriatic), while its representative point is in northern Gaul (1.59° E, 48.85° N). The 480–489 row has normal bounds. This is a stray polygon part. A QA rule will flag parts that are small and far from a polygon's main body.
+The **Kingdom of Soissons** row for 476–479 has a bounding box reaching **19.46° E, 42.24° N**, while its representative point is in northern Gaul (1.59° E, 48.85° N). The 480–489 row has normal bounds.
+
+*Corrected in milestone 1.1:* inspecting the parts shows this is not a small stray. It is a **32,925 km² part on the Dalmatian coast** (14.5–19.5° E). That is 26% the size of the 125,260 km² Gaulish core, and it is absent from the next row.
+
+*Hypothesis, not yet sourced:* the location matches Dalmatia, which standard accounts give to the deposed western emperor Julius Nepos until 480. The row may therefore merge two Roman rump states under one name.
+
+QA-009 flags parts that are far from the main body *and* absent from the polity's neighbouring rows. Size alone is a poor signal, because islands and overseas possessions are also small and far.
 
 ## 6. QA rules to implement in Milestone 1 (pipeline `validate` stage)
 
@@ -107,7 +113,7 @@ The **Kingdom of Soissons** row for 476–479 has a bounding box reaching **19.4
 | QA-006 | Internal gap within a polity name → candidate identity split | warning |
 | QA-007 | Same QID on non-contiguous rows or different names | warning |
 | QA-008 | QID label mismatch (whole-word rule) / not a polity item / no temporal overlap | warning |
-| QA-009 | Polygon part farther than 500 km from the main body and under 5% of its area | warning |
+| QA-009 | Polygon part farther than 500 km from the main body, smaller than it, and absent from the polity's neighbouring rows (revised in M1.1; see §5) | warning |
 | QA-010 | Point queries: an exact hit versus within-tolerance (≈5 km) hit, recorded on every result | info |
 | QA-011 | Coverage share of ice-free land, per year | info |
 | QA-012 | A research-only source must not be present in any public artifact | **error (blocks build)** |

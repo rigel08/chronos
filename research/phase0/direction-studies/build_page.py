@@ -34,7 +34,7 @@ def main() -> None:
     names = {f["properties"]["name"] for f in world["features"]} | {c["name"] for c in core}
     cw = json.loads((W / "validation/wikidata_crosswalk.json").read_text())
     fixes = {}
-    with open(HERE.parent / "crosswalk_overrides.csv", newline="") as fh:
+    with open(HERE.parents[2] / "pipeline/registry/crosswalk_overrides.csv", newline="") as fh:
         for r in csv.DictReader(fh):
             if r["status"] == "verified":
                 fixes[r["cliopatria_name"]] = {"qid": r["proposed_qid"], "label": r["proposed_label"]}

@@ -1,0 +1,28 @@
+{
+  "name": "@chronos/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "CHRONOS web app. Milestone 1.1 contains only the engine benchmark harness (no application UI).",
+  "scripts": {
+    "dev": "vite --port 5174 --strictPort",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run",
+    "bench": "node bench/run.mjs"
+  },
+  "dependencies": {
+    "@deck.gl/core": "9.4.0",
+    "@deck.gl/extensions": "9.4.0",
+    "@deck.gl/layers": "9.4.0",
+    "@deck.gl/maplibre": "9.4.0",
+    "maplibre-gl": "6.16.0"
+  },
+  "devDependencies": {
+    "@types/geojson": "7946.0.16",
+    "playwright-core": "1.64.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "4.1.12"
+  }
+}

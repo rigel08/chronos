@@ -1,0 +1,34 @@
+# Build parameters. Every value here is copied into trace.json (D-013).
+pipeline_profile_sources: [cliopatria, natural-earth-land, wikidata, chronos-editorial]
+
+identity:
+  # D-016: rows sharing a name are split into separate polities at an internal gap longer than
+  # max_gap_years, unless aggregate rows cover at least switch_coverage of the gap (the polity
+  # continues but is drawn through allegiance/grouping rows).
+  max_gap_years: 50
+  switch_coverage: 0.5
+
+qa:
+  area_tolerance: 0.01               # QA-003: relative difference allowed vs the source Area field
+  # Astronomical years (0 = 1 BCE): -499 is 500 BCE.
+  checkpoint_years: [-499, 117, 420, 1000, 1500, 1914]   # QA-004/005 at full resolution
+  coverage_step_years: 100           # QA-011 sampling step over the dataset's range
+  sliver_km2: 1000                   # QA-004 sliver threshold
+  sliver_fraction: 0.01
+  # QA-009: a part at least stray_part_km from the main body, smaller than stray_part_fraction of it, and absent
+  # from the polity's neighbouring rows. The Soissons case is 26% of the main body, so size alone is a weak signal.
+  stray_part_km: 500
+  stray_part_fraction: 0.5
+  point_checks:                      # QA-010
+    - {name: Rome, lon: 12.4964, lat: 41.9028, tolerance_km: 5.0}
+
+render:
+  simplify_deg: 0.0                  # D-017: Cliopatria is already atlas-scale; render full resolution
+  grid_split_deg: 5.0                # keeps triangles small enough to follow the globe's curvature
+
+testpoints:                          # ground truth for the renderer's pick-accuracy benchmark
+  seed: 20261111
+  years: 80
+  inside_per_year: 5
+  unmapped_per_year: 1
+  margin_km: 60
