@@ -1,5 +1,6 @@
 # Build parameters. Every value here is copied into trace.json (D-013).
-pipeline_profile_sources: [cliopatria, natural-earth-land, wikidata, chronos-editorial]
+pipeline_profile_sources: [cliopatria, natural-earth-land, natural-earth-lakes, natural-earth-rivers, natural-earth-relief,
+                           wikidata, chronos-editorial]
 
 identity:
   # D-016: rows sharing a name are split into separate polities at an internal gap longer than
@@ -37,3 +38,36 @@ testpoints:                          # ground truth for the renderer's pick-accu
   inside_per_year: 5
   unmapped_per_year: 1
   margin_km: 60
+
+overlaps:                            # D-026: every claimant drawn; classed with the QA-004 rule above
+  max_level: 8                       # safety limit: the build stops if regions shared by this many rows exist
+
+colours:                             # D-027: colours separate neighbours and carry no meaning
+  neighbour_gap_deg: 0.1             # rows this close (degrees) while both valid count as neighbours
+  distinct_at: 0.12                  # OKLab distance at which two colours stop counting as similar
+  # Strata pigments (design-direction.md) plus sienna, olive and cerulean; papal gold dropped (too close to orpiment)
+  palette: ["#cf5637", "#4b70c6", "#d9a845", "#4fae9f", "#57a067", "#b25c87", "#7a6fb0", "#a8693f", "#9aa04f", "#4d9fd0"]
+  palette_names: [cinnabar, lapis, orpiment, verdigris, malachite, madder, smalt, sienna, olive, cerulean]
+
+basemap:                             # modern physical geography, context only
+  vector_decimals: 4                 # about 11 m
+  relief:                            # Natural Earth SR_50M -> transparent hillshade tiles (Web Mercator)
+    minzoom: 0
+    maxzoom: 4
+    tile_size: 512
+    flat: 206                        # SR_50M value of flat ground and sea (70% of pixels)
+    deadband: 3                      # +/- levels around flat treated as flat (flat ground varies by a few levels)
+    alpha_levels: 32
+    gamma: 0.7
+    shadow_alpha: 1.0
+    highlight_alpha: 0.6
+    shadow_rgb: "#05070a"
+    highlight_rgb: "#e9e2d2"
+    webp_quality: 70
+    webp_alpha_quality: 70
+
+delivery:                            # D-024, D-025: content-hashed files with deterministic precompressed copies
+  brotli_quality: 11
+  brotli_lgwin: 24
+  gzip_level: 9
+  hash_length: 12

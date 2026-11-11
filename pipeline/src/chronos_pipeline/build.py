@@ -1,12 +1,16 @@
-"""Build: pinned inputs -> QA (all rules) -> licence-gated, traceable spike bundle.
+"""Build: pinned inputs -> QA (all rules) -> licence-gated, traceable bundle (format 3).
 
 Outputs in data/build/<release_id>/ (and data/build/current -> that directory):
-  bundle.json, geometry.bin   render geometry and metadata for the engine benchmark
-  basemap_land.geojson        Natural Earth 1:50m land, ice-free
+  bundle.json                 catalogue, years, palette, sources, coverage samples and the file manifest
+  geometry.<hash>.bin         territory and overlap meshes: float32 positions, varint triangles (D-021, D-025, D-026)
+  catalog.<hash>.json         per-polity and per-row QA findings and review notes, for the polity card
+  basemap.<hash>.json         Natural Earth land, coastline, lakes and rivers (modern physical geography)
+  relief-<hash>/{z}/{x}/{y}.webp  transparent hillshade tiles from Natural Earth shaded relief
   testpoints.json             ground truth for pick-accuracy benchmarks
   qa_report.json / .md        every QA finding
   attributions.json           citations and licences of every source used
   trace.json                  inputs with sha256, parameters, methods, output checksums (D-013)
+JSON and binary files the app loads also get deterministic .br and .gz copies (D-024).
 The same code and the same pinned inputs always give byte-identical outputs.
 """
 from __future__ import annotations
@@ -15,6 +19,7 @@ import dataclasses
 import hashlib
 import json
 import math
+import shutil
 from collections import defaultdict
 from itertools import combinations
 from pathlib import Path
@@ -22,24 +27,32 @@ from pathlib import Path
 import numpy as np
 import shapely
 import yaml
-from shapely.geometry import mapping
 from shapely.strtree import STRtree
 
 from . import __version__
+from .basemap import dropped_features, dumps, hillshade_tiles, vector_layers
+from .colours import assign_colours
 from .core_sample import PointIndex
-from .geo import area_km2, ice_free, render_parts, to_equal_area, topojson_land, triangulate
+from .encode import compressed, content_name, decode_triangles, encode_triangles
+from .geo import area_km2, ice_free, to_equal_area, topojson_land
 from .manifest import load_manifest, verified_file, verified_member
 from .measures import YearMeasures, overlaps, year_measures
+from .overlaps import neighbour_weights, overlap_regions, region_label
 from .paths import Paths
 from .qa import rules
 from .qa.findings import Finding, sort_key, summarize
 from .registry import load_registry
+from .render import Mesh, build_mesh, label_points
 from .sources.cliopatria import assign_identities, read_rows, split_aggregates
 from .sources.wikidata import crosswalk, load_overrides
 from .years import label
 
 CLIOPATRIA_MEMBER = "cliopatria_polities_only_v021.geojson"
-REGISTRY_FILES = ("licenses.yaml", "sources.yaml", "permissions.yaml", "build.yaml", "crosswalk_overrides.csv")
+REGISTRY_FILES = ("licenses.yaml", "sources.yaml", "permissions.yaml", "build.yaml", "crosswalk_overrides.csv",
+                  "review_notes.csv")
+FORMAT = 3
+KIND_CODES = {"linked": 0, "sliver": 1, "unlinked": 2, "multiple": 3}
+NO_OWNER = 0xFFFFFFFF
 
 
 class BuildError(RuntimeError):
@@ -143,10 +156,33 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
         point_samples[pc["name"]] = s.as_dict()
         findings += rules.qa010_point(pc["name"], s)
 
-    log("render geometry and triangulation (QA-013) ...")
+    log("overlap regions across all years (D-026) ...")
+    regions, f_ov = overlap_regions(base, polity_of_row, aggs, cfg["qa"]["sliver_km2"], cfg["qa"]["sliver_fraction"],
+                                    cfg["overlaps"]["max_level"])
+    findings += f_ov
+    findings += _check_regions_against_qa004(regions, findings, cfg["qa"]["checkpoint_years"])
+
+    log("render meshes and triangulation (QA-013) ...")
+    terr = sorted(range(len(base)), key=lambda i: (base[i].start, polity_of_row[base[i].index][0], base[i].index))
+    terr_of_base = {bi: ti for ti, bi in enumerate(terr)}
     pol_index = {p.id: i for i, p in enumerate(polities)}
-    render_arrays, render_stats, f13 = render_geometry(base, polity_of_row, pol_index, cfg["render"])
+    tmesh, f13 = build_mesh([(base[bi].geometry, str(base[bi].index),
+                              f"{base[bi].name} ({label(base[bi].start)}-{label(base[bi].end)})") for bi in terr],
+                            cfg["render"], with_edge_flags=True, subject_type="territory")
     findings += f13
+    omesh, f13o = build_mesh([(r.geom, "|".join(str(base[i].index) for i in r.rows), region_label(r, base)) for r in regions],
+                             cfg["render"], with_edge_flags=False, subject_type="overlap")
+    findings += f13o
+    labels = label_points([base[bi].geometry for bi in terr], 0.05)
+
+    log("neighbour-separating colours (D-027) ...")
+    ccfg = cfg["colours"]
+    colour_of, colour_stats = assign_colours([p.id for p in polities], neighbour_weights(base, polity_of_row, ccfg["neighbour_gap_deg"]),
+                                             ccfg["palette"], ccfg["distinct_at"])
+    findings.append(Finding("QA-014", "info", "dataset", "colours",
+                            f"{colour_stats['neighbour_pairs']:,} neighbouring polity pairs; {colour_stats['same_colour_pairs']} share "
+                            f"a colour ({colour_stats['same_colour_shared_years']:,} of {colour_stats['total_shared_years']:,} "
+                            "shared years). Colours separate neighbours and carry no meaning (D-027).", colour_stats))
 
     findings.sort(key=sort_key)
     errors = [f for f in findings if f.severity == "error"]
@@ -157,10 +193,67 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
     release_id = (f"chronos-{__version__}-{profile}-cliopatria-{pins['cliopatria'].release}-wikidata-{pins['wikidata'].release}"
                   f"-{fingerprint[:12]}")
     out = paths.build / release_id
-    out.mkdir(parents=True, exist_ok=True)
+    if out.exists():
+        shutil.rmtree(out)                    # a rebuild of the same release replaces it entirely
+    out.mkdir(parents=True)
+    dcfg = cfg["delivery"]
+    files: dict[str, dict] = {}
 
-    log("render bundle ...")
-    bundle = _write_geometry(out, render_arrays, render_stats)
+    def publish(key: str, stem: str, ext: str, data: bytes, hashed: bool = True, precompress: bool = True) -> str:
+        name = content_name(stem, data, ext, dcfg["hash_length"]) if hashed else f"{stem}{ext}"
+        (out / name).write_bytes(data)
+        entry = {"path": name, "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+        if precompress:
+            for enc, blob in compressed(data, dcfg["brotli_quality"], dcfg["brotli_lgwin"], dcfg["gzip_level"]).items():
+                (out / f"{name}.{enc}").write_bytes(blob)
+                entry[enc] = len(blob)
+        files[key] = entry
+        return name
+
+    log("geometry (format 3) ...")
+    tri_bytes, tri_check = _encode_checked(tmesh)
+    otri_bytes, _ = _encode_checked(omesh)
+    slots = max((len(r.rows) for r in regions), default=2)
+    region_terr = np.full((len(regions), slots), NO_OWNER, dtype="<u4")
+    for k, r in enumerate(regions):
+        region_terr[k, :len(r.rows)] = sorted(terr_of_base[i] for i in r.rows)
+    sections = {
+        "positions": tmesh.positions, "ring_start": tmesh.ring_start, "part_ring_start": tmesh.part_ring_start,
+        "part_territory": tmesh.part_owner, "part_triangle_start": tmesh.part_triangle_start,
+        "territory_start": np.asarray([base[bi].start for bi in terr], dtype="<i4"),
+        "territory_end": np.asarray([base[bi].end for bi in terr], dtype="<i4"),
+        "territory_polity": np.asarray([pol_index[polity_of_row[base[bi].index][0]] for bi in terr], dtype="<u4"),
+        "territory_row": np.asarray([base[bi].index for bi in terr], dtype="<u4"),
+        "territory_area_km2": np.asarray([base[bi].area_src for bi in terr], dtype="<f4"),
+        "territory_label": labels.ravel(),
+        "ov_positions": omesh.positions, "ov_ring_start": omesh.ring_start, "ov_part_ring_start": omesh.part_ring_start,
+        "ov_part_region": omesh.part_owner, "ov_part_triangle_start": omesh.part_triangle_start,
+        "region_start": np.asarray([r.start for r in regions], dtype="<i4"),
+        "region_end": np.asarray([r.end for r in regions], dtype="<i4"),
+        "region_territories": region_terr.ravel(),
+        "region_area_km2": np.asarray([r.km2 for r in regions], dtype="<f4"),
+        "triangles_varint": np.frombuffer(tri_bytes, np.uint8), "ov_triangles_varint": np.frombuffer(otri_bytes, np.uint8),
+        "edge_flags": _required(tmesh.edge_flags), "region_kind": np.asarray([KIND_CODES[r.kind] for r in regions], dtype="u1"),
+    }
+    geo_blob, layout = _pack(sections)
+    geometry_name = publish("geometry", "geometry", ".bin", geo_blob)
+
+    log("catalogue, basemap and relief ...")
+    publish("catalog", "catalog", ".json", dumps(_catalog(findings, polities, base, paths)))
+    land50_full = topojson_land(land50)
+    lakes = json.loads(verified_file(paths.raw, pins["natural-earth-lakes"]).read_text())
+    rivers = json.loads(verified_file(paths.raw, pins["natural-earth-rivers"]).read_text())
+    publish("basemap", "basemap", ".json", dumps(vector_layers(land50_full, lakes, rivers, cfg["basemap"]["vector_decimals"])))
+    files["basemap"]["dropped_empty"] = {"lakes": dropped_features(lakes), "rivers": dropped_features(rivers)}
+    rcfg = cfg["basemap"]["relief"]
+    tmp = out / "relief-tmp"
+    relief = hillshade_tiles(verified_member(paths.raw, pins["natural-earth-relief"], "SR_50M.tif"),
+                             verified_member(paths.raw, pins["natural-earth-relief"], "SR_50M.tfw"), tmp, rcfg)
+    relief_dir = f"relief-{relief['sha256'][:dcfg['hash_length']]}"
+    tmp.rename(out / relief_dir)
+    files["relief"] = {"template": relief_dir + "/{z}/{x}/{y}.webp", "tile_size": rcfg["tile_size"], "minzoom": rcfg["minzoom"],
+                       "maxzoom": rcfg["maxzoom"], "tiles": relief["tiles"], "bytes": relief["bytes"], "sha256": relief["sha256"]}
+
     qa_by_polity: dict[str, set[str]] = defaultdict(set)
     for f in findings:
         if f.severity != "info" and f.subject_type in ("polity", "external_id"):
@@ -169,40 +262,64 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
     for e in external_ids:
         ext_by_polity[e["polity_id"]].append({k: e[k] for k in ("value", "label", "status", "flags")}
                                              | ({"corrected_to": e["corrected_to"]} if "corrected_to" in e else {}))
-    bundle |= {
-        "format": 2, "release_id": release_id, "profile": profile, "pipeline_version": __version__,
+    by_kind: dict[str, dict] = defaultdict(lambda: {"regions": 0, "km2": 0})
+    for r in regions:
+        by_kind[r.kind]["regions"] += 1
+        by_kind[r.kind]["km2"] += round(r.km2)
+    bundle = {
+        "format": FORMAT, "release_id": release_id, "profile": profile, "pipeline_version": __version__,
         "years": {"min": lo, "max": hi, "numbering": "astronomical (0 = 1 BCE)"},
-        "polities": [{"id": p.id, "name": p.name, "start": p.start, "end": p.end,
+        "polities": [{"id": p.id, "name": p.name, "start": p.start, "end": p.end, "colour": colour_of[p.id],
                       "qa": sorted(qa_by_polity.get(p.id, ())), "wikidata": ext_by_polity.get(p.id, [])}
                      for p in polities],
-        "attribution": [reg.sources[s].citation for s in source_ids],
+        "palette": {"colours": ccfg["palette"], "names": ccfg["palette_names"],
+                    "note": "Colours separate neighbouring polities; they carry no meaning (D-027)."},
+        "sources": [{"id": s, "title": reg.sources[s].title, "citation": reg.sources[s].citation, "url": reg.sources[s].url,
+                     "license": reg.license_of(s).id, "license_name": reg.license_of(s).name,
+                     "license_url": reg.license_of(s).url, "access_tier": reg.sources[s].access_tier,
+                     "evidence": reg.sources[s].evidence} for s in source_ids],
+        "coverage": {"land": "Natural Earth 1:50m, ice-free (north of 60° S)", "step_years": step, "rule": "QA-011",
+                     "samples": [[m.year, round(m.coverage, 4), m.polities] for m in samples]},
+        "overlaps": {"regions": len(regions), "by_kind": dict(by_kind), "kind_codes": KIND_CODES, "slots": slots,
+                     "by_level": {str(n): sum(len(r.rows) == n for r in regions) for n in range(2, slots + 1)}},
+        "geometry": {"file": geometry_name, "sections": layout, "bytes": len(geo_blob),
+                     "territories": len(terr), "parts": tmesh.stats["parts"], "rings": tmesh.stats["rings"],
+                     "vertices": tmesh.stats["vertices"], "triangles": tmesh.stats["triangles"],
+                     "overlap_regions": len(regions), "overlap_parts": omesh.stats["parts"],
+                     "overlap_vertices": omesh.stats["vertices"], "overlap_triangles": omesh.stats["triangles"],
+                     "edge_flags": {"synthetic": 1}, "triangle_check": tri_check},
+        "files": files,
+        "attribution": sorted({reg.sources[s].citation for s in source_ids}, key=[reg.sources[s].citation for s in source_ids].index),
     }
-    _dump(bundle, out / "bundle.json")
-    _dump({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {},
-           "geometry": _round_geojson(mapping(land50_ll), 4)}]}, out / "basemap_land.geojson")
 
     log("test points ...")
     _dump(_testpoints(base, polity_of_row, land50_ll, cfg["testpoints"], lo, hi), out / "testpoints.json")
-
     report = {"release_id": release_id, "profile": profile, "summary": summarize(findings),
               "checkpoints": [m.as_dict() for m in checkpoints], "coverage": [m.as_dict() for m in samples],
               "point_checks": point_samples, "findings": [f.as_dict() for f in findings]}
     _dump(report, out / "qa_report.json", indent=1)
     (out / "qa_report.md").write_text(_report_md(report, polities))
-    _dump([{"source": s, "title": reg.sources[s].title, "citation": reg.sources[s].citation,
-            "license": reg.license_of(s).id, "license_name": reg.license_of(s).name,
-            "license_url": reg.license_of(s).url, "access_tier": reg.sources[s].access_tier}
-           for s in source_ids], out / "attributions.json", indent=1)
+    attributions = [{"source": s, "title": reg.sources[s].title, "citation": reg.sources[s].citation,
+                     "license": reg.license_of(s).id, "license_name": reg.license_of(s).name,
+                     "license_url": reg.license_of(s).url, "access_tier": reg.sources[s].access_tier}
+                    for s in source_ids]
+    publish("attributions", "attributions", ".json", (json.dumps(attributions, sort_keys=True, ensure_ascii=False, indent=1)
+                                                      + "\n").encode(), hashed=False)
+    files["trace"] = {"path": "trace.json"}
+    publish("bundle", "bundle", ".json", (json.dumps(bundle, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+                                          + "\n").encode(), hashed=False)
 
-    outputs = {p.name: _sha(p) for p in sorted(out.iterdir()) if p.name != "trace.json"}
+    outputs = {str(p.relative_to(out)): _sha(p) for p in sorted(out.iterdir()) if p.is_file() and p.name != "trace.json"}
+    outputs[relief_dir + "/"] = relief["sha256"]
     trace = {
         "release_id": release_id, "profile": profile, "pipeline_version": __version__, "code_fingerprint": fingerprint,
+        "format": FORMAT,
         "inputs": [{"source": s, "release": pins[s].release if s in pins else None,
                     "sha256": pins[s].sha256 if s in pins else None,
                     "members": pins[s].members if s in pins else {}, "license": reg.sources[s].license,
                     "access_tier": reg.sources[s].access_tier, "citation": reg.sources[s].citation}
                    for s in source_ids],
-        "editorial_inputs": {"crosswalk_overrides.csv": _sha(paths.registry / "crosswalk_overrides.csv")},
+        "editorial_inputs": {n: _sha(paths.registry / n) for n in ("crosswalk_overrides.csv", "review_notes.csv")},
         "parameters": cfg,
         "methods": {
             "years": "Cliopatria -n -> astronomical -(n-1); 0 -> 0 (1 BCE end bound). QA-001.",
@@ -212,18 +329,104 @@ def run(paths: Paths, profile: str = "public", log=print) -> Path:
             "render": "full-resolution Cliopatria polygons, split on a grid of render.grid_split_deg degrees, RFC 7946 winding. D-017.",
             "triangulation": ("earcut (mapbox-earcut) per render part in Web Mercator, on float32-rounded coordinates; "
                               "area deviation checked per part. QA-013, D-021."),
+            "triangle_encoding": ("per-part local indices, delta-coded, zigzag-mapped, LEB128 varints; decoded and compared "
+                                  "with the source triangles during the build. D-025."),
+            "edge_flags": "bit 0 = the edge from this vertex to the next is a grid cut or the antimeridian, not a border.",
+            "overlaps": ("intersection of every pair of base rows sharing interior while both are valid, span = intersection "
+                         "of their years, area EPSG:6933, kind by the QA-004 rule; regions of 3+ rows built from pairs. D-026."),
+            "colours": "DSatur colouring of the polity neighbour graph (rows within colours.neighbour_gap_deg while both valid). D-027.",
+            "labels": "pole of inaccessibility of each row's largest part (GEOS maximum inscribed circle, 0.05 degree tolerance).",
+            "basemap": "Natural Earth 1:50m land (full, including Antarctica), coastline without antimeridian/pole edges, lakes, rivers.",
+            "relief": "Natural Earth SR_50M re-projected to Web Mercator tiles (bilinear), departure from flat ground -> alpha.",
+            "delivery": "content-hashed file names; brotli and gzip copies (deterministic, gzip mtime 0). D-024.",
             "testpoints": "seeded random points >= margin_km from every alive boundary; expected polities by point-in-polygon.",
         },
         "outputs": outputs,
         "qa_summary": summarize(findings),
     }
     _dump(trace, out / "trace.json", indent=1)
+    for enc, blob in compressed((out / "trace.json").read_bytes(), dcfg["brotli_quality"], dcfg["brotli_lgwin"],
+                                dcfg["gzip_level"]).items():
+        (out / f"trace.json.{enc}").write_bytes(blob)
     current = paths.build / "current"
     if current.is_symlink() or current.exists():
         current.unlink()
     current.symlink_to(release_id)
     log(f"built {release_id}")
     return out
+
+
+def _encode_checked(mesh: Mesh) -> tuple[bytes, dict]:
+    """Varint-encode a mesh's triangles and prove the encoding lossless by decoding it again (D-025)."""
+    enc = encode_triangles(mesh.triangles, mesh.part_triangle_start, mesh.part_first_vertex)
+    if not np.array_equal(decode_triangles(enc, mesh.part_triangle_start, mesh.part_first_vertex), mesh.triangles):
+        raise BuildError("triangle encoding is not lossless")
+    return enc, {"indices": int(len(mesh.triangles)), "varint_bytes": len(enc), "lossless": True}
+
+
+def _required(a: np.ndarray | None) -> np.ndarray:
+    if a is None:
+        raise BuildError("missing array")
+    return a
+
+
+def _pack(sections: dict[str, np.ndarray]) -> tuple[bytes, dict]:
+    """Concatenate sections, each aligned to 8 bytes so the browser can view them in place."""
+    layout, chunks, offset = {}, [], 0
+    for name, arr in sections.items():
+        b = arr.tobytes()
+        layout[name] = {"dtype": arr.dtype.str, "offset": offset, "length": int(arr.size)}
+        pad = (-len(b)) % 8
+        chunks.append(b + b"\0" * pad)
+        offset += len(b) + pad
+    return b"".join(chunks), layout
+
+
+def _check_regions_against_qa004(regions: list, findings: list[Finding], years: list[int]) -> list[Finding]:
+    """The all-years overlap regions must reproduce QA-004's per-year overlap totals at every checkpoint."""
+    out = []
+    for y in years:
+        qa = next((f for f in findings if f.rule == "QA-004" and f.subject_id == f"year:{y}"), None)
+        if qa is None:
+            continue
+        expect = sum(p["km2"] for p in qa.detail.get("pairs", []))
+        got = sum(r.km2 for r in regions if len(r.rows) == 2 and r.start <= y <= r.end)
+        ok = abs(got - expect) <= max(len(qa.detail.get("pairs", [])) * 1.0, expect * 0.001)
+        out.append(Finding("QA-004", "info" if ok else "error", "dataset", f"overlaps:check:{y}",
+                           f"{label(y)}: overlap regions give {got:,.0f} km², QA-004 pairs give {expect:,} km².",
+                           {"year": y, "regions_km2": round(got), "qa004_km2": expect, "ok": ok}))
+    return out
+
+
+def _read_review_notes(path: Path) -> list[dict]:
+    import csv
+    with open(path, newline="") as fh:
+        return [dict(r) for r in csv.DictReader(fh)]
+
+
+def _catalog(findings: list[Finding], polities: list, base: list, paths: Paths) -> dict:
+    """What the polity card shows beyond the bundle: findings with messages and editorial review notes."""
+    by_polity: dict[str, dict] = defaultdict(lambda: {"findings": [], "notes": []})
+    by_row: dict[str, dict] = defaultdict(lambda: {"findings": [], "notes": []})
+    ids = {p.id for p in polities}
+    for f in findings:
+        item = {"rule": f.rule, "severity": f.severity, "message": f.message}
+        if f.subject_type in ("polity", "external_id"):
+            pid = f.subject_id.split(":")[0]
+            if pid in ids:
+                by_polity[pid]["findings"].append(item)
+        elif f.subject_type == "territory":
+            by_row[f.subject_id]["findings"].append(item)
+    rows = {str(r.index) for r in base}
+    for n in _read_review_notes(paths.registry / "review_notes.csv"):
+        note = {"note": n["note"], "reference": n["reference"], "added_on": n["added_on"], "source": "chronos-editorial"}
+        if n["subject_type"] == "row" and n["subject_id"] in rows:
+            by_row[n["subject_id"]]["notes"].append(note)
+        elif n["subject_type"] == "polity" and n["subject_id"] in ids:
+            by_polity[n["subject_id"]]["notes"].append(note)
+        else:
+            raise BuildError(f"review note for unknown {n['subject_type']} {n['subject_id']}")
+    return {"rules": rules.RULE_TITLES, "polities": dict(by_polity), "rows": dict(by_row)}
 
 
 def _linked_pairs(year: int, alive: list, aggs: list, polity_of_row: dict) -> set[frozenset]:
@@ -240,99 +443,6 @@ def _linked_pairs(year: int, alive: list, aggs: list, polity_of_row: dict) -> se
             for pid in by_name.get(m, ()):
                 linked.add(frozenset((polity_of_row[r.index][0], pid)))
     return linked
-
-
-def render_geometry(base: list, polity_of_row: dict, pol_index: dict, render_cfg: dict) -> tuple[dict, dict, list[Finding]]:
-    """Render arrays for the bundle, with every part triangulated and checked (D-021, QA-013).
-
-    Triangulation runs on the float32-rounded coordinates that are actually rendered.
-    """
-    terr = sorted(base, key=lambda r: (r.start, polity_of_row[r.index][0], r.index))
-    positions: list[np.ndarray] = []
-    triangles: list[np.ndarray] = []
-    ring_start = [0]
-    part_ring_start = [0]
-    part_triangle_start = [0]
-    part_territory: list[int] = []
-    nverts = 0
-    ntri_idx = 0
-    findings: list[Finding] = []
-    warn_km2, error_km2 = render_cfg["triangulation_warn_km2"], render_cfg["triangulation_error_km2"]
-    worst_rel, worst_km2, total_km2, repaired, fallbacks = 0.0, 0.0, 0.0, 0, 0
-    for ti, r in enumerate(terr):
-        for poly in render_parts(r.geometry, render_cfg["grid_split_deg"], render_cfg["simplify_deg"]):
-            rings = [np.asarray(ring.coords, dtype=np.float64)[:, :2].astype("<f4").astype(np.float64)
-                     for ring in [poly.exterior, *poly.interiors]]
-            for piece in triangulate(rings):
-                part = len(part_territory)
-                worst_rel, worst_km2 = max(worst_rel, piece.relative_deviation), max(worst_km2, piece.absolute_km2)
-                total_km2 += piece.absolute_km2
-                repaired += piece.repaired
-                fallbacks += piece.method != "earcut"
-                detail = {"part": part, "relative_deviation": piece.relative_deviation,
-                          "absolute_km2": round(piece.absolute_km2, 6), "method": piece.method, "repaired": piece.repaired}
-                where = f"{r.name} ({label(r.start)}-{label(r.end)}), render part {part}"
-                if piece.absolute_km2 > error_km2:
-                    findings.append(Finding("QA-013", "error", "territory", str(r.index),
-                                            f"{where}: triangles mis-draw {piece.absolute_km2:,.2f} km\u00b2.", detail))
-                elif piece.absolute_km2 > warn_km2:
-                    findings.append(Finding("QA-013", "warning", "territory", str(r.index),
-                                            f"{where}: triangles mis-draw {piece.absolute_km2:,.3f} km\u00b2.", detail))
-                if piece.repaired:
-                    findings.append(Finding("QA-013", "warning", "territory", str(r.index),
-                                            f"{where}: invalid in the triangulation plane (Web Mercator, float32); repaired "
-                                            "with make_valid before triangulation.", detail))
-                triangles.append(piece.indices + np.uint32(nverts))
-                ntri_idx += len(piece.indices)
-                part_triangle_start.append(ntri_idx)
-                for c in piece.rings:
-                    positions.append(c)
-                    nverts += len(c)
-                    ring_start.append(nverts)
-                part_ring_start.append(len(ring_start) - 1)
-                part_territory.append(ti)
-    arrays = {
-        "positions": np.concatenate(positions).astype("<f4").ravel(),
-        "ring_start": np.asarray(ring_start, dtype="<u4"),
-        "part_ring_start": np.asarray(part_ring_start, dtype="<u4"),
-        "part_territory": np.asarray(part_territory, dtype="<u4"),
-        "triangles": np.concatenate(triangles).astype("<u4"),
-        "part_triangle_start": np.asarray(part_triangle_start, dtype="<u4"),
-        "territory_start": np.asarray([r.start for r in terr], dtype="<i4"),
-        "territory_end": np.asarray([r.end for r in terr], dtype="<i4"),
-        "territory_polity": np.asarray([pol_index[polity_of_row[r.index][0]] for r in terr], dtype="<u4"),
-        "territory_row": np.asarray([r.index for r in terr], dtype="<u4"),
-        "territory_area_km2": np.asarray([r.area_src for r in terr], dtype="<f4"),
-    }
-    findings.insert(0, Finding("QA-013", "info", "dataset", "render",
-                               f"{len(part_territory):,} render parts triangulated in Web Mercator ({fallbacks} with constrained "
-                               f"Delaunay, {repaired} repaired). Largest mis-drawn area {worst_km2:.4f} km\u00b2; total "
-                               f"{total_km2:.3f} km\u00b2 across all parts and years.",
-                               {"parts": len(part_territory), "triangles": int(ntri_idx // 3), "max_relative_deviation": worst_rel,
-                                "max_absolute_km2": round(worst_km2, 6), "total_absolute_km2": round(total_km2, 6),
-                                "constrained_delaunay_fallbacks": fallbacks, "repaired_parts": repaired,
-                                "warn_km2": warn_km2, "error_km2": error_km2}))
-    stats = {"territories": len(terr), "parts": len(part_territory), "rings": len(ring_start) - 1, "vertices": nverts,
-             "triangles": int(ntri_idx // 3)}
-    return arrays, stats, findings
-
-
-def _write_geometry(out: Path, arrays: dict, stats: dict) -> dict:
-    sections, offset = {}, 0
-    with open(out / "geometry.bin", "wb") as fh:
-        for name, arr in arrays.items():
-            b = arr.tobytes()
-            sections[name] = {"dtype": arr.dtype.str, "offset": offset, "length": int(arr.size)}
-            fh.write(b)
-            offset += len(b)
-    return {"geometry": {"file": "geometry.bin", "sections": sections, "bytes": offset, **stats}}
-
-
-def _round_geojson(geom: dict, nd: int) -> dict:
-    def r(c):
-        return [r(x) for x in c] if isinstance(c, (list, tuple)) and c and isinstance(c[0], (list, tuple)) \
-            else [round(float(v), nd) for v in c]
-    return {"type": geom["type"], "coordinates": r(geom["coordinates"])}
 
 
 def _testpoints(base: list, polity_of_row: dict, land_ll, cfg: dict, lo: int, hi: int) -> dict:

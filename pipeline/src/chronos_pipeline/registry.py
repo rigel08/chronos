@@ -42,6 +42,10 @@ class Source:
     authors: tuple[str, ...] = ()
     url: str | None = None
     doi: str | None = None
+    evidence: str | None = None        # data-model.md evidence kind of what the source asserts, when stated
+
+
+EVIDENCE = ("measured", "documented", "estimated", "modeled", "derived", "interpreted")
 
 
 @dataclass(frozen=True)
@@ -113,7 +117,9 @@ def load_registry(registry_dir: Path, today: date | None = None) -> Registry:
         tier = d.get("access_tier", "research_only")
         src = Source(id=d["id"], kind=d["kind"], title=d["title"], license=d["license"], citation=d["citation"],
                      access_tier=tier, adapter=d.get("adapter"), authors=tuple(d.get("authors", ())),
-                     url=d.get("url"), doi=d.get("doi"))
+                     url=d.get("url"), doi=d.get("doi"), evidence=d.get("evidence"))
+        if src.evidence is not None and src.evidence not in EVIDENCE:
+            raise RegistryError(f"source {src.id}: evidence must be one of {EVIDENCE}, got {src.evidence!r}")
         if src.id in sources:
             raise RegistryError(f"duplicate source id {src.id}")
         if src.license not in licenses:

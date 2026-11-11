@@ -15,7 +15,7 @@
   commercial_use: true
 
 - id: LicenseRef-NaturalEarth-PD
-  name: Natural Earth (public domain), packaged by world-atlas (ISC)
+  name: Natural Earth (public domain)
   url: https://www.naturalearthdata.com/about/terms-of-use/
   attribution_required: false
   share_alike: false

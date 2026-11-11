@@ -1,9 +1,12 @@
 """End-to-end build on a synthetic mini-repository: determinism, licence gate, trace and outputs."""
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
+import re
 
+import brotli  # type: ignore[import-untyped]
 import pytest
 import yaml
 
@@ -13,24 +16,45 @@ from chronos_pipeline.registry import LicenceGateError
 
 
 def _hashes(d):
-    return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(d.iterdir())}
+    return {str(p.relative_to(d)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(d.rglob("*")) if p.is_file()}
 
 
 def test_build_is_byte_identical_across_runs(mini_repo):
     first = _hashes(run(mini_repo, "public", log=lambda *_: None))
     second = _hashes(run(mini_repo, "public", log=lambda *_: None))
     assert first == second
-    assert set(first) == {"attributions.json", "basemap_land.geojson", "bundle.json", "geometry.bin", "qa_report.json",
-                          "qa_report.md", "testpoints.json", "trace.json"}
+    top = {re.sub(r"\.[0-9a-f]{12}\.", ".<hash>.", n) for n in first if "/" not in n}
+    plain = {"attributions.json", "bundle.json", "trace.json"}
+    hashed = {"geometry.<hash>.bin", "catalog.<hash>.json", "basemap.<hash>.json"}
+    assert top == ({"qa_report.json", "qa_report.md", "testpoints.json"} | plain | hashed
+                   | {f"{n}.{e}" for n in plain | hashed for e in ("br", "gz")})
+    relief = [n for n in first if n.startswith("relief-")]
+    assert len(relief) == 1 + 4                                          # zooms 0 and 1 in the mini build
+
+
+def test_precompressed_copies_and_content_hashes(mini_repo):
+    out = run(mini_repo, "public", log=lambda *_: None)
+    b = json.loads((out / "bundle.json").read_text())
+    for key in ("geometry", "catalog", "basemap", "attributions", "bundle"):
+        f = b["files"][key] if key != "bundle" else {"path": "bundle.json"}
+        raw = (out / f["path"]).read_bytes()
+        assert gzip.decompress((out / (f["path"] + ".gz")).read_bytes()) == raw
+        assert brotli.decompress((out / (f["path"] + ".br")).read_bytes()) == raw
+        if key in ("geometry", "catalog", "basemap"):
+            assert hashlib.sha256(raw).hexdigest().startswith(f["path"].split(".")[1]) and f["sha256"] == hashlib.sha256(raw).hexdigest()
+    assert b["files"]["relief"]["template"].startswith("relief-") and b["files"]["relief"]["tiles"] == 5
 
 
 def test_trace_records_inputs_licences_parameters_and_outputs(mini_repo):
     out = run(mini_repo, "public", log=lambda *_: None)
     trace = json.loads((out / "trace.json").read_text())
-    assert {i["source"] for i in trace["inputs"]} == {"cliopatria", "natural-earth-land", "wikidata", "chronos-editorial"}
+    assert {i["source"] for i in trace["inputs"]} == {"cliopatria", "natural-earth-land", "natural-earth-lakes", "natural-earth-rivers",
+                                                     "natural-earth-relief", "wikidata", "chronos-editorial"}
     assert all(i["access_tier"] == "public" for i in trace["inputs"])
     assert trace["parameters"]["render"]["simplify_deg"] == 0.0
     for name, digest in trace["outputs"].items():
+        if name.endswith("/"):
+            continue                                                     # the relief directory, checked below
         assert hashlib.sha256((out / name).read_bytes()).hexdigest() == digest
     assert (mini_repo.build / "current").resolve() == out.resolve()
 
@@ -56,10 +80,12 @@ def test_bundle_contents(mini_repo):
     b = json.loads((out / "bundle.json").read_text())
     ids = sorted(p["id"] for p in b["polities"])
     assert ids == ["alpha", "beta", "gamma@10", "gamma@300"]          # aggregate excluded, Gamma split at its gap
-    assert b["geometry"]["territories"] == 5
+    assert b["format"] == 3 and b["geometry"]["territories"] == 5
     g = b["geometry"]["sections"]
-    raw = (out / "geometry.bin").read_bytes()
-    assert sum(s["length"] * int(s["dtype"][-1]) for s in g.values()) == len(raw)     # sections tile the file exactly
+    raw = (out / b["geometry"]["file"]).read_bytes()
+    spans = sorted((s["offset"], s["offset"] + s["length"] * int(s["dtype"][-1])) for s in g.values())
+    assert all(o % 8 == 0 for o, _ in spans) and all(e <= n for (_, e), (n, _) in zip(spans, spans[1:], strict=False))
+    assert spans[-1][1] <= len(raw) < spans[-1][1] + 8                  # sections tile the file (8-byte aligned)
     assert g["positions"]["dtype"] == "<f4"
     alpha = next(p for p in b["polities"] if p["id"] == "alpha")
     assert alpha["start"] == -99 and alpha["end"] == 99                 # -100 -> -99 astronomical

@@ -10,6 +10,24 @@ from ..measures import YearMeasures
 from ..years import label
 from .findings import Finding
 
+# Plain-language titles the polity card shows next to a rule id.
+RULE_TITLES = {
+    "QA-001": "Year convention mapped (BCE bounds carry ±1 year of convention uncertainty)",
+    "QA-002": "Groupings and alliances kept apart from territories",
+    "QA-003": "Recomputed area differs from the source's area field",
+    "QA-004": "Overlapping territories",
+    "QA-005": "Area measures per year",
+    "QA-006": "Identity split at a long gap, or kept across one",
+    "QA-007": "Wikidata id shared by several names or periods",
+    "QA-008": "Wikidata link does not match this polity",
+    "QA-009": "Polygon part far from the main body and absent from neighbouring rows",
+    "QA-010": "Point query: exact or near hit",
+    "QA-011": "Coverage of ice-free land",
+    "QA-012": "Licence gate",
+    "QA-013": "Triangulation check",
+    "QA-014": "Neighbour-separating colours",
+}
+
 
 def qa001_years(rows: list) -> list[Finding]:
     """Year convention applied, and row ordering sane."""

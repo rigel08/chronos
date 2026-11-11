@@ -53,6 +53,18 @@ def topo_square(x0, y0, x1, y1) -> dict:
             "objects": {"land": {"type": "GeometryCollection", "geometries": [{"type": "MultiPolygon", "arcs": [[[0]]]}]}}}
 
 
+def _synthetic_relief() -> dict[str, bytes]:
+    """A 1-degree shaded-relief stand-in: flat (206) with one lit and one shaded ridge, plus its world file."""
+    import numpy as np
+    from PIL import Image
+    a = np.full((180, 360), 206, np.uint8)
+    a[80:90, 180:190] = 250
+    a[90:100, 180:190] = 120
+    buf = io.BytesIO()
+    Image.fromarray(a, "L").save(buf, "TIFF")
+    return {"SR_50M.tif": buf.getvalue(), "SR_50M.tfw": b"1.0\n0.0\n0.0\n-1.0\n-179.5\n89.5\n", "SR_50M.VERSION.txt": b"2.0.0"}
+
+
 @pytest.fixture
 def mini_repo(tmp_path: Path) -> Paths:
     """A complete, tiny repository: real registry files, synthetic pinned inputs, a pinned Wikidata snapshot."""
@@ -83,8 +95,23 @@ def mini_repo(tmp_path: Path) -> Paths:
         "Q9": {"label": "Gamma", "description": "", "aliases": [], "types": ["kingdom"], "inception": 10, "dissolved": 320}}}
     sbytes = (json.dumps(snapshot, indent=1, sort_keys=True) + "\n").encode()
 
+    lakes = json.dumps({"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"scalerank": 0, "name": "Lake"}, "geometry": square(1, 1, 2, 2)}]}).encode()
+    rivers = json.dumps({"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"scalerank": 1, "name": "River"},
+         "geometry": {"type": "LineString", "coordinates": [[0.5, 0.5], [3.5, 3.5]]}}]}).encode()
+    relief_members = _synthetic_relief()
+    rbuf = io.BytesIO()
+    with zipfile.ZipFile(rbuf, "w") as z:
+        for name, data in relief_members.items():
+            z.writestr(zipfile.ZipInfo(name, (2000, 1, 1, 0, 0, 0)), data)
+    rbytes = rbuf.getvalue()
+
     for rel, data in {"cliopatria/v0.2.1/cliopatria.geojson.zip": zbytes,
                       "natural-earth-land/world-atlas@2.0.2/world-atlas-2.0.2.tgz": tbytes,
+                      "natural-earth-lakes/v5.1.2/ne_50m_lakes.geojson": lakes,
+                      "natural-earth-rivers/v5.1.2/ne_50m_rivers_lake_centerlines.geojson": rivers,
+                      "natural-earth-relief/SR_50M-2.0.0/SR_50M.zip": rbytes,
                       "wikidata/2000-01-01/snapshot.json": sbytes}.items():
         p = raw / rel
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -96,6 +123,11 @@ def mini_repo(tmp_path: Path) -> Paths:
                                "sha256": _sha(tbytes), "archive": "tgz",
                                "members": {"package/land-10m.json": _sha(land), "package/land-50m.json": _sha(land),
                                            "package/LICENSE": _sha(b"ISC")}},
+        "natural-earth-lakes": {"release": "v5.1.2", "url": "test://", "filename": "ne_50m_lakes.geojson", "sha256": _sha(lakes)},
+        "natural-earth-rivers": {"release": "v5.1.2", "url": "test://", "filename": "ne_50m_rivers_lake_centerlines.geojson",
+                                 "sha256": _sha(rivers)},
+        "natural-earth-relief": {"release": "SR_50M-2.0.0", "url": "test://", "filename": "SR_50M.zip", "sha256": _sha(rbytes),
+                                 "archive": "zip", "members": {n: _sha(d) for n, d in relief_members.items()}},
         "wikidata": {"release": "2000-01-01", "url": "test://", "filename": "snapshot.json", "sha256": _sha(sbytes),
                      "generated_by": "test"}}}
     (root / "data").mkdir(exist_ok=True)
@@ -107,7 +139,13 @@ def mini_repo(tmp_path: Path) -> Paths:
     cfg = cfg.replace("years: 80", "years: 6").replace("margin_km: 60", "margin_km: 20")
     rome = "    - {name: Rome, lon: 12.4964, lat: 41.9028, tolerance_km: 5.0}"
     cfg = cfg.replace(rome, "    - {name: Origin, lon: 1.0, lat: 1.0, tolerance_km: 5.0}")
+    cfg = cfg.replace("    maxzoom: 4\n    tile_size: 512", "    maxzoom: 1\n    tile_size: 32")
     (root / "pipeline" / "registry" / "build.yaml").write_text(cfg)
+    # review notes must point at rows that exist: here, the first Gamma row (source row 3)
+    (root / "pipeline" / "registry" / "review_notes.csv").write_text(
+        "subject_type,subject_id,note,reference,added_on\n"
+        'row,3,"Under review: test note.",tests,2000-01-01\n'
+        'polity,beta,"Under review: polity note.",tests,2000-01-01\n')
     from chronos_pipeline.manifest import fetch, load_manifest
     for pin in load_manifest(root / "data" / "manifest.lock.json").values():
         if not pin.generated_by:

@@ -57,7 +57,7 @@ delivery:         ## spike 003 delivery-option measurements (compression, time c
 reproducible:     ## build twice and require byte-identical outputs
 	mkdir -p data/staged
 	$(PY) -m chronos_pipeline build --profile public > /dev/null
-	cd data/build/current && $(SHA) * > ../../staged/build-1.sha256
+	cd data/build/current/ && find . -type f | LC_ALL=C sort | xargs $(SHA) > ../../staged/build-1.sha256
 	$(PY) -m chronos_pipeline build --profile public > /dev/null
-	cd data/build/current && $(SHA) * > ../../staged/build-2.sha256
+	cd data/build/current/ && find . -type f | LC_ALL=C sort | xargs $(SHA) > ../../staged/build-2.sha256
 	diff data/staged/build-1.sha256 data/staged/build-2.sha256 && echo "byte-identical: $$(wc -l < data/staged/build-1.sha256) files"

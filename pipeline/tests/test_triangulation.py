@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from chronos_pipeline.build import run
+from chronos_pipeline.encode import decode_triangles
 from chronos_pipeline.geo import _deviation, inverse_web_mercator, orient_ccw, render_parts, triangulate, web_mercator
 
 
@@ -58,13 +59,14 @@ def test_deviation_detects_missing_triangles():
 def test_bundle_triangles_stay_inside_their_parts_and_match_area(mini_repo):
     out = run(mini_repo, "public", log=lambda *_: None)
     b = json.loads((out / "bundle.json").read_text())
-    assert b["format"] == 2
-    raw = (out / "geometry.bin").read_bytes()
+    assert b["format"] == 3
+    raw = (out / b["geometry"]["file"]).read_bytes()
     sec = lambda n: np.frombuffer(raw, b["geometry"]["sections"][n]["dtype"], b["geometry"]["sections"][n]["length"],
                                   b["geometry"]["sections"][n]["offset"])
     pos = sec("positions").reshape(-1, 2).astype(np.float64)
-    tri, pts = sec("triangles"), sec("part_triangle_start")
+    pts = sec("part_triangle_start")
     rs, prs = sec("ring_start"), sec("part_ring_start")
+    tri = decode_triangles(sec("triangles_varint").tobytes(), pts, rs[prs[:-1]])
     for p in range(len(prs) - 1):
         v0, v1 = rs[prs[p]], rs[prs[p + 1]]
         t = tri[pts[p]:pts[p + 1]]

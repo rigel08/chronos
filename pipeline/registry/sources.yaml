@@ -11,7 +11,8 @@
   license: CC-BY-4.0
   access_tier: public
   adapter: cliopatria
-  citation: "Cliopatria v0.2.1, Seshat Global History Databank (CC BY 4.0). Simplified and re-projected by CHRONOS."
+  citation: "Cliopatria v0.2.1, Seshat Global History Databank (CC BY 4.0). Borders not simplified; split on a 5° grid and triangulated for rendering by CHRONOS."
+  evidence: interpreted        # an atlas interpretation of past territories (data-model.md); the source states no confidence
 
 - id: natural-earth-land
   kind: dataset
@@ -22,6 +23,36 @@
   access_tier: public
   adapter: naturalearth
   citation: "Made with Natural Earth. Land polygons via world-atlas 2.0.2."
+
+- id: natural-earth-lakes
+  kind: dataset
+  title: Natural Earth 1:50m lakes (natural-earth-vector v5.1.2)
+  authors: [Natural Earth]
+  url: https://www.naturalearthdata.com/downloads/50m-physical-vectors/
+  license: LicenseRef-NaturalEarth-PD
+  access_tier: public
+  adapter: naturalearth
+  citation: "Made with Natural Earth. Lakes and rivers 1:50m (v5.1.2), modern physical geography."
+
+- id: natural-earth-rivers
+  kind: dataset
+  title: Natural Earth 1:50m rivers and lake centrelines (natural-earth-vector v5.1.2)
+  authors: [Natural Earth]
+  url: https://www.naturalearthdata.com/downloads/50m-physical-vectors/
+  license: LicenseRef-NaturalEarth-PD
+  access_tier: public
+  adapter: naturalearth
+  citation: "Made with Natural Earth. Lakes and rivers 1:50m (v5.1.2), modern physical geography."
+
+- id: natural-earth-relief
+  kind: dataset
+  title: Natural Earth 1:50m shaded relief (SR_50M, version 2.0.0)
+  authors: [Natural Earth, Tom Patterson]
+  url: https://www.naturalearthdata.com/downloads/50m-raster-data/50m-shaded-relief/
+  license: LicenseRef-NaturalEarth-PD
+  access_tier: public
+  adapter: naturalearth
+  citation: "Made with Natural Earth. Shaded relief 1:50m (version 2.0.0), re-projected to hillshade tiles by CHRONOS."
 
 - id: wikidata
   kind: dataset

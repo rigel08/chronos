@@ -68,3 +68,17 @@ def test_soissons_stray_part_is_flagged(real):
     f = rules.qa009_stray_parts(rows, soissons, q["stray_part_km"], q["stray_part_fraction"])
     # the 476-479 row's Dalmatian part (14.5-19.5 E), absent in 480-489
     assert any(x.severity == "warning" and x.detail["part_bounds"][2] > 19 and x.detail["part_bounds"][1] > 42 for x in f)
+
+
+def test_overlap_regions_reproduce_qa004_and_find_the_420_ce_overlap(real):
+    from chronos_pipeline.overlaps import overlap_regions
+    q = real["cfg"]["qa"]
+    regions, findings = overlap_regions(real["base"], real["polity_of_row"], real["aggs"], q["sliver_km2"],
+                                        q["sliver_fraction"], real["cfg"]["overlaps"]["max_level"])
+    assert not [f for f in findings if f.severity == "error"]
+    pid = lambda i: real["polity_of_row"][real["base"][i].index][0]
+    kw = [r for r in regions if {pid(i) for i in r.rows} == {"kidarites", "white-huns"} and r.start <= 420 <= r.end]
+    assert kw and kw[0].kind == "unlinked" and kw[0].km2 > 400_000          # validation: 488,437 km2 in 420 CE
+    at117 = sum(r.km2 for r in regions if len(r.rows) == 2 and r.start <= 117 <= r.end)
+    assert round(at117) == 207                                               # the five slivers of validation 0001
+    assert max(len(r.rows) for r in regions) <= 4
