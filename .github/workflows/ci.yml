@@ -1,0 +1,38 @@
+# Prepared for when the repository is hosted (D-014). Inactive while CHRONOS is local-only.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --all-packages --frozen
+      - run: uv run ruff check pipeline
+      - run: uv run mypy --config-file pipeline/pyproject.toml pipeline/src
+      - run: uv run pytest pipeline/tests -q -m "not data"
+
+  pipeline-real-data:
+    # Downloads the pinned public inputs (about 46 MB + 1 MB) and reproduces validation 0001.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --all-packages --frozen
+      - run: PYTHONPATH=pipeline/src uv run python -m chronos_pipeline fetch
+      - run: uv run pytest pipeline/tests -q -m data
+
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+      - run: pnpm -r test

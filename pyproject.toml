@@ -1,0 +1,3 @@
+# uv workspace root (virtual: no package here). Members are added as services appear.
+[tool.uv.workspace]
+members = ["pipeline"]
