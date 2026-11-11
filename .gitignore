@@ -12,3 +12,5 @@ apps/web/dist/
 .mypy_cache/
 .ruff_cache/
 .claude/
+apps/web/.cert/
+apps/web/bench/out/

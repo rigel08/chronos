@@ -23,7 +23,11 @@ export function HoverTip() {
           </div>
         );
       })}
-      {hover.polities.length > 1 && <div className="mt-1 text-[11px] text-slate-400">Both mapped on this ground in Cliopatria. Click again to switch.</div>}
+      {hover.polities.length > 1 && (
+        <div className="mt-1 text-[11px] text-slate-400">
+          {hover.polities.length === 2 ? "Both" : `All ${hover.polities.length}`} mapped on this ground in Cliopatria. Click again to switch.
+        </div>
+      )}
     </div>
   );
 }

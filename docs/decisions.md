@@ -317,6 +317,12 @@ The legend and credits state that colours carry no meaning. Lineage colour famil
 
 The palette is compiled into the shader as a constant array. In benchmark mode (`?test=1`) the dissolve is off, so the protocol measures the engine and not the designed transition. Scrubbing always cuts; steps and jumps dissolve over 240 ms; reduced motion cuts.
 
+**Hover and click picking.**
+- Hover and click take one picking pass for the polity drawn on top. Every other claimant comes from the overlap regions (D-026), point-tested on the CPU.
+- Measured reason: deck.gl's multi-pass picking re-uploads picking-colour ranges to exclude objects it has already found, about 1.9 MB per hover.
+- Result: hover uploads 0 B from deck.gl. The two methods agree at 3,060 of 3,060 grid points in three overlap-heavy views.
+- The multi-pass `pick()` remains the benchmark's reference.
+
 ### D-030: Application stack: React 19 and Tailwind v4, no state library, self-hosted fonts
 **Status:** accepted 2026-11-11 (fulfils D-015).
 
@@ -339,6 +345,8 @@ The palette is compiled into the shader as a constant array. In benchmark mode (
   - revalidate `bundle.json`, `trace.json` and `attributions.json`.
 
 The dev and preview servers do this (`precompressedData` in `vite.config.ts`).
+
+> **Safari finding (2026-11-11, milestone 1.3).** Over plain `http://localhost`, Safari received the gzip copy (17.24 MiB) instead of brotli (2.84 MiB). The server negotiated correctly (`bench/delivery-headers.mjs`: 40/40); Safari did not offer `br` on that connection. Browsers advertise `br` only on secure connections, so **a production host must serve HTTPS** for brotli to reach every browser. The compat page now records the encoding offered and received. The D-024 target check stays failing whenever gzip arrives. HTTPS for the dev server is optional (`CHRONOS_HTTPS_KEY`, `CHRONOS_HTTPS_CERT`).
 
 ### D-032: The physical basemap is modern Natural Earth, shown as context
 **Status:** accepted 2026-11-11 (downloads approved).

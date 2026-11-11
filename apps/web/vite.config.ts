@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, mkdirSync, realpathSync, statSync, writeFileSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { extname, join, resolve, sep } from "node:path";
 
@@ -22,6 +22,14 @@ const TYPES: Record<string, string> = {
 function precompressedData(): Plugin {
   const handler = (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     const path = decodeURIComponent((req.url ?? "").split("?")[0] ?? "");
+    if (path === "/__echo") {
+      // What this browser offered on this connection, so the compat page can record it (D-031 evidence).
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.setHeader("Cache-Control", "no-store");
+      res.end(JSON.stringify({ acceptEncoding: req.headers["accept-encoding"] ?? null,
+                               protocol: (req.socket as { encrypted?: boolean }).encrypted ? "https" : "http" }));
+      return;
+    }
     if (!path || path === "/" || path.includes("..") || (req.method !== "GET" && req.method !== "HEAD")) return next();
     let root: string;
     try { root = realpathSync(DATA); } catch { return next(); }
@@ -84,6 +92,12 @@ function compatRecorder(): Plugin {
   };
 }
 
+// Optional HTTPS (browsers offer brotli only on secure connections; Safari may not treat http://localhost as one).
+// Set CHRONOS_HTTPS_KEY and CHRONOS_HTTPS_CERT to PEM files; nothing changes when they are unset.
+const https = process.env.CHRONOS_HTTPS_KEY && process.env.CHRONOS_HTTPS_CERT
+  ? { key: readFileSync(process.env.CHRONOS_HTTPS_KEY), cert: readFileSync(process.env.CHRONOS_HTTPS_CERT) }
+  : undefined;
+
 export default defineConfig({
   plugins: [precompressedData(), compatRecorder(), react(), tailwindcss()],
   publicDir: false,
@@ -95,7 +109,7 @@ export default defineConfig({
   worker: { format: "es" },
   // MapLibre 6 is ESM-only and loads its worker from a sibling file by relative URL; pre-bundling breaks that.
   optimizeDeps: { exclude: ["maplibre-gl"] },
-  server: { port: 5174, strictPort: true },
-  preview: { port: 5175, strictPort: true },
+  server: { port: 5174, strictPort: true, https },
+  preview: { port: 5175, strictPort: true, https },
   test: { include: ["tests/**/*.test.ts"], environment: "node" },
 });

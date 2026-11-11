@@ -78,7 +78,8 @@
 > Deviations from the spec below:
 > - Contemporaries dimming became dimming of everything except the selected polity. The contemporaries *lens* stays in Phase 2.
 > - Label spines stay in 1.6.
-> - The Safari run is prepared (`compat.html`) and needs one manual session.
+> - Safari was partly checked by hand. Rendering and API checks passed, but over plain HTTP it received gzip (17.24 MiB) instead of brotli (2.84 MiB). Its benchmark and checklist still need one manual session ([docs/compat](compat/README.md)).
+> - Hover and click find every claimant from the overlap regions instead of multi-pass picking, which re-uploaded about 1.9 MB per hover.
 > - The 5° grid "seams" turned out to be culled triangles and long-edge chords, both fixed (D-028).
 
 **Goal:** the first experience a person can use. They see a styled Strata globe, scrub 3400 BCE → 2024 CE, select a polity, read its card with sources and QA flags, and click anywhere for a core sample. It must hold every 1.2 guarantee: 0% stale frames, 343/343 picks, heap under 400 MB.

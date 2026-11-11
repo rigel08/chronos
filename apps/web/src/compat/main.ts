@@ -77,16 +77,26 @@ async function automatic() {
   add("motion", "prefers-reduced-motion", null, matchMedia("(prefers-reduced-motion: reduce)").matches ? "reduce" : "no-preference");
   add("dpr", "Device pixel ratio / viewport", null, `${devicePixelRatio} · ${innerWidth}×${innerHeight}`);
   try {
+    const echo = (await (await fetch("/__echo", { cache: "no-store" })).json()) as { acceptEncoding: string | null; protocol: string };
+    const offered = echo.acceptEncoding ?? "";
+    add("offer", "Accept-Encoding this browser sent (as the server saw it)", null, `${offered || "(none)"} · ${echo.protocol}`);
     const meta = await (await fetch("/bundle.json", { cache: "no-cache" })).json();
     const url = `/${meta.files.geometry.path}`;
     const t0 = performance.now();
     const res = await fetch(url, { cache: "no-store" });
+    const encoding = res.headers.get("content-encoding");
     const buf = await res.arrayBuffer();
     const ms = performance.now() - t0;
     const entry = performance.getEntriesByName(new URL(url, location.href).href).pop() as PerformanceResourceTiming | undefined;
-    const enc = entry && entry.encodedBodySize ? entry.encodedBodySize : null;
-    add("encoding", "Precompressed geometry (D-024)", enc !== null ? enc < buf.byteLength * 0.2 : null,
-        `decoded ${(buf.byteLength / 1048576).toFixed(1)} MiB; on the wire ${enc ? (enc / 1048576).toFixed(2) + " MiB" : "not reported by this browser"}; ${ms.toFixed(0)} ms`);
+    const wire = entry && entry.encodedBodySize ? entry.encodedBodySize : null;
+    const brOffered = /\bbr\b/.test(offered);
+    const best = brOffered ? "br" : /\bgzip\b/.test(offered) ? "gzip" : null;
+    add("negotiation", "Server sent the best encoding offered (D-031)", encoding === best,
+        `offered ${offered || "(none)"} -> received ${encoding ?? "identity"} (expected ${best ?? "identity"})`);
+    const mib = (n: number) => (n / 1048576).toFixed(2);
+    add("encoding", "Brotli geometry on the wire, at most 3 MiB (D-024)", encoding === "br" && wire !== null && wire <= 3 * 1048576,
+        `received ${encoding ?? "identity"}, ${wire ? mib(wire) + " MiB" : "size not reported"} on the wire, ${mib(buf.byteLength)} MiB decoded, ${ms.toFixed(0)} ms` +
+        (brOffered ? "" : `; this browser did not offer br on this ${echo.protocol} connection`));
     add("cache", "Immutable caching header", (res.headers.get("cache-control") ?? "").includes("immutable"), res.headers.get("cache-control") ?? "none");
   } catch (e) {
     add("encoding", "Bundle fetch", false, String(e));
@@ -179,4 +189,5 @@ async function save() {
   }
 }
 
-automatic().then(render, (e) => { add("error", "Automatic checks", false, String(e)); render(); });
+automatic().then(render, (e) => { add("error", "Automatic checks", false, String(e)); render(); })
+  .finally(() => { (window as unknown as { __COMPAT__?: unknown }).__COMPAT__ = record(); });   // for automated runs in Chrome

@@ -32,8 +32,8 @@ export function LoadingVeil() {
             </div>
             {territories > 0 && (
               <p className="mt-2.5 text-[11.5px] leading-relaxed text-slate-400">
-                {territories.toLocaleString()} dated territories from Cliopatria, {spanLabel(years[0], years[1])}, at full resolution,
-                checked against the build's checksum before drawing.
+                {territories.toLocaleString()} dated territories from Cliopatria, {spanLabel(years[0], years[1])}, at full resolution
+                {globalThis.crypto?.subtle ? ", checked against the build's checksum before drawing." : ". (This connection is not secure, so the checksum cannot be verified here.)"}
               </p>
             )}
           </>

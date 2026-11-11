@@ -85,7 +85,10 @@ export function App() {
         if (uiStore.get().panel === "none") uiStore.set({ panel: "sample" });
       }
       uiStore.set({ phase: "ready", readyMs });
-      window.__CHRONOS__ = { engine, meta: loaded.meta, readyMs, timings: { ...loaded.timings, engineDataReadyMs: engine.dataReadyMs } };
+      // A handle for the test tools only (?test=1 benchmarks, ?debug=1 smoke and compat); not exposed otherwise.
+      if (TEST || params.get("debug") === "1") {
+        window.__CHRONOS__ = { engine, meta: loaded.meta, readyMs, timings: { ...loaded.timings, engineDataReadyMs: engine.dataReadyMs } };
+      }
       if (params.get("bench") === "1") void import("./benchHook").then((m) => m.runBench(engine as AtlasEngine, loaded.meta, tNav));
     })().catch((err: unknown) => {
       uiStore.set({ phase: "error", error: err instanceof Error ? err.message : String(err) });

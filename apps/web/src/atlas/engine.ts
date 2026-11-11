@@ -78,6 +78,7 @@ export class AtlasEngine {
   private pendingFrame: Promise<void> = Promise.resolve();
   private hoverQueued = false;
   private mask = false;
+  private overlapBox: Float32Array = new Float32Array(0);
   private lastPointer: { x: number; y: number } | null = null;
 
   private constructor(map: MapLibreMap, o: EngineOptions, private readonly events: EngineEvents) {
@@ -121,7 +122,7 @@ export class AtlasEngine {
     map.on("mousemove", (e: MapMouseEvent) => engine.queueHover(e.point.x, e.point.y));
     map.on("mouseout", () => { engine.lastPointer = null; engine.setHovered(-1); events.onHover?.(null); });
     map.on("click", (e: MapMouseEvent) => {
-      const polities = engine.pick(e.point.x, e.point.y);
+      const polities = engine.claimantsAt(e.point.x, e.point.y);
       const onLand = map.queryRenderedFeatures(e.point, { layers: ["land"] }).length > 0;   // modern Natural Earth land
       events.onClick?.({ lngLat: [e.lngLat.lng, e.lngLat.lat], polities, onLand });
     });
@@ -151,6 +152,7 @@ export class AtlasEngine {
     this.territoryData = { length: g.territories.partOwner.length, startIndices: v.startIndices,
                            attributes: { getPolygon: { value: g.territories.positions, size: 2 }, indices: g.territories.triangles,
                                          getStrataTime: { value: v.time, size: 2 }, getStrataCode: { value: v.code, size: 1 } } };
+    this.overlapBox = boxes(g.overlaps.positions, g.overlaps.ringStart, g.overlaps.partRingStart);
     this.overlapData = { length: g.overlaps.partOwner.length, startIndices: v.ovStartIndices,
                          attributes: { getPolygon: { value: g.overlaps.positions, size: 2 }, indices: g.overlaps.triangles,
                                        getStrataTime: { value: v.ovTime, size: 2 }, getStrataCodes: { value: v.ovCodes, size: 4 } } };
@@ -300,13 +302,44 @@ export class AtlasEngine {
       this.hoverQueued = false;
       const p = this.lastPointer;
       if (!p || !this.overlay) return;
-      const polities = this.pick(p.x, p.y, 4);
+      const polities = this.claimantsAt(p.x, p.y);
       this.setHovered(polities[0] ?? -1);
       this.events.onHover?.(polities.length ? { x: p.x, y: p.y, polities } : null);
     });
   }
 
-  /** Polity indices drawn at a screen pixel in the current year (all claimants where territories overlap). */
+  /**
+   * Polities at a screen pixel for hover and click: one picking pass for the polity drawn on top, then every other
+   * claimant from the explicit overlap regions (D-026), tested on the CPU. Unlike a multi-pass pick, this uploads
+   * nothing: deck.gl's depth picking re-uploads picking-colour ranges to exclude objects already found (~1.9 MB per
+   * hover, measured). The top polity comes first.
+   */
+  claimantsAt(x: number, y: number): number[] {
+    if (!this.overlay || !this.data) return [];
+    const g = this.data.geometry;
+    const hit = this.overlay.pickObject({ x, y, radius: 0, layerIds: ["territories"] });
+    if (!hit) return [];
+    const top = g.territoryPolity[g.territories.partOwner[hit.index] as number] as number;
+    const ll = this.map.unproject([x, y]);
+    const others = new Set<number>();
+    const m = g.overlaps;
+    const box = this.overlapBox;
+    for (let p = 0; p < m.partOwner.length; p++) {
+      if (ll.lng < (box[4 * p] as number) || ll.lng > (box[4 * p + 2] as number) || ll.lat < (box[4 * p + 1] as number) || ll.lat > (box[4 * p + 3] as number)) continue;
+      const r = m.partOwner[p] as number;
+      if ((g.regionStart[r] as number) > this.t || (g.regionEnd[r] as number) < this.t) continue;
+      if (!insideRings(m.positions, m.ringStart, m.partRingStart[p] as number, m.partRingStart[p + 1] as number, ll.lng, ll.lat)) continue;
+      for (let k = 0; k < g.regionSlots; k++) {
+        const t = g.regionTerritories[r * g.regionSlots + k] as number;
+        if (t !== 0xffffffff) others.add(g.territoryPolity[t] as number);
+      }
+    }
+    if (!others.has(top)) return [top];        // the pixel is outside every shared region valid now
+    others.delete(top);
+    return [top, ...[...others].sort((a, b) => a - b)];
+  }
+
+  /** Polity indices drawn at a screen pixel in the current year (all claimants), by multi-pass picking. Benchmarks use this. */
   pick(x: number, y: number, depth = 8): number[] {
     if (!this.overlay || !this.data) return [];
     const g = this.data.geometry;
@@ -399,6 +432,37 @@ export class AtlasEngine {
     this.overlay?.finalize();
     this.map.remove();
   }
+}
+
+/** Bounding box (minLon, minLat, maxLon, maxLat) of every part of a mesh. */
+function boxes(pos: Float32Array, ringStart: Uint32Array, partRingStart: Uint32Array): Float32Array {
+  const parts = partRingStart.length - 1;
+  const out = new Float32Array(parts * 4);
+  for (let p = 0; p < parts; p++) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (let v = ringStart[partRingStart[p] as number] as number; v < (ringStart[partRingStart[p + 1] as number] as number); v++) {
+      const x = pos[2 * v] as number, y = pos[2 * v + 1] as number;
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+    }
+    out.set([x0, y0, x1, y1], 4 * p);
+  }
+  return out;
+}
+
+/** Even-odd point-in-polygon over rings [r0, r1) of a mesh. */
+function insideRings(pos: Float32Array, ringStart: Uint32Array, r0: number, r1: number, lon: number, lat: number): boolean {
+  let inside = false;
+  for (let r = r0; r < r1; r++) {
+    const a = ringStart[r] as number, b = ringStart[r + 1] as number;
+    for (let i = a, j = b - 1; i < b; j = i++) {
+      const xi = pos[2 * i] as number, yi = pos[2 * i + 1] as number, xj = pos[2 * j] as number, yj = pos[2 * j + 1] as number;
+      if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+  }
+  return inside;
 }
 
 function angularDistance(lon1: number, lat1: number, lon2: number, lat2: number): number {

@@ -1,0 +1,102 @@
+{
+ "threshold": 24,
+ "viewport": [
+  1440,
+  900
+ ],
+ "views": [
+  {
+   "id": "117ce-globe",
+   "lon": 30,
+   "lat": 30,
+   "zoom": 1.4,
+   "year": 117
+  },
+  {
+   "id": "1914-pacific-far-side",
+   "lon": -160,
+   "lat": 0,
+   "zoom": 1.4,
+   "year": 1914
+  },
+  {
+   "id": "1500-europe",
+   "lon": 10,
+   "lat": 48,
+   "zoom": 4,
+   "year": 1500
+  },
+  {
+   "id": "500bce-near-east",
+   "lon": 45,
+   "lat": 33,
+   "zoom": 3.5,
+   "year": -499
+  },
+  {
+   "id": "1765-mughal-area",
+   "lon": 73.54,
+   "lat": 24.78,
+   "zoom": 7,
+   "year": 1765
+  },
+  {
+   "id": "1265-lithuania-area",
+   "lon": 24,
+   "lat": 55,
+   "zoom": 5,
+   "year": 1265
+  },
+  {
+   "id": "420ce-central-asia",
+   "lon": 66,
+   "lat": 37,
+   "zoom": 3.8,
+   "year": 420
+  }
+ ],
+ "results": [
+  {
+   "view": "117ce-globe",
+   "differingPixels": 0,
+   "share": 0,
+   "coveredPixels": 19191
+  },
+  {
+   "view": "1914-pacific-far-side",
+   "differingPixels": 0,
+   "share": 0,
+   "coveredPixels": 7228
+  },
+  {
+   "view": "1500-europe",
+   "differingPixels": 0,
+   "share": 0,
+   "coveredPixels": 631799
+  },
+  {
+   "view": "500bce-near-east",
+   "differingPixels": 0,
+   "share": 0,
+   "coveredPixels": 187264
+  },
+  {
+   "view": "1765-mughal-area",
+   "differingPixels": 0,
+   "share": 0,
+   "coveredPixels": 992840
+  },
+  {
+   "view": "1265-lithuania-area",
+   "differingPixels": 0,
+   "share": 0,
+   "coveredPixels": 1092923
+  },
+  {
+   "view": "420ce-central-asia",
+   "differingPixels": 0,
+   "share": 0,
+   "coveredPixels": 621975
+  }
+ ]
+}

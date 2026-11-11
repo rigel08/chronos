@@ -9,13 +9,13 @@
 | Acceptance criterion (plan) | Result |
 |---|---|
 | Decode is lossless | **Met.** Checked in every build, and cross-language in the web tests (pipeline-encoded bytes decoded in TypeScript) |
-| `make reproducible` byte-identical, compressed files included | **Met.** 362 files, every brotli/gzip copy and relief tile included |
+| `make reproducible` byte-identical, compressed files included | **Met.** 371 files, every brotli/gzip copy and relief tile included. Re-verified after the seam fix; identical to the build every measurement here used. |
 | Geometry ≤ 3 MiB with brotli | **Met.** 2.84 MiB |
 | First correct pick at 117 CE ≤ 1.5 s | **Met.** 743 / 733 / 615 ms on the production build |
 | Error with retry on a failed fetch | **Met.** The loading card shows the error and a Try again button |
 | 60 fps with the full stage; 0% stale frames | **Met.** p50 16.7 ms in every phase; 0% stale in sweep, Europe and explore, 3 runs |
 | Steps across 1 BCE / 1 CE, ticks, formatting, URL round-trip tested | **Met.** 8 web tests |
-| Select and hover cause no attribute uploads | **Check written, not yet run** (`bench/smoke.mjs` uploads step counts GPU buffer bytes per change) |
+| Select and hover cause no attribute uploads | **Met after a fix (§6).** Hover originally uploaded ≈ 1.9 MB of picking colours per event; it now uploads 0 B from deck.gl. A year change uploads 0 B from deck.gl (≤ 7 KB from MapLibre). Selecting the Roman Empire uploads only its new outline layer (≈ 42 KB). |
 | Pick accuracy 343/343 with the extension | **Met.** 343/343 in all 3 runs |
 | Heap < 400 MB | **Met.** 281 / 355 / 301 MB without GC; endurance worst 359.7 MB |
 | 420 CE Kidarites × White Huns striped | **Met.** Screenshot below |
@@ -23,7 +23,7 @@
 | Rome equals QA-010 exactly; test points agree | **Met.** 22 strata, gaps and overlaps identical; 343/343 test points agree |
 | Grid seams: root cause and fix or documentation | **Met, fixed.** Two causes, neither the grid (§3) |
 | No research-only source in the build | **Met.** QA-012 enforced; every source in `bundle.json` is public |
-| Safari manual run recorded | **Prepared, not yet run:** needs you (§7) |
+| Safari manual run recorded | **Partly run, not saved (§7).** Your run passed WebGL2, shaders, module workers, sha256, CSS and immutable caching. The delivery check failed: Safari received the 17.24 MiB gzip copy, not brotli. The benchmark and checklist were not run. |
 
 ## 1. Delivery: bundle format 3 (WP1; D-024, D-025, D-031)
 
@@ -85,7 +85,7 @@ Uploading to the GPU until the first frame takes about 360 ms more.
 - **Display.** Regions draw above the fills as world-anchored stripes cycling through every claimant's colour, so the display no longer depends on draw order. Picking returns every claimant, and repeated clicks cycle through them.
 - **Card wording.** The card says, for example: "Parthian Empire · 105 km². Both mapped here in Cliopatria; small (under 1,000 km² or 1% of the smaller), likely a digitisation edge."
 
-![420 CE, Kidarites and White Huns](img/m13/03-overlap-420ce.png)
+![420 CE, Kidarites and White Huns](img/m13/03-overlap-420ce.jpg)
 
 ## 3. The "grid seams" of spike 002 (WP8, D-028)
 
@@ -123,7 +123,7 @@ On the real bundle (vitest):
 
 The column divides each period equally among the polities mapped then, so it splits only where they overlap. Gaps are hatched as *unmapped* and never filled. Near hits are dashed with their distance.
 
-![Core sample at Rome](img/m13/04-core-sample-rome.png)
+![Core sample at Rome](img/m13/04-core-sample-rome.jpg)
 
 ## 5. The application (WP2–WP4, WP6)
 
@@ -138,7 +138,7 @@ The column divides each period equally among the polities mapped then, so it spl
 | **Credits** | Generated from the registry: every source with licence, access tier and evidence; palette note; software and fonts; release id; trace link. |
 | **Integrity wording** | "mapped", never "ruled" or "controlled". The core sample is titled *Who is mapped here*: the brief's "who ruled here?" is answered in the design-direction's terms. |
 
-![117 CE, Roman Empire selected](img/m13/02-select-roman-empire.png)
+![117 CE, Roman Empire selected](img/m13/02-select-roman-empire.jpg)
 
 ## 6. Guarantees from 1.2, re-measured on the application
 
@@ -153,17 +153,71 @@ The column divides each period equally among the polities mapped then, so it spl
 
 The app adds the overlap layer, outline, React UI and basemap layers on top of the 1.2 path. The heap rose about 50–100 MB without GC (garbage between collections), while retained memory after GC is about the same as 1.2 (≈ 256 MB vs 246 MB). Raw: [`results/2026-11-11-m2-chrome157-headless-m13-app.json`](results/2026-11-11-m2-chrome157-headless-m13-app.json).
 
+### Render agreement, GPU uploads and hover picking (verification after the benchmark)
+
+**Render agreement of the application** (`bench/agreement.mjs`). The app and the 1.2 binary path both render in mask mode: territories white on black, no basemap, atmosphere or stripes.
+
+| View | Pixels covered | Pixels that differ |
+|---|---|---|
+| 117 CE globe | 19,191 | **0** |
+| 1914 Pacific (far side) | 7,228 | **0** |
+| 1500 Europe | 631,799 | **0** |
+| 500 BCE Near East | 187,264 | **0** |
+| 1765 Mughal area, zoom 7 | 992,840 | **0** |
+| 1265 Lithuania, zoom 5 | 1,092,923 | **0** |
+| 420 CE Central Asia | 621,975 | **0** |
+
+StrataExtension (exact years) draws exactly what DataFilterExtension drew. Raw: [`results/2026-11-11-agreement-m2-chrome157-headless.json`](results/2026-11-11-agreement-m2-chrome157-headless.json).
+
+**GPU buffer uploads per interaction** (`bench/smoke.mjs`, uploads step). It counts every `bufferData`/`bufferSubData` byte, waits for the map to be idle, and starts with a no-interaction control. On the dev server, uploads are attributed by library from the call stack.
+
+| Interaction | deck.gl bytes (dev) | All bytes (production build) |
+|---|---|---|
+| Control: no interaction | 0 | 0 |
+| Year change 117 → 118 → 117 | 0 (MapLibre 4.9 KB) | 4.9 KB |
+| Hover over a territory, before the fix | **1,925,752** | — |
+| Hover over a territory, after the fix | **0** (MapLibre 2.5 KB) | 2.5 KB |
+| Select the Roman Empire (adds its outline) | 8.3 KB (+ 34 KB outline buffers) | 47.5 KB |
+| Deselect | 0 (MapLibre 4.9 KB) | 4.9 KB |
+
+For scale, the initial upload is 137.7 MB. A geometry re-upload would be at least one per-vertex attribute: 3.55 M vertices × 4 B = 14 MB.
+
+**The hover finding.** Hover used deck.gl's 4-deep `pickMultipleObjects` to list every claimant. To exclude objects already found, depth picking re-uploads ranges of the picking-colour buffer: about 1.9 MB on every hover.
+
+Hover and click now use one picking pass for the polity drawn on top. The other claimants come from the explicit overlap regions (D-026), point-tested on the CPU over 13,953 parts. The multi-pass `pick()` stays as the benchmark's reference.
+
+The two methods return the same set of polities at **3,060 of 3,060** grid points in three views:
+
+| View | Points | Agree | On shared ground |
+|---|---|---|---|
+| 420 CE Central Asia | 1,020 | 1,020 | 39 |
+| 500 BCE China | 1,020 | 1,020 | 14 |
+| 1500 CE Europe | 1,020 | 1,020 | 6 |
+
+**Production smoke** (`bench/smoke.mjs --preview`): every step passed with no console errors or warnings:
+- load: first correct pick 658 ms (earlier production runs: 685 and 718 ms);
+- uploads and claimants (above);
+- selecting the Roman Empire by clicking Rome at 117 CE;
+- the 420 CE overlap;
+- the Rome core sample (24 rows listed: 22 strata and 2 gaps);
+- flat projection;
+- the dissolve.
+
+Record: [`img/m13/smoke.json`](img/m13/smoke.json).
+
 ## 7. Browsers
 
 | Browser | Status |
 |---|---|
 | Chrome 157 headless (Metal GPU) | Measured: the full protocol on the production build, 3 runs (§6) |
-| **Safari 27.0.1** | **Waiting for one manual run.** `http://localhost:5174/compat.html` (see [docs/compat](../compat/README.md)) checks WebGL2 and compiles the exact shader features StrataExtension uses, runs the same protocol on the app, takes a 12-item checklist, and saves a record to `docs/compat/`. Automation would need a system setting that was not changed. |
+| **Safari** | **Partly checked; delivery fails over plain HTTP.** Your run of `http://localhost:5174/compat.html`, as you reported it (not saved):<br>• Passed: WebGL2, the StrataExtension shader features, module workers, sha256, CSS, immutable caching.<br>• **Failed:** precompressed geometry. 43.9 MiB decoded, 17.24 MiB transferred.<br>• Not run: the benchmark and checklist. |
+| | **Cause, measured on the server side** (`bench/delivery-headers.mjs`, 40/40 checks on the dev and preview servers):<br>• 17.24 MiB is byte-for-byte the gzip copy. The server sends `br` (2.84 MiB) whenever a request offers `br`, and gzip only when it does not.<br>• So Safari's request on `http://localhost` did not offer `br`. Chrome and Firefox advertise `br` only on secure connections ([Brotli header is only sent on HTTPS connections](https://groups.google.com/g/brotli/c/fN6M9A8aRnM); Chrome treats `localhost` as secure). Safari doing the same over plain HTTP is the likely explanation, but no source states it.<br>• The compat page now records the `Accept-Encoding` the server actually received (`/__echo`) and the `Content-Encoding` Safari actually got. The next run proves or disproves this. |
+| | **Not weakened.** The delivery check now has two parts:<br>• *Server sent the best encoding offered* (D-031): should pass.<br>• *Brotli geometry on the wire, ≤ 3 MiB* (D-024): stays failing whenever gzip arrives.<br>In Chrome both pass (offer `gzip, deflate, br, zstd`; 2.84 MiB `br`). |
 | Firefox | Not installed; the same page works there. |
 
 ## 8. Known limitations and follow-ups
 
-- **Safari** is unmeasured until the manual run (§7).
+- **Safari** has not had the benchmark or the checklist run, and over plain HTTP it receives 17.24 MiB of gzip instead of 2.84 MiB of brotli (§7). Production hosting over HTTPS is expected to give Safari brotli. That expectation is unverified until Safari is tested over HTTPS, which needs a certificate it trusts (a keychain trust change, your decision).
 - **Label spines** and on-map names wait for 1.6. Names appear on hover, in the card and in the core sample.
 - **Era bands** (PeriodO) need that source; it is not yet registered.
 - **Fuzzy dates and per-territory confidence** do not exist in Cliopatria. The card says so instead of inventing them.

@@ -1,0 +1,246 @@
+{
+ "build": "production (vite preview)",
+ "steps": [
+  "load",
+  {
+   "uploads": [
+    "control: no interaction: {}",
+    "year change (117 -> 118 -> 117): {\"other\":7392}",
+    "hover over a territory: {\"other\":2464}",
+    "hover again elsewhere: {\"other\":2464}",
+    "select the Roman Empire (adds its outline): {\"other\":47532}",
+    "deselect: {\"other\":4928}"
+   ]
+  },
+  {
+   "claimants": [
+    "#t=420&c=66.000,37.000,3.80: 1020/1020 agree (39 on shared ground)",
+    "#t=-499&c=118.000,32.000,4.20: 1020/1020 agree (14 on shared ground)",
+    "#t=1500&c=10.000,48.000,4.00: 1020/1020 agree (6 on shared ground)"
+   ]
+  },
+  {
+   "select": "Roman Empire",
+   "p": null
+  },
+  "overlap",
+  {
+   "sample": 24
+  },
+  "flat",
+  {
+   "dissolve": {
+    "mid": false,
+    "done": [
+     true,
+     1600
+    ]
+   }
+  }
+ ],
+ "errors": [],
+ "warnings": [],
+ "load": {
+  "readyMs": 658,
+  "timings": {
+   "metaMs": 7.899999998509884,
+   "fetchMs": 88.20000000298023,
+   "verifyMs": 52.19999999552965,
+   "decodeMs": 93.70000000298023,
+   "attributesMs": 23.799999997019768,
+   "totalMs": 265.79999999701977,
+   "assembleMs": 0.09999999403953552,
+   "engineDataReadyMs": 300
+  },
+  "wallMs": 876,
+  "responses": [
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/catalog.a36f5adb1684.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   },
+   {
+    "url": "/bundle.json",
+    "status": 200,
+    "encoding": "br",
+    "cache": "no-cache"
+   },
+   {
+    "url": "/geometry.9a5f93099964.bin",
+    "status": 200,
+    "encoding": "br",
+    "cache": "public, max-age=31536000, immutable"
+   }
+  ]
+ },
+ "uploads": {
+  "initialBytes": {
+   "total": 137677438,
+   "by": {
+    "other": 137677438
+   }
+  },
+  "changes": [
+   {
+    "label": "control: no interaction",
+    "bytes": 0,
+    "by": {}
+   },
+   {
+    "label": "year change (117 -> 118 -> 117)",
+    "bytes": 7392,
+    "by": {
+     "other": 7392
+    }
+   },
+   {
+    "label": "hover over a territory",
+    "bytes": 2464,
+    "by": {
+     "other": 2464
+    }
+   },
+   {
+    "label": "hover again elsewhere",
+    "bytes": 2464,
+    "by": {
+     "other": 2464
+    }
+   },
+   {
+    "label": "select the Roman Empire (adds its outline)",
+    "bytes": 47532,
+    "by": {
+     "other": 47532
+    }
+   },
+   {
+    "label": "deselect",
+    "bytes": 4928,
+    "by": {
+     "other": 4928
+    }
+   }
+  ]
+ },
+ "claimants": [
+  {
+   "view": "#t=420&c=66.000,37.000,3.80",
+   "points": 1020,
+   "agree": 1020,
+   "sharedPoints": 39,
+   "mismatches": []
+  },
+  {
+   "view": "#t=-499&c=118.000,32.000,4.20",
+   "points": 1020,
+   "agree": 1020,
+   "sharedPoints": 14,
+   "mismatches": []
+  },
+  {
+   "view": "#t=1500&c=10.000,48.000,4.00",
+   "points": 1020,
+   "agree": 1020,
+   "sharedPoints": 6,
+   "mismatches": []
+  }
+ ]
+}
