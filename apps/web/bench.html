@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CHRONOS engine benchmark</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0d1014; color: #e9e2d2; font: 13px/1.4 ui-monospace, Menlo, monospace; }
+    #map { position: absolute; inset: 0; }
+    #bar { position: absolute; left: 0; right: 0; top: 0; z-index: 2; display: flex; gap: 12px; align-items: center; padding: 8px 12px; background: rgba(13,16,20,.85); }
+    #status { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #year { width: 320px; }
+    #out { position: absolute; right: 8px; top: 44px; bottom: 8px; width: 380px; z-index: 2; margin: 0; overflow: auto; font-size: 11px; background: rgba(13,16,20,.85); white-space: pre-wrap; }
+    #out:empty { display: none; }
+    button { font: inherit; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="bar">
+    <span id="status">starting ...</span>
+    <input id="year" type="range" step="1" aria-label="Year">
+    <span id="yeartext"></span>
+    <button id="run" type="button">Run benchmark</button>
+  </div>
+  <pre id="out"></pre>
+  <script type="module" src="/src/bench/main.ts"></script>
+</body>
+</html>
