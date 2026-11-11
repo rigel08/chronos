@@ -25,6 +25,11 @@ qa:
 render:
   simplify_deg: 0.0                  # D-017: Cliopatria is already atlas-scale; render full resolution
   grid_split_deg: 5.0                # keeps triangles small enough to follow the globe's curvature
+  # QA-013: every part is triangulated in the pipeline (D-021). The area the triangles draw must match the
+  # polygon (Web Mercator plane). Judged in absolute km2 so near-zero slivers do not drown real defects:
+  # above warn the part is reported, above error the build stops.
+  triangulation_warn_km2: 0.01
+  triangulation_error_km2: 1.0
 
 testpoints:                          # ground truth for the renderer's pick-accuracy benchmark
   seed: 20261111
