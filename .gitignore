@@ -14,3 +14,4 @@ apps/web/dist/
 .claude/
 apps/web/.cert/
 apps/web/bench/out/
+/build/
