@@ -2,6 +2,12 @@
 
 An interactive atlas of human history: a globe you travel through in time. Real, sourced polity territories rise and fall from 3400 BCE to today. Click anywhere on Earth to see every power that held that ground.
 
+**[Open the live atlas →](https://chronos-atlas-phi.vercel.app/)**
+
+![CHRONOS: the Roman Empire and its neighbours in 117 CE on the Strata globe, with the timeline below](docs/img/hero.jpg)
+
+1,637 polities and 12,064 dated territories from Cliopatria, verified against the build's checksum before drawing and rendered at 60 fps (p95 frame time 16.7 ms on an Apple M2, [report 004](docs/spikes/004-first-usable-slice.md)).
+
 > **Status: milestone 1.3, the first usable slice.** Open the app and you get:
 > - the Strata globe on a Nocturne stage;
 > - a BCE/CE timeline from 3400 BCE to 2024 CE;
@@ -28,6 +34,8 @@ pnpm --dir apps/web dev     # the app at http://localhost:5174 (needs `make data
 - Revalidate `bundle.json`, `trace.json` and `attributions.json`.
 
 The dev and preview servers already do this (`apps/web/vite.config.ts`).
+
+**The live demo** is a static site on Vercel. `infra/vercel/stage.sh` copies the web build and the public bundle into one folder, shipping the geometry as its brotli copy (46 MB raw, 3 MB compressed); `infra/vercel/vercel.json` labels it `Content-Encoding: br` and sets the caching rules above. Then `vercel deploy --prod` from that folder.
 
 **Checking another browser.** Open `http://localhost:5174/compat.html` in it while the dev server runs. The page runs automatic checks and the benchmark protocol, takes your observations, and saves a record to `docs/compat/` ([how](docs/compat/README.md)).
 
